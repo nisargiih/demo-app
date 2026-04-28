@@ -252,7 +252,7 @@ const CertificatePreview = ({
       <div 
         ref={isFinal ? previewRef : null}
         id={isFinal ? "final-canvas" : "certificate-canvas"}
-        className={`bg-white relative border-zinc-200 shrink-0 ${fontClass}`}
+        className={`bg-white relative border-zinc-200 shrink-0 overflow-hidden ${fontClass}`}
         style={{ 
           width: `${BASE_WIDTH}px`, 
           height: `${BASE_HEIGHT}px`,
@@ -535,6 +535,14 @@ export default function GeneratePage() {
 
   // --- Effects ---
 
+  const handleNewTemplate = () => {
+    if (confirm('Initialize new blueprint protocol? Current unsaved state will be purged.')) {
+      setCurrentTemplate({ ...DEFAULT_TEMPLATE, _id: undefined });
+      setSelectedElementId(null);
+      notify('New blueprint environment ready.');
+    }
+  };
+
   useEffect(() => {
     const init = async () => {
       await fetchTemplates();
@@ -764,14 +772,23 @@ export default function GeneratePage() {
                       <Settings2 className="w-4 h-4 text-trust-green" />
                       BLUEPRINT
                     </h3>
-                    <button 
-                      onClick={handleSaveTemplate}
-                      disabled={isLoading}
-                      className="h-8 px-4 bg-zinc-950 text-white rounded-lg font-display font-extrabold text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 disabled:opacity-50"
-                    >
-                      {isLoading ? 'SYNCING...' : 'SAVE'}
-                      <Save className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={handleNewTemplate}
+                        className="h-8 w-8 bg-zinc-100 text-zinc-900 rounded-lg flex items-center justify-center hover:bg-zinc-200 transition-colors"
+                        title="New Blueprint"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={handleSaveTemplate}
+                        disabled={isLoading}
+                        className="h-8 px-4 bg-zinc-950 text-white rounded-lg font-display font-extrabold text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 disabled:opacity-50"
+                      >
+                        {isLoading ? 'SYNCING...' : 'SAVE'}
+                        <Save className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-4">
@@ -1226,7 +1243,7 @@ export default function GeneratePage() {
                    AUTHENTICATION VIEW
                  </h3>
                  
-                 <div className="w-full flex-1 flex items-center justify-center bg-zinc-50 rounded-[4rem] border border-zinc-100 p-8 overflow-hidden">
+                <div className="w-full flex-1 min-h-[400px] flex items-center justify-center bg-zinc-50 rounded-[4rem] border border-zinc-100 p-12 overflow-auto custom-scrollbar text-zinc-950">
                     <motion.div 
                        layoutId="final-preview-card"
                        className="shrink-0"
