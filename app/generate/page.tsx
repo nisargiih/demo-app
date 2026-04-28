@@ -29,7 +29,11 @@ import {
   Clock,
   History,
   FileDown,
-  ExternalLink
+  ExternalLink,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minus,
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -233,19 +237,29 @@ const CertificatePreview = ({
 
   // The canvas should always think it is 1000px wide for pixel-perfect positioning
   const BASE_WIDTH = 1000;
+  const BASE_HEIGHT = 707.2;
+  const actualScale = scale || 1;
 
   return (
-    <div className="relative w-full flex justify-center items-center overflow-hidden bg-zinc-900/5 rounded-3xl" style={{ height: editing ? '600px' : 'auto' }}>
+    <div 
+      className={`relative shrink-0 ${editing ? 'shadow-2xl' : ''}`}
+      style={{ 
+        width: `${BASE_WIDTH * actualScale}px`, 
+        height: `${BASE_HEIGHT * actualScale}px`,
+        transition: 'width 0.2s ease-out, height 0.2s ease-out'
+      }}
+    >
       <div 
         ref={isFinal ? previewRef : null}
-        id="certificate-canvas"
-        className={`bg-white relative shadow-2xl border-zinc-200 origin-center shrink-0 ${fontClass}`}
+        id={isFinal ? "final-canvas" : "certificate-canvas"}
+        className={`bg-white relative border-zinc-200 shrink-0 ${fontClass}`}
         style={{ 
           width: `${BASE_WIDTH}px`, 
-          aspectRatio: '1.414/1',
+          height: `${BASE_HEIGHT}px`,
           padding: '80px', 
-          border: `20px solid ${template.primaryColor}20`,
-          transform: `scale(${scale || 1})`,
+          border: editing ? `16px solid ${template.primaryColor}20` : 'none',
+          transform: `scale(${actualScale})`,
+          transformOrigin: 'top left',
         }}
         onClick={() => onElementSelect?.(null)}
       >
@@ -432,19 +446,37 @@ export default function GeneratePage() {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const selectedElement = currentTemplate.elements?.find(el => el.id === selectedElementId);
   const [previewScale, setPreviewScale] = useState(0.6);
+  const [isAutoFit, setIsAutoFit] = useState(true);
+
+  const updateScale = useCallback(() => {
+    if (!isAutoFit) return;
+    const container = document.getElementById('canvas-workbench');
+    if (container) {
+      const padding = 80;
+      const availableWidth = container.offsetWidth - padding;
+      const availableHeight = container.offsetHeight - padding;
+      
+      const scaleX = availableWidth / 1000;
+      const scaleY = availableHeight / 707.2; // 1000 / 1.414
+      
+      setPreviewScale(Math.min(scaleX, scaleY, 1)); // Max scale 1 for auto-fit
+    }
+  }, [isAutoFit]);
 
   useEffect(() => {
-    const updateScale = () => {
-      const container = document.getElementById('preview-container');
-      if (container) {
-        const scale = (container.offsetWidth - 48) / 1000;
-        setPreviewScale(Math.min(scale, 0.8));
-      }
-    };
     updateScale();
+    const timer = setTimeout(updateScale, 100); // Small delay to ensure layout is ready
     window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
+    return () => {
+      window.removeEventListener('resize', updateScale);
+      clearTimeout(timer);
+    };
+  }, [updateScale, activeTab]); // Re-calculate on tab change too
+
+  const resetScale = () => {
+    setIsAutoFit(true);
+    setTimeout(updateScale, 0);
+  };
 
   // --- Fetching & Persistence ---
 
@@ -723,423 +755,368 @@ export default function GeneratePage() {
 
         <div className="grid grid-cols-1 gap-12">
           {activeTab === 'create' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-              {/* Creator Controls (Left) */}
-              <div className="lg:col-span-5 space-y-8">
-                <section className="bg-zinc-50/50 border border-zinc-100 rounded-[2.5rem] p-8 space-y-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-display font-black text-xl text-zinc-900 flex items-center gap-3">
-                      <Layout className="w-5 h-5 text-zinc-400" />
-                      BUILDER
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 h-[calc(100vh-16rem)] min-h-[700px]">
+              {/* 1. Global Controls (Left) */}
+              <div className="xl:col-span-3 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                <section className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display font-black text-sm text-zinc-900 flex items-center gap-2">
+                      <Settings2 className="w-4 h-4 text-trust-green" />
+                      BLUEPRINT
                     </h3>
                     <button 
                       onClick={handleSaveTemplate}
                       disabled={isLoading}
-                      className="h-10 px-6 bg-zinc-950 text-white rounded-xl font-display font-extrabold text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-200 disabled:opacity-50"
+                      className="h-8 px-4 bg-zinc-950 text-white rounded-lg font-display font-extrabold text-[9px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 disabled:opacity-50"
                     >
-                      {isLoading ? 'SYNCING...' : 'SAVE DRAFT'}
-                      <Save className="w-3.5 h-3.5" />
+                      {isLoading ? 'SYNCING...' : 'SAVE'}
+                      <Save className="w-3 h-3" />
                     </button>
                   </div>
 
-                  {/* General Config */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                       <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-[0.2em] px-1">Template Name</label>
+                  <div className="space-y-4">
+                    <div className="space-y-1.5">
+                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-1">Identity</label>
                        <input 
                          type="text"
                          value={currentTemplate.name}
                          onChange={(e) => setCurrentTemplate({...currentTemplate, name: e.target.value})}
-                         className="w-full h-14 px-5 bg-white border border-zinc-100 rounded-2xl font-display font-bold text-sm focus:outline-none focus:border-trust-green shadow-sm text-zinc-900"
-                         placeholder="Modern Certificate A"
+                         className="w-full h-11 px-4 bg-white border border-zinc-100 rounded-xl font-display font-bold text-xs focus:ring-1 focus:ring-trust-green focus:outline-none"
+                         placeholder="Template Name"
                        />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest px-1">Major Header</label>
-                          <input 
-                            type="text"
-                            value={currentTemplate.title}
-                            onChange={(e) => setCurrentTemplate({...currentTemplate, title: e.target.value})}
-                            className="w-full h-12 px-4 bg-white border border-zinc-100 rounded-xl font-display font-bold text-xs"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest px-1">Organization</label>
-                          <input 
-                            type="text"
-                            value={currentTemplate.companyName}
-                            onChange={(e) => setCurrentTemplate({...currentTemplate, companyName: e.target.value})}
-                            className="w-full h-12 px-4 bg-white border border-zinc-100 rounded-xl font-display font-bold text-xs"
-                          />
-                        </div>
+                    <div className="space-y-1.5">
+                      <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-1">Major Header</label>
+                      <input 
+                        type="text"
+                        value={currentTemplate.title}
+                        onChange={(e) => setCurrentTemplate({...currentTemplate, title: e.target.value})}
+                        className="w-full h-11 px-4 bg-white border border-zinc-100 rounded-xl font-display font-bold text-xs"
+                      />
                     </div>
 
+                    <div className="space-y-1.5">
+                      <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-1">Organization</label>
+                      <input 
+                        type="text"
+                        value={currentTemplate.companyName}
+                        onChange={(e) => setCurrentTemplate({...currentTemplate, companyName: e.target.value})}
+                        className="w-full h-11 px-4 bg-white border border-zinc-100 rounded-xl font-display font-bold text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-zinc-100 grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest px-1">Body Protocol (Use placeholders)</label>
-                        <textarea 
-                          rows={4}
-                          value={currentTemplate.bodyText}
-                          onChange={(e) => setCurrentTemplate({...currentTemplate, bodyText: e.target.value})}
-                          className="w-full p-4 bg-white border border-zinc-100 rounded-2xl font-sans text-xs text-zinc-600 focus:outline-none focus:border-trust-green shadow-sm resize-none"
-                        />
-                         <div className="flex flex-wrap gap-2 pt-2">
-                            {['recipient_name', 'description', 'issue_date', 'expiry_date', 'certificate_id'].map(p => (
-                              <button key={p} className="px-3 py-1.5 bg-zinc-100 border border-zinc-200 rounded-lg font-mono text-[8px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase">
-                                {'{{'}{p}{'}}'}
-                              </button>
-                            ))}
-                         </div>
+                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Brand Ink</label>
+                       <div className="flex items-center gap-2">
+                         <input 
+                           type="color" 
+                           value={currentTemplate.primaryColor}
+                           onChange={(e) => setCurrentTemplate({...currentTemplate, primaryColor: e.target.value})}
+                           className="w-8 h-8 rounded-lg cursor-pointer border-none p-0 overflow-hidden bg-transparent"
+                         />
+                         <span className="font-mono text-[9px] font-bold text-zinc-900">{currentTemplate.primaryColor}</span>
+                       </div>
                     </div>
-                  </div>
-
-                  {/* Visuals */}
-                  <div className="pt-8 border-t border-zinc-100 space-y-6">
-                     <h4 className="font-mono text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Visual Parameters</h4>
-                     
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Brand Ink</label>
-                          <div className="flex items-center gap-3">
-                            <input 
-                              type="color" 
-                              value={currentTemplate.primaryColor}
-                              onChange={(e) => setCurrentTemplate({...currentTemplate, primaryColor: e.target.value})}
-                              className="w-12 h-12 rounded-xl cursor-pointer border-none p-0 overflow-hidden"
-                            />
-                            <span className="font-mono text-[10px] font-bold text-zinc-900">{currentTemplate.primaryColor.toUpperCase()}</span>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <label className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Typography</label>
-                          <select 
-                            value={currentTemplate.fontFamily}
-                            onChange={(e) => setCurrentTemplate({...currentTemplate, fontFamily: e.target.value as any})}
-                            className="w-full h-12 px-4 bg-white border border-zinc-100 rounded-xl font-display font-extrabold text-[10px] uppercase tracking-widest"
-                          >
-                            <option value="serif">Classic Serif</option>
-                            <option value="sans">Modern Sans</option>
-                            <option value="mono">Technical Mono</option>
-                          </select>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-3 gap-3">
-                        {['classic', 'modern', 'minimal'].map(l => (
-                          <button
-                            key={l}
-                            onClick={() => setCurrentTemplate({...currentTemplate, layout: l as any})}
-                            className={`h-11 rounded-xl font-display font-extrabold text-[9px] uppercase tracking-widest transition-all ${
-                              currentTemplate.layout === l ? 'bg-zinc-950 text-white shadow-lg' : 'bg-white border border-zinc-100 text-zinc-400 hover:border-zinc-300'
-                            }`}
-                          >
-                            {l}
-                          </button>
-                        ))}
-                     </div>
-                  </div>
-
-                  {/* Asset Manager */}
-                  <div className="pt-8 border-t border-zinc-100 space-y-6">
-                    <h4 className="font-mono text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Asset Protocol</h4>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { id: 'logo', icon: ImageIcon, label: 'Logo' },
-                        { id: 'signature', icon: PenTool, label: 'Sign' },
-                        { id: 'stamp', icon: Stamp, label: 'Stamp' }
-                      ].map((asset) => (
-                        <div key={asset.id} className="relative group p-4 bg-white border border-zinc-100 rounded-2xl hover:border-trust-green/20 transition-all">
-                          <input 
-                            type="file" 
-                            onChange={(e) => handleAssetUpload(asset.id as any, e)}
-                            className="absolute inset-0 opacity-0 cursor-pointer z-10" 
-                          />
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <asset.icon className="w-4 h-4 text-zinc-400" />
-                              <span className="font-display font-bold text-xs text-zinc-900">{asset.label}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {(currentTemplate.assets as any)[asset.id] && (
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); addAssetToCanvas(asset.id as any); }}
-                                  className="relative z-20 p-1.5 bg-zinc-900 text-white rounded-lg hover:bg-trust-green transition-colors"
-                                  title="Add to Canvas"
-                                >
-                                  <Plus className="w-3 h-3" />
-                                </button>
-                              )}
-                              {(currentTemplate.assets as any)[asset.id] && <CheckCircle2 className="w-4 h-4 text-trust-green" />}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="space-y-2">
+                      <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Typography</label>
+                      <select 
+                        value={currentTemplate.fontFamily}
+                        onChange={(e) => setCurrentTemplate({...currentTemplate, fontFamily: e.target.value as any})}
+                        className="w-full h-8 px-2 bg-white border border-zinc-100 rounded-lg font-display font-bold text-[10px]"
+                      >
+                        <option value="serif">Serif</option>
+                        <option value="sans">Sans</option>
+                        <option value="mono">Mono</option>
+                      </select>
                     </div>
                   </div>
                 </section>
+
+                <section className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-6">
+                  <h4 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    ASSET BANK
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3">
+                    {[
+                      { id: 'logo', icon: ImageIcon, label: 'Logo' },
+                      { id: 'signature', icon: PenTool, label: 'Sign' },
+                      { id: 'stamp', icon: Stamp, label: 'Stamp' }
+                    ].map((asset) => (
+                      <div key={asset.id} className="relative group p-3 bg-white border border-zinc-100 rounded-xl hover:border-trust-green/20 transition-all flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <asset.icon className="w-3.5 h-3.5 text-zinc-400" />
+                          <span className="font-display font-bold text-[11px] text-zinc-900">{asset.label}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {(currentTemplate.assets as any)[asset.id] ? (
+                            <button 
+                              onClick={() => addAssetToCanvas(asset.id as any)}
+                              className="p-1 px-2.5 bg-zinc-950 text-white rounded-md hover:bg-trust-green transition-colors font-mono text-[9px] font-bold"
+                            >
+                              ADD
+                            </button>
+                          ) : (
+                            <label className="p-1 px-2.5 bg-zinc-100 text-zinc-400 rounded-md hover:bg-zinc-200 cursor-pointer font-mono text-[9px] font-bold">
+                              UP
+                              <input type="file" onChange={(e) => handleAssetUpload(asset.id as any, e)} className="hidden" />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <div className="p-6 bg-zinc-50 border border-zinc-100 rounded-[2rem]">
+                  <h4 className="font-display font-bold text-xs text-zinc-950 mb-4 flex items-center gap-2">
+                    <History className="w-4 h-4 text-zinc-400" />
+                    ARCHIVE
+                  </h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                    {savedTemplates.map((t) => (
+                      <div 
+                        key={t._id} 
+                        onClick={() => setCurrentTemplate(t)}
+                        className={`p-3 border rounded-xl flex items-center justify-between cursor-pointer transition-all ${currentTemplate._id === t._id ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-100'}`}
+                      >
+                        <span className="font-display font-bold text-[10px] truncate pr-2">{t.name}</span>
+                        <Trash2 
+                          className="w-3 h-3 text-zinc-400 hover:text-red-500" 
+                          onClick={(e) => handleDeleteTemplate(t._id!, e)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Creator Preview (Right) */}
-              <div className="lg:col-span-7 space-y-8">
-                 <div className="sticky top-20">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-display font-black text-xl text-zinc-950 flex items-center gap-3">
-                        <Eye className="w-5 h-5 text-zinc-400" />
-                        LIVESTREAM PREVIEW
-                      </h3>
+              {/* 2. Main Workbench (Center) */}
+              <div className="xl:col-span-6 flex flex-col gap-4">
+                {/* Workbench Toolbar */}
+                <div className="flex items-center justify-between px-6 h-14 bg-zinc-900 text-white rounded-2xl shadow-xl">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
+                      <span className="font-mono text-[10px] font-bold text-white/50 tracking-widest uppercase">Live Workbench</span>
+                    </div>
+                    <div className="h-4 w-px bg-white/10" />
+                    <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg">
+                      <button 
+                        onClick={() => addElement('text')} 
+                        className="p-1.5 hover:bg-white/10 text-white transition-colors rounded-md"
+                        title="Add Text"
+                      >
+                        <Type className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => addElement('image')} 
+                        className="p-1.5 hover:bg-white/10 text-white transition-colors rounded-md"
+                        title="Add Image"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => addElement('shape')} 
+                        className="p-1.5 hover:bg-white/10 text-white transition-colors rounded-md"
+                        title="Add Shape"
+                      >
+                        <Layout className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
+                      <button 
+                        onClick={() => { setIsAutoFit(false); setPreviewScale(s => Math.max(0.1, s - 0.1)); }}
+                        className="p-1 hover:text-trust-green transition-colors"
+                      >
+                        <ZoomOut className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="font-mono text-[10px] font-bold w-12 text-center text-white/70">
+                        {Math.round(previewScale * 100)}%
+                      </span>
+                      <button 
+                        onClick={() => { setIsAutoFit(false); setPreviewScale(s => Math.min(2, s + 0.1)); }}
+                        className="p-1 hover:text-trust-green transition-colors"
+                      >
+                        <ZoomIn className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="w-px h-3 bg-white/10 mx-1" />
+                      <button 
+                        onClick={resetScale}
+                        className={`p-1 hover:text-trust-green transition-colors ${isAutoFit ? 'text-trust-green' : 'text-white/40'}`}
+                        title="Fit to Screen"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Canvas Container */}
+                <div 
+                  id="canvas-workbench" 
+                  className="flex-1 bg-zinc-950 rounded-[3rem] shadow-inner relative overflow-hidden group"
+                >
+                  {/* Checkerboard Backdrop */}
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                  
+                  <div className="absolute inset-0 flex items-center justify-center overflow-auto custom-scrollbar p-12">
+                    <CertificatePreview 
+                      template={currentTemplate} 
+                      data={issuance} 
+                      previewRef={previewRef}
+                      editing={true}
+                      onElementUpdate={(els) => setCurrentTemplate({...currentTemplate, elements: els})}
+                      selectedElementId={selectedElementId}
+                      onElementSelect={setSelectedElementId}
+                      scale={previewScale}
+                    />
+                  </div>
+
+                  {/* Corner Label */}
+                  <div className="absolute bottom-6 right-8 pointer-events-none">
+                     <span className="font-mono text-[8px] font-bold text-white/20 tracking-[0.4em] uppercase">Vector Core v2.0 | Encrypted Canvas</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Object Parameters (Right) */}
+              <div className="xl:col-span-3 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                {selectedElement ? (
+                  <section className="bg-white border border-zinc-100 rounded-[2rem] p-6 shadow-xl shadow-zinc-200/50 space-y-6">
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+                      <h4 className="font-display font-black text-xs text-zinc-900 flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-trust-green" />
+                        PROPERTIES
+                      </h4>
                       <div className="flex items-center gap-2">
-                         <div className="w-2.5 h-2.5 bg-trust-green rounded-full animate-pulse shadow-[0_0_12px_rgba(16,185,129,1)]" />
-                         <span className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-[0.1em]">Encrypted Stream</span>
+                        <button onClick={() => updateElement(selectedElement.id, { style: { ...selectedElement.style, zIndex: (selectedElement.style.zIndex || 1) + 1 }})} className="p-1.5 hover:bg-zinc-100 rounded">
+                           <Plus className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] font-bold text-zinc-400">LAYER {selectedElement.style.zIndex}</span>
+                        <button onClick={() => updateElement(selectedElement.id, { style: { ...selectedElement.style, zIndex: Math.max(0, (selectedElement.style.zIndex || 1) - 1) }})} className="p-1.5 hover:bg-zinc-100 rounded">
+                           <Minus className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Advanced Layer Protocol */}
-                    <div className="pt-8 border-t border-zinc-100 space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-mono text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Layer Protocol</h4>
-                        <div className="flex gap-2">
-                           <button onClick={() => addElement('text')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
-                              <Type className="w-4 h-4" />
-                           </button>
-                           <button onClick={() => addElement('image')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
-                              <ImageIcon className="w-4 h-4" />
-                           </button>
-                           <button onClick={() => addElement('shape')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
-                              <Layout className="w-4 h-4" />
-                           </button>
-                        </div>
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-1">Raw Content</label>
+                        <textarea 
+                          value={selectedElement.content}
+                          onChange={(e) => updateElement(selectedElement.id, { content: e.target.value })}
+                          className="w-full p-3 bg-zinc-50 border border-zinc-100 rounded-xl font-sans text-[11px] text-zinc-900 focus:outline-none focus:ring-1 focus:ring-trust-green h-24 resize-none"
+                        />
                       </div>
 
-                      <div className="space-y-3">
-                        {currentTemplate.elements?.map(el => (
-                          <div 
-                            key={el.id}
-                            onClick={() => setSelectedElementId(el.id)}
-                            className={`p-3 border rounded-xl flex items-center justify-between cursor-pointer transition-all ${selectedElementId === el.id ? 'bg-zinc-950 border-zinc-950 text-white' : 'bg-white border-zinc-100 text-zinc-600 hover:border-zinc-300'}`}
-                          >
-                            <div className="flex items-center gap-3">
-                               {el.type === 'text' && <Type className="w-3.5 h-3.5" />}
-                               {el.type === 'image' && <ImageIcon className="w-3.5 h-3.5" />}
-                               {el.type === 'shape' && <Layout className="w-3.5 h-3.5" />}
-                               <span className="font-mono text-[9px] font-bold uppercase truncate max-w-[120px]">
-                                 {el.content.length > 20 ? el.content.substring(0, 20) + '...' : el.content}
-                               </span>
-                            </div>
-                            <button 
-                              onClick={(e) => { e.stopPropagation(); removeElement(el.id); }}
-                              className="text-zinc-400 hover:text-red-500 transition-colors"
-                            >
-                               <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                      {selectedElement.type === 'text' && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Size</label>
+                            <input 
+                              type="number"
+                              value={selectedElement.style.fontSize}
+                              onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, fontSize: parseInt(e.target.value) }})}
+                              className="w-full h-9 px-3 bg-zinc-50 border border-zinc-100 rounded-lg font-mono text-xs"
+                            />
                           </div>
-                        ))}
-                      </div>
-
-                      {selectedElement && (
-                        <div className="p-6 bg-zinc-100/50 rounded-3xl space-y-6">
-                           <h5 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-widest border-b border-zinc-200 pb-3 italic">Object Parameters</h5>
-                           
-                           <div className="space-y-4">
-                              <div className="space-y-2">
-                                <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Content/Source</label>
-                                <textarea 
-                                  value={selectedElement.content}
-                                  onChange={(e) => updateElement(selectedElement.id, { content: e.target.value })}
-                                  className="w-full p-3 bg-white border border-zinc-200 rounded-lg font-sans text-[10px] text-zinc-900 focus:outline-none"
-                                  rows={selectedElement.type === 'text' ? 3 : 1}
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                 {selectedElement.type === 'text' && (
-                                   <>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Font Size</label>
-                                       <input 
-                                         type="number"
-                                         value={selectedElement.style.fontSize}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, fontSize: parseInt(e.target.value) }})}
-                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                       />
-                                     </div>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Ink Color</label>
-                                       <input 
-                                         type="color"
-                                         value={selectedElement.style.color}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, color: e.target.value }})}
-                                         className="w-full h-10 p-1 bg-white border border-zinc-200 rounded-lg cursor-pointer"
-                                       />
-                                     </div>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Weight</label>
-                                       <select 
-                                         value={selectedElement.style.fontWeight}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, fontWeight: e.target.value }})}
-                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                       >
-                                         <option value="400">Regular</option>
-                                         <option value="600">Semibold</option>
-                                         <option value="700">Bold</option>
-                                         <option value="900">Black/Heavy</option>
-                                       </select>
-                                     </div>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Alignment</label>
-                                       <select 
-                                         value={selectedElement.style.textAlign}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, textAlign: e.target.value as any }})}
-                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                       >
-                                         <option value="left">Left</option>
-                                         <option value="center">Center</option>
-                                         <option value="right">Right</option>
-                                       </select>
-                                     </div>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Spacing</label>
-                                       <input 
-                                         type="text"
-                                         placeholder="0.1em"
-                                         value={selectedElement.style.letterSpacing}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, letterSpacing: e.target.value }})}
-                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                       />
-                                     </div>
-                                     <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Leading</label>
-                                       <input 
-                                         type="text"
-                                         placeholder="1.2"
-                                         value={selectedElement.style.lineHeight}
-                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, lineHeight: e.target.value }})}
-                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                       />
-                                     </div>
-                                   </>
-                                 )}
-                                 
-                                 <div className="space-y-2">
-                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Layer</label>
-                                   <input 
-                                     type="number"
-                                     value={selectedElement.style.zIndex}
-                                     onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, zIndex: parseInt(e.target.value) }})}
-                                     className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                   />
-                                 </div>
-
-                                 <div className="space-y-2">
-                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Opacity</label>
-                                   <input 
-                                     type="number"
-                                     step="0.1"
-                                     min="0"
-                                     max="1"
-                                     value={selectedElement.style.opacity ?? 1}
-                                     onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, opacity: parseFloat(e.target.value) }})}
-                                     className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                   />
-                                 </div>
-
-                                 {selectedElement.type === 'shape' && (
-                                   <>
-                                      <div className="space-y-2">
-                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Fill Color</label>
-                                        <input 
-                                          type="color"
-                                          value={selectedElement.style.color}
-                                          onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, color: e.target.value }})}
-                                          className="w-full h-10 p-1 bg-white border border-zinc-200 rounded-lg cursor-pointer"
-                                        />
-                                      </div>
-                                      <div className="space-y-2">
-                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Radius</label>
-                                        <input 
-                                          type="text"
-                                          placeholder="10px"
-                                          value={selectedElement.style.borderRadius}
-                                          onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, borderRadius: e.target.value }})}
-                                          className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
-                                        />
-                                      </div>
-                                   </>
-                                 )}
-                              </div>
-                              
-                              <div className="flex gap-2 pt-2">
-                                <button 
-                                  onClick={() => updateElement(selectedElement.id, { x: 500 - (typeof selectedElement.width === 'number' ? selectedElement.width / 2 : 0) })}
-                                  className="flex-1 h-9 bg-zinc-950 text-white rounded-lg font-mono text-[8px] font-bold uppercase tracking-widest hover:bg-zinc-800"
-                                >
-                                  Center Horizontally
-                                </button>
-                              </div>
-                           </div>
+                          <div className="space-y-1.5">
+                            <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Color</label>
+                            <input 
+                              type="color"
+                              value={selectedElement.style.color}
+                              onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, color: e.target.value }})}
+                              className="w-full h-9 p-1 bg-zinc-50 border border-zinc-100 rounded-lg cursor-pointer"
+                            />
+                          </div>
                         </div>
                       )}
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Opacity</label>
+                          <input 
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="1"
+                            value={selectedElement.style.opacity ?? 1}
+                            onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, opacity: parseFloat(e.target.value) }})}
+                            className="w-full h-9 px-3 bg-zinc-50 border border-zinc-100 rounded-lg font-mono text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Radius</label>
+                          <input 
+                            type="text"
+                            placeholder="0px"
+                            value={selectedElement.style.borderRadius}
+                            onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, borderRadius: e.target.value }})}
+                            className="w-full h-9 px-3 bg-zinc-50 border border-zinc-100 rounded-lg font-mono text-xs"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div id="preview-container" className="bg-zinc-950 p-4 sm:p-8 rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] flex justify-center items-center overflow-hidden h-[650px]">
-                       <CertificatePreview 
-                          template={currentTemplate} 
-                          data={issuance} 
-                          previewRef={previewRef}
-                          editing={true}
-                          onElementUpdate={(els) => setCurrentTemplate({...currentTemplate, elements: els})}
-                          selectedElementId={selectedElementId}
-                          onElementSelect={setSelectedElementId}
-                          scale={previewScale}
-                       />
+                    <div className="pt-4 flex flex-col gap-2">
+                       <button 
+                        onClick={() => updateElement(selectedElement.id, { x: 500 - (typeof selectedElement.width === 'number' ? selectedElement.width / 2 : 0) })}
+                        className="w-full h-10 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all"
+                      >
+                        Center Component
+                      </button>
+                      <button 
+                        onClick={() => removeElement(selectedElement.id)}
+                        className="w-full h-10 border border-red-100 text-red-500 rounded-xl font-display font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Purge Object
+                      </button>
                     </div>
-
-                    <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div className="p-8 bg-zinc-50 border border-zinc-100 rounded-[2.5rem]">
-                          <h4 className="font-display font-bold text-zinc-950 mb-4 flex items-center gap-2">
-                             <Copy className="w-4 h-4 text-zinc-400" />
-                             Saved Blueprints
-                          </h4>
-                          <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                            {savedTemplates.length > 0 ? savedTemplates.map((t) => (
-                              <div 
-                                key={t._id} 
-                                onClick={() => setCurrentTemplate(t)}
-                                className="group p-4 bg-white border border-zinc-100 rounded-2xl hover:border-trust-green/20 hover:shadow-xl cursor-pointer transition-all flex items-center justify-between"
-                              >
-                                <div>
-                                  <p className="font-display font-bold text-xs text-zinc-900 group-hover:text-trust-green transition-colors">{t.name}</p>
-                                  <p className="font-mono text-[8px] text-zinc-400 uppercase mt-1">ID: {t._id?.slice(-8)}</p>
-                                </div>
-                                <button 
-                                  onClick={(e) => handleDeleteTemplate(t._id!, e)}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            )) : (
-                              <p className="font-sans text-[10px] text-zinc-400 py-8 text-center italic">No blueprints indexed.</p>
-                            )}
-                          </div>
-                       </div>
-
-                       <div className="p-8 bg-trust-green/5 border border-trust-green/10 rounded-[2.5rem] flex flex-col justify-center items-center text-center">
-                          <Zap className="w-10 h-10 text-trust-green mb-4 fill-trust-green/10" />
-                          <h4 className="font-display font-bold text-zinc-950 mb-2">Ready for Issuance?</h4>
-                          <p className="font-sans text-xs text-zinc-500 mb-6">Transition to the issuance protocol once your design is finalized.</p>
-                          <button 
-                            onClick={() => setActiveTab('issue')}
-                            className="h-12 w-full bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:translate-x-1 transition-all"
-                          >
-                            START ISSUANCE
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                       </div>
+                  </section>
+                ) : (
+                  <div className="h-full bg-zinc-50 border border-zinc-100 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-white rounded-[2rem] flex items-center justify-center text-zinc-200 mb-6 shadow-sm ring-8 ring-zinc-50">
+                       <Layers className="w-8 h-8" />
                     </div>
-                 </div>
+                    <h5 className="font-display font-bold text-zinc-900 mb-2 uppercase tracking-tight text-sm">Object Registry</h5>
+                    <p className="font-sans text-[10px] text-zinc-400 leading-relaxed uppercase tracking-widest">Select an element on the canvas to override parameters.</p>
+                  </div>
+                )}
+
+                {/* Layer Navigator */}
+                <div className="p-6 bg-zinc-50 border border-zinc-100 rounded-[2rem] space-y-4">
+                  <h4 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Layout className="w-3.5 h-3.5" />
+                    STACK HIERARCHY
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {[...(currentTemplate.elements || [])].sort((a, b) => (b.style.zIndex || 0) - (a.style.zIndex || 0)).map(el => (
+                       <div 
+                        key={el.id}
+                        onClick={() => setSelectedElementId(el.id)}
+                        className={`p-2 px-3 border rounded-lg flex items-center justify-between cursor-pointer transition-all ${selectedElementId === el.id ? 'bg-zinc-900 border-zinc-900 text-white' : 'bg-white border-zinc-100 hover:border-zinc-300'}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {el.type === 'text' && <Type className="w-3 h-3 text-zinc-400" />}
+                          {el.type === 'image' && <ImageIcon className="w-3 h-3 text-zinc-400" />}
+                          {el.type === 'shape' && <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: el.style.color }} />}
+                          <span className="font-mono text-[9px] font-bold uppercase truncate max-w-[80px]">
+                            {el.type === 'text' ? el.content : el.type.toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="font-mono text-[8px] text-zinc-400">Z-{el.style.zIndex || 0}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1252,9 +1229,15 @@ export default function GeneratePage() {
                  <div className="w-full flex-1 flex items-center justify-center bg-zinc-50 rounded-[4rem] border border-zinc-100 p-8 overflow-hidden">
                     <motion.div 
                        layoutId="final-preview-card"
-                       className="w-full max-w-2xl transform hover:scale-[1.02] transition-transform"
+                       className="shrink-0"
                     >
-                       <CertificatePreview template={currentTemplate} data={issuance} isFinal={true} previewRef={previewRef} />
+                       <CertificatePreview 
+                         template={currentTemplate} 
+                         data={issuance} 
+                         isFinal={true} 
+                         previewRef={previewRef} 
+                         scale={0.5}
+                       />
                     </motion.div>
                  </div>
 
