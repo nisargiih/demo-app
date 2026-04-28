@@ -35,8 +35,36 @@ import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Rnd } from 'react-rnd';
 
 // --- Types & Interfaces ---
+
+interface DocElement {
+  id: string;
+  type: 'text' | 'image' | 'shape';
+  x: number;
+  y: number;
+  width: number | string;
+  height: number | string;
+  content: string;
+  style: {
+    fontSize?: number;
+    fontWeight?: string;
+    fontFamily?: string;
+    color?: string;
+    textAlign?: 'left' | 'center' | 'right';
+    opacity?: number;
+    borderRadius?: string;
+    borderWidth?: string;
+    borderColor?: string;
+    zIndex?: number;
+    letterSpacing?: string;
+    lineHeight?: string;
+    italic?: boolean;
+    underline?: boolean;
+  };
+  placeholder?: string;
+}
 
 interface Asset {
   logo?: string;
@@ -59,6 +87,7 @@ interface TemplateConfig {
   alignment: 'left' | 'center' | 'right';
   layout: 'classic' | 'modern' | 'minimal';
   assets: Asset;
+  elements?: DocElement[];
 }
 
 interface IssuanceData {
@@ -73,20 +102,42 @@ interface IssuanceData {
 // --- Constants ---
 
 const DEFAULT_TEMPLATE: TemplateConfig = {
-  name: 'Untitled Template',
-  title: 'CERTIFICATE OF ACHIEVEMENT',
-  companyName: 'TechCore Systems Inc.',
-  companyDetails: '128 Network Relay Blvd, San Francisco, CA',
-  bodyText: 'This document serves as official recognition that {{recipient_name}} has successfully demonstrated exceptional proficiency in {{description}}. This certification is valid until {{expiry_date}}.',
-  footerText: 'Verified by TechCore Autonomous Relay Node',
-  primaryColor: '#10b981', // trust-green
-  accentColor: '#09090b', // zinc-950
-  fontFamily: 'serif',
+  name: 'Modern Professional',
+  title: 'CERTIFICATE OF EXCELLENCE',
+  companyName: 'DocEngine Enterprise',
+  companyDetails: 'Corporate Headquarters, Silicon Valley',
+  bodyText: 'This is to certify that {{recipient_name}} has achieved exceptional results in {{description}} at the highest standards.',
+  footerText: 'Authorized Digital Signature Protocol',
+  primaryColor: '#10b981',
+  accentColor: '#09090b',
+  fontFamily: 'sans',
   alignment: 'center',
   layout: 'modern',
   assets: {
     customImages: []
-  }
+  },
+  elements: [
+    {
+      id: 'header-title',
+      type: 'text',
+      x: 100,
+      y: 200,
+      width: 800,
+      height: 60,
+      content: '{{certificate_title}}',
+      style: { fontSize: 48, fontWeight: '900', color: '#09090b', textAlign: 'center' }
+    },
+    {
+      id: 'recipient-section',
+      type: 'text',
+      x: 100,
+      y: 320,
+      width: 800,
+      height: 80,
+      content: '{{recipient_name}}',
+      style: { fontSize: 64, fontWeight: '900', color: '#10b981', textAlign: 'center', underline: true }
+    }
+  ]
 };
 
 // --- Logic: Placeholder Replacement ---
@@ -109,12 +160,20 @@ const CertificatePreview = ({
   template, 
   data, 
   isFinal = false, 
-  previewRef 
+  previewRef,
+  editing = false,
+  onElementUpdate,
+  selectedElementId,
+  onElementSelect
 }: { 
   template: TemplateConfig, 
   data: IssuanceData, 
   isFinal?: boolean,
-  previewRef?: React.RefObject<HTMLDivElement | null>
+  previewRef?: React.RefObject<HTMLDivElement | null>,
+  editing?: boolean,
+  onElementUpdate?: (elements: DocElement[]) => void,
+  selectedElementId?: string | null,
+  onElementSelect?: (id: string | null) => void
 }) => {
   const alignClass = 
     template.alignment === 'center' ? 'text-center items-center' : 
@@ -124,70 +183,167 @@ const CertificatePreview = ({
     template.fontFamily === 'serif' ? 'font-serif' : 
     template.fontFamily === 'mono' ? 'font-mono' : 'font-sans';
 
+  const handleDragStop = (id: string, d: { x: number; y: number }) => {
+    if (!onElementUpdate || !template.elements) return;
+    const newElements = template.elements.map(el => 
+      el.id === id ? { ...el, x: d.x, y: d.y } : el
+    );
+    onElementUpdate(newElements);
+  };
+
+  const handleResizeStop = (id: string, ref: any, position: any) => {
+    if (!onElementUpdate || !template.elements) return;
+    const newElements = template.elements.map(el => 
+      el.id === id ? { ...el, width: ref.offsetWidth, height: ref.offsetHeight, ...position } : el
+    );
+    onElementUpdate(newElements);
+  };
+
   return (
     <div 
       ref={isFinal ? previewRef : null}
       className={`bg-white relative overflow-hidden shadow-2xl border-zinc-200 transition-all ${isFinal ? 'w-[1000px] aspect-[1.414/1]' : 'w-full aspect-[1.414/1] scale-100'} ${fontClass}`}
       style={{ padding: '80px', border: `20px solid ${template.primaryColor}20` }}
+      onClick={() => onElementSelect?.(null)}
     >
       {/* Decorative Border */}
-      <div className="absolute inset-4 border border-zinc-100" />
-      <div className="absolute inset-8 border-4 border-zinc-50" />
-      <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-50/50 -translate-y-1/2 translate-x-1/2 rotate-45" />
+      <div className="absolute inset-4 border border-zinc-100 pointer-events-none" />
+      <div className="absolute inset-8 border-4 border-zinc-50 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-zinc-50/50 -translate-y-1/2 translate-x-1/2 rotate-45 pointer-events-none" />
 
-      <div className={`relative h-full flex flex-col justify-between ${alignClass}`}>
-        {/* Header Area */}
-        <div className="w-full flex flex-col items-center">
-          {template.assets.logo ? (
-            <img src={template.assets.logo} className="h-16 mb-6 object-contain" alt="Logo" />
-          ) : (
-            <ShieldCheck className="w-16 h-16 text-trust-green mb-6" />
-          )}
-          <h4 className="font-mono text-[10px] tracking-[0.4em] font-bold text-zinc-400 mb-2">{template.companyName.toUpperCase()}</h4>
-          <div className="h-px w-20 bg-trust-green/20 mb-8" />
-        </div>
+      {/* Render Custom Elements */}
+      {template.elements?.map((el) => {
+        const content = replacePlaceholders(el.content, data, template);
+        const isSelected = selectedElementId === el.id;
 
-        {/* Main Content */}
-        <div className={`space-y-8 ${alignClass} w-full`}>
-          <h1 className="text-4xl md:text-5xl font-black text-zinc-950 tracking-tighter" style={{ color: template.accentColor }}>
-            {template.title}
-          </h1>
-          
-          <div className="space-y-4">
-            <p className="font-display font-medium text-zinc-400 italic">This is to certify that</p>
-            <h2 className="text-5xl md:text-6xl font-black text-trust-green decoration-trust-green/20 underline-offset-8" style={{ color: template.primaryColor }}>
-              {data.recipientName || 'RECIPIENT_NAME'}
-            </h2>
+        if (editing) {
+          return (
+            <Rnd
+              key={el.id}
+              size={{ width: el.width, height: el.height }}
+              position={{ x: el.x, y: el.y }}
+              onDragStop={(e: any, d: any) => handleDragStop(el.id, d)}
+              onResizeStop={(e: any, dir: any, ref: any, delta: any, pos: any) => handleResizeStop(el.id, ref, pos)}
+              bounds="parent"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                onElementSelect?.(el.id);
+              }}
+              className={`flex items-center justify-center border-2 transition-colors ${isSelected ? 'border-trust-green ring-4 ring-trust-green/10' : 'border-transparent hover:border-zinc-200'}`}
+            >
+              <div 
+                className="w-full h-full overflow-hidden"
+                style={{
+                  ...el.style,
+                  fontSize: typeof el.style.fontSize === 'number' ? `${el.style.fontSize}px` : el.style.fontSize,
+                  textDecoration: el.style.underline ? 'underline' : 'none',
+                  fontStyle: el.style.italic ? 'italic' : 'normal',
+                }}
+              >
+                {el.type === 'text' && content}
+                {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain" alt="" />}
+                {el.type === 'shape' && (
+                  <div 
+                    className="w-full h-full" 
+                    style={{ 
+                      backgroundColor: el.style.color,
+                      borderRadius: el.style.borderRadius,
+                      border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`
+                    }} 
+                  />
+                )}
+              </div>
+            </Rnd>
+          );
+        }
+
+        return (
+          <div
+            key={el.id}
+            className="absolute overflow-hidden"
+            style={{
+              left: `${el.x}px`,
+              top: `${el.y}px`,
+              width: `${el.width}px`,
+              height: `${el.height}px`,
+              ...el.style,
+              fontSize: typeof el.style.fontSize === 'number' ? `${el.style.fontSize}px` : el.style.fontSize,
+              textDecoration: el.style.underline ? 'underline' : 'none',
+              fontStyle: el.style.italic ? 'italic' : 'normal',
+            }}
+          >
+            {el.type === 'text' && content}
+            {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain" alt="" />}
+            {el.type === 'shape' && (
+              <div 
+                className="w-full h-full" 
+                style={{ 
+                  backgroundColor: el.style.color,
+                  borderRadius: el.style.borderRadius,
+                  border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`
+                }} 
+              />
+            )}
+          </div>
+        );
+      })}
+
+      {/* Default Layout (only if no elements or explicitly requested to show) */}
+      {!template.elements?.length && (
+        <div className={`relative h-full flex flex-col justify-between ${alignClass}`}>
+          {/* Header Area */}
+          <div className="w-full flex flex-col items-center">
+            {template.assets.logo ? (
+              <img src={template.assets.logo} className="h-16 mb-6 object-contain" alt="Logo" />
+            ) : (
+              <ShieldCheck className="w-16 h-16 text-trust-green mb-6" />
+            )}
+            <h4 className="font-mono text-[10px] tracking-[0.4em] font-bold text-zinc-400 mb-2">{template.companyName.toUpperCase()}</h4>
+            <div className="h-px w-20 bg-trust-green/20 mb-8" />
           </div>
 
-          <div className="max-w-2xl text-lg text-zinc-600 leading-relaxed font-medium">
-            {replacePlaceholders(template.bodyText, data, template)}
-          </div>
-        </div>
-
-        {/* Footer Area */}
-        <div className="w-full grid grid-cols-3 items-end mt-12 gap-8">
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-full h-px bg-zinc-100 mb-4" />
-            <div className="font-mono text-[9px] text-zinc-400 uppercase tracking-wider mb-1">Issue Date</div>
-            <p className="font-display font-bold text-sm text-zinc-900">{data.issueDate}</p>
-          </div>
-
-          <div className="flex flex-col items-center relative gap-2">
-            <div className="absolute -top-16 opacity-30">
-              {template.assets.stamp && <img src={template.assets.stamp} className="w-32 h-32 object-contain grayscale" alt="Stamp" />}
+          {/* Main Content */}
+          <div className={`space-y-8 ${alignClass} w-full`}>
+            <h1 className="text-4xl md:text-5xl font-black text-zinc-950 tracking-tighter" style={{ color: template.accentColor }}>
+              {template.title}
+            </h1>
+            
+            <div className="space-y-4">
+              <p className="font-display font-medium text-zinc-400 italic">This is to certify that</p>
+              <h2 className="text-5xl md:text-6xl font-black text-trust-green decoration-trust-green/20 underline-offset-8" style={{ color: template.primaryColor }}>
+                {data.recipientName || 'RECIPIENT_NAME'}
+              </h2>
             </div>
-            <p className="font-sans text-[10px] text-zinc-300 text-center uppercase tracking-widest mb-1">{template.footerText}</p>
-            <div className="font-mono text-[9px] font-bold text-trust-green">#ID {data.certificateId}</div>
+
+            <div className="max-w-2xl text-lg text-zinc-600 leading-relaxed font-medium">
+              {replacePlaceholders(template.bodyText, data, template)}
+            </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-full h-px bg-zinc-100 mb-2" />
-            {template.assets.signature && <img src={template.assets.signature} className="h-10 object-contain mb-2 mix-blend-multiply" alt="Signature" />}
-            <div className="font-mono text-[9px] text-zinc-400 uppercase tracking-wider">Authorized Registry</div>
+          {/* Footer Area */}
+          <div className="w-full grid grid-cols-3 items-end mt-12 gap-8">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-full h-px bg-zinc-100 mb-4" />
+              <div className="font-mono text-[9px] text-zinc-400 uppercase tracking-wider mb-1">Issue Date</div>
+              <p className="font-display font-bold text-sm text-zinc-900">{data.issueDate}</p>
+            </div>
+
+            <div className="flex flex-col items-center relative gap-2">
+              <div className="absolute -top-16 opacity-30">
+                {template.assets.stamp && <img src={template.assets.stamp} className="w-32 h-32 object-contain grayscale" alt="Stamp" />}
+              </div>
+              <p className="font-sans text-[10px] text-zinc-300 text-center uppercase tracking-widest mb-1">{template.footerText}</p>
+              <div className="font-mono text-[9px] font-bold text-trust-green">#ID {data.certificateId}</div>
+            </div>
+
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-full h-px bg-zinc-100 mb-2" />
+              {template.assets.signature && <img src={template.assets.signature} className="h-10 object-contain mb-2 mix-blend-multiply" alt="Signature" />}
+              <div className="font-mono text-[9px] text-zinc-400 uppercase tracking-wider">Authorized Registry</div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -219,7 +375,50 @@ export default function GeneratePage() {
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
+  // State: Advanced Editor
+  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const selectedElement = currentTemplate.elements?.find(el => el.id === selectedElementId);
+
   // --- Fetching & Persistence ---
+
+  const addElement = (type: 'text' | 'image' | 'shape') => {
+    const newEl: DocElement = {
+      id: `el-${Math.random().toString(36).substring(2, 9)}`,
+      type,
+      x: 300,
+      y: 300,
+      width: type === 'text' ? 400 : 100,
+      height: type === 'text' ? 50 : 100,
+      content: type === 'text' ? 'Double Click to Edit Text' : type === 'image' ? 'https://picsum.photos/200' : '#10b981',
+      style: {
+        fontSize: 24,
+        color: '#000000',
+        textAlign: 'center',
+        zIndex: (currentTemplate.elements?.length || 0) + 1,
+        fontFamily: 'sans'
+      }
+    };
+    setCurrentTemplate(prev => ({
+      ...prev,
+      elements: [...(prev.elements || []), newEl]
+    }));
+    setSelectedElementId(newEl.id);
+  };
+
+  const removeElement = (id: string) => {
+    setCurrentTemplate(prev => ({
+      ...prev,
+      elements: prev.elements?.filter(el => el.id !== id)
+    }));
+    setSelectedElementId(null);
+  };
+
+  const updateElement = (id: string, updates: Partial<DocElement>) => {
+    setCurrentTemplate(prev => ({
+      ...prev,
+      elements: prev.elements?.map(el => el.id === id ? { ...el, ...updates } : el)
+    }));
+  };
 
   const fetchTemplates = useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -592,8 +791,167 @@ export default function GeneratePage() {
                       </div>
                     </div>
 
+                    {/* Advanced Layer Protocol */}
+                    <div className="pt-8 border-t border-zinc-100 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-mono text-[10px] font-black text-zinc-950 uppercase tracking-[0.3em]">Layer Protocol</h4>
+                        <div className="flex gap-2">
+                           <button onClick={() => addElement('text')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
+                              <Type className="w-4 h-4" />
+                           </button>
+                           <button onClick={() => addElement('image')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
+                              <ImageIcon className="w-4 h-4" />
+                           </button>
+                           <button onClick={() => addElement('shape')} className="p-2 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-zinc-900 transition-colors">
+                              <Layout className="w-4 h-4" />
+                           </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        {currentTemplate.elements?.map(el => (
+                          <div 
+                            key={el.id}
+                            onClick={() => setSelectedElementId(el.id)}
+                            className={`p-3 border rounded-xl flex items-center justify-between cursor-pointer transition-all ${selectedElementId === el.id ? 'bg-zinc-950 border-zinc-950 text-white' : 'bg-white border-zinc-100 text-zinc-600 hover:border-zinc-300'}`}
+                          >
+                            <div className="flex items-center gap-3">
+                               {el.type === 'text' && <Type className="w-3.5 h-3.5" />}
+                               {el.type === 'image' && <ImageIcon className="w-3.5 h-3.5" />}
+                               {el.type === 'shape' && <Layout className="w-3.5 h-3.5" />}
+                               <span className="font-mono text-[9px] font-bold uppercase truncate max-w-[120px]">
+                                 {el.content.length > 20 ? el.content.substring(0, 20) + '...' : el.content}
+                               </span>
+                            </div>
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); removeElement(el.id); }}
+                              className="text-zinc-400 hover:text-red-500 transition-colors"
+                            >
+                               <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {selectedElement && (
+                        <div className="p-6 bg-zinc-100/50 rounded-3xl space-y-6">
+                           <h5 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-widest border-b border-zinc-200 pb-3 italic">Object Parameters</h5>
+                           
+                           <div className="space-y-4">
+                              <div className="space-y-2">
+                                <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Content/Source</label>
+                                <textarea 
+                                  value={selectedElement.content}
+                                  onChange={(e) => updateElement(selectedElement.id, { content: e.target.value })}
+                                  className="w-full p-3 bg-white border border-zinc-200 rounded-lg font-sans text-[10px] text-zinc-900 focus:outline-none"
+                                  rows={selectedElement.type === 'text' ? 3 : 1}
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                 {selectedElement.type === 'text' && (
+                                   <>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Font Size</label>
+                                       <input 
+                                         type="number"
+                                         value={selectedElement.style.fontSize}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, fontSize: parseInt(e.target.value) }})}
+                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                       />
+                                     </div>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Text Ink</label>
+                                       <input 
+                                         type="color"
+                                         value={selectedElement.style.color}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, color: e.target.value }})}
+                                         className="w-full h-10 p-1 bg-white border border-zinc-200 rounded-lg cursor-pointer"
+                                       />
+                                     </div>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Weight</label>
+                                       <select 
+                                         value={selectedElement.style.fontWeight}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, fontWeight: e.target.value }})}
+                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                       >
+                                         <option value="400">Regular</option>
+                                         <option value="600">Semibold</option>
+                                         <option value="900">Black</option>
+                                       </select>
+                                     </div>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Align</label>
+                                       <select 
+                                         value={selectedElement.style.textAlign}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, textAlign: e.target.value as any }})}
+                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                       >
+                                         <option value="left">Left</option>
+                                         <option value="center">Center</option>
+                                         <option value="right">Right</option>
+                                       </select>
+                                     </div>
+                                   </>
+                                 )}
+                                 <div className="space-y-2">
+                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Layer Depth</label>
+                                   <input 
+                                     type="number"
+                                     value={selectedElement.style.zIndex}
+                                     onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, zIndex: parseInt(e.target.value) }})}
+                                     className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                   />
+                                 </div>
+                                 {selectedElement.type === 'shape' && (
+                                   <>
+                                      <div className="space-y-2">
+                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Hex Color</label>
+                                        <input 
+                                          type="color"
+                                          value={selectedElement.style.color}
+                                          onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, color: e.target.value }})}
+                                          className="w-full h-10 p-1 bg-white border border-zinc-200 rounded-lg cursor-pointer"
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Curve</label>
+                                        <input 
+                                          type="text"
+                                          placeholder="10px"
+                                          value={selectedElement.style.borderRadius}
+                                          onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, borderRadius: e.target.value }})}
+                                          className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                        />
+                                      </div>
+                                   </>
+                                 )}
+                              </div>
+                              
+                              <div className="flex gap-2 pt-2">
+                                <button 
+                                  onClick={() => updateElement(selectedElement.id, { x: 500 - (typeof selectedElement.width === 'number' ? selectedElement.width / 2 : 0) })}
+                                  className="flex-1 h-9 bg-zinc-950 text-white rounded-lg font-mono text-[8px] font-bold uppercase tracking-widest hover:bg-zinc-800"
+                                >
+                                  Center Horizontally
+                                </button>
+                              </div>
+                           </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="bg-zinc-950 p-8 rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)]">
-                       <CertificatePreview template={currentTemplate} data={issuance} previewRef={previewRef} />
+                       <CertificatePreview 
+                          template={currentTemplate} 
+                          data={issuance} 
+                          previewRef={previewRef}
+                          editing={true}
+                          onElementUpdate={(els) => setCurrentTemplate({...currentTemplate, elements: els})}
+                          selectedElementId={selectedElementId}
+                          onElementSelect={setSelectedElementId}
+                       />
                     </div>
 
                     <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -745,7 +1103,7 @@ export default function GeneratePage() {
               {/* Final Preview (Right) - Off Screen Rendering Container or Visible Preview */}
               <div className="lg:col-span-7 space-y-8 flex flex-col items-center">
                  <h3 className="font-display font-black text-xl text-zinc-950 flex items-center gap-3 self-start">
-                   <Eyedropper className="w-5 h-5 text-zinc-400" />
+                    <Palette className="w-5 h-5 text-zinc-400" />
                    AUTHENTICATION VIEW
                  </h3>
                  
@@ -809,13 +1167,4 @@ export default function GeneratePage() {
   );
 }
 
-// Support Icon
-function Eyedropper(props: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="m2 22 7.5-7.5" />
-      <path d="M21 7c0-1.1-.9-2-2-2a2 2 0 0 0-2-2c-1.1 0-2 .9-2 2a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 0 2 2c1.1 0 2-.9 2-2a2 2 0 0 0 2-2Z" />
-      <path d="M8 8l4 4" />
-    </svg>
-  );
-}
+
