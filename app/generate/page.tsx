@@ -90,6 +90,7 @@ interface TemplateConfig {
   fontFamily: 'serif' | 'sans' | 'mono';
   alignment: 'left' | 'center' | 'right';
   layout: 'classic' | 'modern' | 'minimal';
+  pageSize?: 'a4_landscape' | 'a4_portrait' | 'square' | 'us_letter';
   assets: Asset;
   elements?: DocElement[];
 }
@@ -105,6 +106,64 @@ interface IssuanceData {
 
 // --- Constants ---
 
+const PAGE_SIZES = {
+  a4_landscape: { width: 1000, height: 707, label: 'A4 Landscape' },
+  a4_portrait: { width: 707, height: 1000, label: 'A4 Portrait' },
+  square: { width: 1000, height: 1000, label: 'Square (1:1)' },
+  us_letter: { width: 1000, height: 773, label: 'US Letter' },
+};
+
+const PRESETS: Partial<TemplateConfig>[] = [
+  {
+    name: 'Corporate Elite',
+    title: 'CERTIFICATE OF ACHIEVEMENT',
+    companyName: 'GLOBAL SOLUTIONS CORP',
+    bodyText: 'This is to certify that {{recipient_name}} has successfully completed the Advanced Management Protocol.',
+    footerText: 'OFFICIAL CERTIFICATION DIVISION',
+    primaryColor: '#0f172a',
+    fontFamily: 'serif',
+    layout: 'modern',
+    pageSize: 'a4_landscape',
+    elements: [
+      { id: 'border-left', type: 'shape', x: 0, y: 0, width: 40, height: 707, content: '#0f172a', style: { zIndex: 1 } },
+      { id: 'title-el', type: 'text', x: 100, y: 150, width: 800, height: 60, content: '{{certificate_title}}', style: { fontSize: 42, fontWeight: '900', color: '#0f172a', textAlign: 'center' } },
+      { id: 'name-el', type: 'text', x: 100, y: 350, width: 800, height: 80, content: '{{recipient_name}}', style: { fontSize: 64, fontWeight: '900', color: '#0f172a', textAlign: 'center' } }
+    ]
+  },
+  {
+    name: 'Modern Mint',
+    title: 'DEVELOPER ACCREDITATION',
+    companyName: 'CODEFORGE SYSTEMS',
+    bodyText: 'Validating that {{recipient_name}} has demonstrated mastery in Full-Stack Engineering.',
+    footerText: 'VERIFIED ON BLOCKCHAIN',
+    primaryColor: '#10b981',
+    fontFamily: 'mono',
+    layout: 'minimal',
+    pageSize: 'a4_landscape',
+    elements: [
+      { id: 'bg-blob', type: 'shape', x: 600, y: -200, width: 600, height: 600, content: '#10b981', style: { borderRadius: '50%', opacity: 0.1, zIndex: 0 } },
+      { id: 'title-el', type: 'text', x: 80, y: 100, width: 600, height: 60, content: '{{certificate_title}}', style: { fontSize: 36, fontWeight: '900', color: '#064e3b', textAlign: 'left' } },
+      { id: 'name-el', type: 'text', x: 80, y: 250, width: 840, height: 100, content: '{{recipient_name}}', style: { fontSize: 72, fontWeight: '900', color: '#10b981', textAlign: 'left' } }
+    ]
+  },
+  {
+    name: 'Executive Portrait',
+    title: 'OFFICIAL DIPLOMA',
+    companyName: 'ACADEMY OF EXCELLENCE',
+    bodyText: 'This diploma is awarded to {{recipient_name}} for outstanding performance in the field of Digital Arts.',
+    footerText: 'BOARD OF DIRECTORS',
+    primaryColor: '#4338ca',
+    fontFamily: 'serif',
+    layout: 'classic',
+    pageSize: 'a4_portrait',
+    elements: [
+      { id: 'top-bar', type: 'shape', x: 0, y: 0, width: 707, height: 20, content: '#4338ca', style: { zIndex: 1 } },
+      { id: 'title-el', type: 'text', x: 50, y: 150, width: 607, height: 60, content: '{{certificate_title}}', style: { fontSize: 40, fontWeight: '900', color: '#4338ca', textAlign: 'center' } },
+      { id: 'name-el', type: 'text', x: 50, y: 450, width: 607, height: 100, content: '{{recipient_name}}', style: { fontSize: 48, fontWeight: '700', color: '#1e1b4b', textAlign: 'center' } }
+    ]
+  }
+];
+
 const DEFAULT_TEMPLATE: TemplateConfig = {
   name: 'Elite Recognition Protocol',
   title: 'CERTIFICATE OF SUPREME ACHIEVEMENT',
@@ -117,6 +176,7 @@ const DEFAULT_TEMPLATE: TemplateConfig = {
   fontFamily: 'serif',
   alignment: 'center',
   layout: 'modern',
+  pageSize: 'a4_landscape',
   assets: {
     customImages: []
   },
@@ -235,9 +295,10 @@ const CertificatePreview = ({
     onElementUpdate(newElements);
   };
 
-  // The canvas should always think it is 1000px wide for pixel-perfect positioning
-  const BASE_WIDTH = 1000;
-  const BASE_HEIGHT = 707.2;
+  // The canvas should always think it is internal units wide for pixel-perfect positioning
+  const dims = template.pageSize ? PAGE_SIZES[template.pageSize] : PAGE_SIZES.a4_landscape;
+  const BASE_WIDTH = dims.width;
+  const BASE_HEIGHT = dims.height;
   const actualScale = scale || 1;
 
   return (
@@ -451,17 +512,19 @@ export default function GeneratePage() {
   const updateScale = useCallback(() => {
     if (!isAutoFit) return;
     const container = document.getElementById('canvas-workbench');
+    const dims = currentTemplate.pageSize ? PAGE_SIZES[currentTemplate.pageSize] : PAGE_SIZES.a4_landscape;
+    
     if (container) {
       const padding = 80;
       const availableWidth = container.offsetWidth - padding;
       const availableHeight = container.offsetHeight - padding;
       
-      const scaleX = availableWidth / 1000;
-      const scaleY = availableHeight / 707.2; // 1000 / 1.414
+      const scaleX = availableWidth / dims.width;
+      const scaleY = availableHeight / dims.height;
       
       setPreviewScale(Math.min(scaleX, scaleY, 1)); // Max scale 1 for auto-fit
     }
-  }, [isAutoFit]);
+  }, [isAutoFit, currentTemplate.pageSize]);
 
   useEffect(() => {
     updateScale();
@@ -537,7 +600,7 @@ export default function GeneratePage() {
 
   const handleNewTemplate = () => {
     if (confirm('Initialize new blueprint protocol? Current unsaved state will be purged.')) {
-      setCurrentTemplate({ ...DEFAULT_TEMPLATE, _id: undefined });
+      setCurrentTemplate({ ...DEFAULT_TEMPLATE, _id: undefined, pageSize: 'a4_landscape' });
       setSelectedElementId(null);
       notify('New blueprint environment ready.');
     }
@@ -824,9 +887,27 @@ export default function GeneratePage() {
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-zinc-100 grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Brand Ink</label>
+                  <div className="pt-6 border-t border-zinc-100 space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-1">Page Format</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(PAGE_SIZES).map(([key, size]) => (
+                          <button
+                            key={key}
+                            onClick={() => setCurrentTemplate({...currentTemplate, pageSize: key as any})}
+                            className={`p-2 rounded-lg border font-display font-bold text-[9px] uppercase tracking-tighter transition-all ${
+                              currentTemplate.pageSize === key ? 'bg-zinc-950 text-white border-zinc-950' : 'bg-white text-zinc-400 border-zinc-100 hover:border-zinc-200'
+                            }`}
+                          >
+                            {size.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                         <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Brand Ink</label>
                        <div className="flex items-center gap-2">
                          <input 
                            type="color" 
@@ -850,7 +931,8 @@ export default function GeneratePage() {
                       </select>
                     </div>
                   </div>
-                </section>
+                </div>
+              </section>
 
                 <section className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-6">
                   <h4 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
@@ -884,6 +966,33 @@ export default function GeneratePage() {
                           )}
                         </div>
                       </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-6">
+                  <h4 className="font-mono text-[9px] font-black text-zinc-950 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <Zap className="w-3.5 h-3.5 text-trust-green" />
+                    PRESETS
+                  </h4>
+                  <div className="grid grid-cols-1 gap-2">
+                    {PRESETS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          if(confirm('Apply preset? This will overwrite current canvas layers.')) {
+                            setCurrentTemplate({
+                              ...currentTemplate,
+                              ...preset,
+                              _id: undefined // Don't preserve preset ID
+                            } as TemplateConfig);
+                          }
+                        }}
+                        className="w-full p-3 bg-white border border-zinc-100 rounded-xl hover:border-trust-green/20 transition-all flex items-center justify-between group"
+                      >
+                        <span className="font-display font-bold text-[10px] text-zinc-900 group-hover:text-trust-green">{preset.name}</span>
+                        <Copy className="w-3 h-3 text-zinc-300" />
+                      </button>
                     ))}
                   </div>
                 </section>
