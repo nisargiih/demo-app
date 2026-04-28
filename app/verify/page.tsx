@@ -29,7 +29,7 @@ export default function VerifyPage() {
     const buffer = await file.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
   };
 
   const handleVerify = async () => {
@@ -118,7 +118,7 @@ export default function VerifyPage() {
                 <button 
                   onClick={handleVerify}
                   disabled={!file}
-                  className="w-full h-16 bg-zinc-950 text-white rounded-[1.25rem] font-display font-bold text-lg flex items-center justify-center gap-3 hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed transition-all shadow-xl shadow-zinc-950/10"
+                  className="w-full h-16 bg-trust-green text-white rounded-[1.25rem] font-display font-bold text-lg flex items-center justify-center gap-3 hover:bg-trust-green/90 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed transition-all shadow-xl shadow-trust-green/20"
                 >
                   Initiate Scan
                   <ArrowRight className="w-5 h-5" />
@@ -196,13 +196,20 @@ export default function VerifyPage() {
                            </div>
                         </div>
 
-                        <div className="p-4 bg-zinc-950 rounded-2xl">
+                        <div className="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl">
                            <div className="flex items-center justify-between gap-4 mb-2">
-                             <span className="font-mono text-[9px] font-bold text-white/40 uppercase tracking-widest">Signature_Hash</span>
+                             <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest">Signature_Hash</span>
                              <span className="font-mono text-[9px] font-bold text-trust-green uppercase">Verified</span>
                            </div>
-                           <p className="font-mono text-[10px] text-zinc-400 break-all leading-relaxed">{result.hash}</p>
+                           <p className="font-mono text-[10px] text-zinc-600 break-all leading-relaxed">{result.hash}</p>
                         </div>
+
+                        {result.expiryDate && new Date(result.expiryDate) < new Date() && (
+                          <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600">
+                            <AlertTriangle className="w-5 h-5" />
+                            <span className="font-display font-bold text-sm">Spectral Security Warning: Document Expiry Elapsed</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -216,7 +223,7 @@ export default function VerifyPage() {
                     <RefreshCw className="w-5 h-5" />
                     Reset Protocol
                   </button>
-                  <button className="flex-1 h-16 bg-zinc-950 text-white rounded-2xl font-display font-bold hover:bg-zinc-800 transition-all flex items-center justify-center gap-3">
+                  <button className="flex-1 h-16 bg-white border-2 border-zinc-900 text-zinc-950 rounded-2xl font-display font-bold hover:bg-zinc-50 transition-all flex items-center justify-center gap-3">
                     View Network Detail
                     <ExternalLink className="w-5 h-5" />
                   </button>

@@ -146,7 +146,7 @@ export default function ArchivePage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-display font-bold text-zinc-900 truncate">{item.fileName}</h3>
-                      <div className="px-2 py-0.5 bg-trust-green/10 text-trust-green rounded-md font-mono text-[9px] font-bold uppercase">Verified</div>
+                      <div className="px-2 py-0.5 bg-trust-green/5 text-trust-green border border-trust-green/20 rounded-md font-mono text-[8px] font-bold uppercase tracking-wider">Authenticated</div>
                     </div>
                     <div className="flex items-center gap-4">
                       <p className="font-mono text-[10px] text-zinc-400 truncate">SHA256: <span className="text-zinc-900 font-bold">{item.hash}</span></p>
