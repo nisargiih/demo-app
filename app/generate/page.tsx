@@ -102,15 +102,15 @@ interface IssuanceData {
 // --- Constants ---
 
 const DEFAULT_TEMPLATE: TemplateConfig = {
-  name: 'Modern Professional',
-  title: 'CERTIFICATE OF EXCELLENCE',
-  companyName: 'DocEngine Enterprise',
-  companyDetails: 'Corporate Headquarters, Silicon Valley',
-  bodyText: 'This is to certify that {{recipient_name}} has achieved exceptional results in {{description}} at the highest standards.',
-  footerText: 'Authorized Digital Signature Protocol',
+  name: 'Elite Recognition Protocol',
+  title: 'CERTIFICATE OF SUPREME ACHIEVEMENT',
+  companyName: 'GLOBAL INNOVATION NODE',
+  companyDetails: 'Encrypted Distributed Network | Sector 7-G',
+  bodyText: 'This is to certify that {{recipient_name}} has reached the Zenith of proficiency in {{description}}, demonstrating excellence across all core evaluation protocols.',
+  footerText: 'GENUINE DIGITAL ASSET CERTIFICATE',
   primaryColor: '#10b981',
   accentColor: '#09090b',
-  fontFamily: 'sans',
+  fontFamily: 'serif',
   alignment: 'center',
   layout: 'modern',
   assets: {
@@ -118,24 +118,54 @@ const DEFAULT_TEMPLATE: TemplateConfig = {
   },
   elements: [
     {
+      id: 'bg-acc-1',
+      type: 'shape',
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 300,
+      content: '#10b981',
+      style: { opacity: 0.05, borderRadius: '50%', zIndex: 0 }
+    },
+    {
       id: 'header-title',
       type: 'text',
       x: 100,
-      y: 200,
+      y: 180,
       width: 800,
-      height: 60,
+      height: 70,
       content: '{{certificate_title}}',
-      style: { fontSize: 48, fontWeight: '900', color: '#09090b', textAlign: 'center' }
+      style: { fontSize: 42, fontWeight: '900', color: '#09090b', textAlign: 'center', letterSpacing: '0.1em' }
     },
     {
-      id: 'recipient-section',
+      id: 'body-pre',
       type: 'text',
       x: 100,
-      y: 320,
+      y: 280,
       width: 800,
-      height: 80,
+      height: 40,
+      content: 'This document serves as formal recognition for',
+      style: { fontSize: 18, color: '#71717a', textAlign: 'center', italic: true }
+    },
+    {
+      id: 'recipient-name',
+      type: 'text',
+      x: 100,
+      y: 340,
+      width: 800,
+      height: 100,
       content: '{{recipient_name}}',
-      style: { fontSize: 64, fontWeight: '900', color: '#10b981', textAlign: 'center', underline: true }
+      style: { fontSize: 72, fontWeight: '900', color: '#10b981', textAlign: 'center' }
+    },
+    {
+      id: 'body-main',
+      type: 'text',
+      x: 200,
+      y: 460,
+      width: 600,
+      height: 100,
+      content: '{{body_text}}',
+      style: { fontSize: 16, color: '#3f3f46', textAlign: 'center', lineHeight: '1.6' }
     }
   ]
 };
@@ -164,7 +194,8 @@ const CertificatePreview = ({
   editing = false,
   onElementUpdate,
   selectedElementId,
-  onElementSelect
+  onElementSelect,
+  scale
 }: { 
   template: TemplateConfig, 
   data: IssuanceData, 
@@ -173,7 +204,8 @@ const CertificatePreview = ({
   editing?: boolean,
   onElementUpdate?: (elements: DocElement[]) => void,
   selectedElementId?: string | null,
-  onElementSelect?: (id: string | null) => void
+  onElementSelect?: (id: string | null) => void,
+  scale?: number
 }) => {
   const alignClass = 
     template.alignment === 'center' ? 'text-center items-center' : 
@@ -199,13 +231,24 @@ const CertificatePreview = ({
     onElementUpdate(newElements);
   };
 
+  // The canvas should always think it is 1000px wide for pixel-perfect positioning
+  const BASE_WIDTH = 1000;
+
   return (
-    <div 
-      ref={isFinal ? previewRef : null}
-      className={`bg-white relative overflow-hidden shadow-2xl border-zinc-200 transition-all ${isFinal ? 'w-[1000px] aspect-[1.414/1]' : 'w-full aspect-[1.414/1] scale-100'} ${fontClass}`}
-      style={{ padding: '80px', border: `20px solid ${template.primaryColor}20` }}
-      onClick={() => onElementSelect?.(null)}
-    >
+    <div className="relative w-full flex justify-center items-center overflow-hidden bg-zinc-900/5 rounded-3xl" style={{ height: editing ? '600px' : 'auto' }}>
+      <div 
+        ref={isFinal ? previewRef : null}
+        id="certificate-canvas"
+        className={`bg-white relative shadow-2xl border-zinc-200 origin-center shrink-0 ${fontClass}`}
+        style={{ 
+          width: `${BASE_WIDTH}px`, 
+          aspectRatio: '1.414/1',
+          padding: '80px', 
+          border: `20px solid ${template.primaryColor}20`,
+          transform: `scale(${scale || 1})`,
+        }}
+        onClick={() => onElementSelect?.(null)}
+      >
       {/* Decorative Border */}
       <div className="absolute inset-4 border border-zinc-100 pointer-events-none" />
       <div className="absolute inset-8 border-4 border-zinc-50 pointer-events-none" />
@@ -238,17 +281,21 @@ const CertificatePreview = ({
                   fontSize: typeof el.style.fontSize === 'number' ? `${el.style.fontSize}px` : el.style.fontSize,
                   textDecoration: el.style.underline ? 'underline' : 'none',
                   fontStyle: el.style.italic ? 'italic' : 'normal',
+                  letterSpacing: el.style.letterSpacing,
+                  lineHeight: el.style.lineHeight,
+                  opacity: el.style.opacity,
                 }}
               >
                 {el.type === 'text' && content}
-                {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain" alt="" />}
+                {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain pointer-events-none" alt="" />}
                 {el.type === 'shape' && (
                   <div 
                     className="w-full h-full" 
                     style={{ 
                       backgroundColor: el.style.color,
                       borderRadius: el.style.borderRadius,
-                      border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`
+                      border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`,
+                      opacity: el.style.opacity,
                     }} 
                   />
                 )}
@@ -266,10 +313,14 @@ const CertificatePreview = ({
               top: `${el.y}px`,
               width: `${el.width}px`,
               height: `${el.height}px`,
+              zIndex: el.style.zIndex,
               ...el.style,
               fontSize: typeof el.style.fontSize === 'number' ? `${el.style.fontSize}px` : el.style.fontSize,
               textDecoration: el.style.underline ? 'underline' : 'none',
               fontStyle: el.style.italic ? 'italic' : 'normal',
+              letterSpacing: el.style.letterSpacing,
+              lineHeight: el.style.lineHeight,
+              opacity: el.style.opacity,
             }}
           >
             {el.type === 'text' && content}
@@ -280,7 +331,8 @@ const CertificatePreview = ({
                 style={{ 
                   backgroundColor: el.style.color,
                   borderRadius: el.style.borderRadius,
-                  border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`
+                  border: `${el.style.borderWidth || '0px'} solid ${el.style.borderColor || 'transparent'}`,
+                  opacity: el.style.opacity,
                 }} 
               />
             )}
@@ -289,7 +341,7 @@ const CertificatePreview = ({
       })}
 
       {/* Default Layout (only if no elements or explicitly requested to show) */}
-      {!template.elements?.length && (
+      {(!template.elements || template.elements.length === 0) && (
         <div className={`relative h-full flex flex-col justify-between ${alignClass}`}>
           {/* Header Area */}
           <div className="w-full flex flex-col items-center">
@@ -345,7 +397,8 @@ const CertificatePreview = ({
         </div>
       )}
     </div>
-  );
+  </div>
+);
 };
 
 // --- Main Page Component ---
@@ -378,6 +431,20 @@ export default function GeneratePage() {
   // State: Advanced Editor
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const selectedElement = currentTemplate.elements?.find(el => el.id === selectedElementId);
+  const [previewScale, setPreviewScale] = useState(0.6);
+
+  useEffect(() => {
+    const updateScale = () => {
+      const container = document.getElementById('preview-container');
+      if (container) {
+        const scale = (container.offsetWidth - 48) / 1000;
+        setPreviewScale(Math.min(scale, 0.8));
+      }
+    };
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
 
   // --- Fetching & Persistence ---
 
@@ -543,6 +610,33 @@ export default function GeneratePage() {
   };
 
   // --- Asset Upload Helpers ---
+
+  const addAssetToCanvas = (type: keyof Asset) => {
+    const assetUrl = (currentTemplate.assets as any)[type];
+    if (!assetUrl) {
+      notify(`Please upload a ${type} first.`, 'error');
+      return;
+    }
+    
+    const newEl: DocElement = {
+      id: `el-${type}-${Math.random().toString(36).substring(2, 5)}`,
+      type: 'image',
+      x: 400,
+      y: 400,
+      width: type === 'logo' ? 120 : 150,
+      height: type === 'logo' ? 120 : 80,
+      content: assetUrl,
+      style: {
+        zIndex: (currentTemplate.elements?.length || 0) + 1,
+        opacity: 1
+      }
+    };
+    setCurrentTemplate(prev => ({
+      ...prev,
+      elements: [...(prev.elements || []), newEl]
+    }));
+    setSelectedElementId(newEl.id);
+  };
 
   const handleAssetUpload = (type: keyof Asset, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -768,7 +862,18 @@ export default function GeneratePage() {
                               <asset.icon className="w-4 h-4 text-zinc-400" />
                               <span className="font-display font-bold text-xs text-zinc-900">{asset.label}</span>
                             </div>
-                            {(currentTemplate.assets as any)[asset.id] && <CheckCircle2 className="w-4 h-4 text-trust-green" />}
+                            <div className="flex items-center gap-2">
+                              {(currentTemplate.assets as any)[asset.id] && (
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); addAssetToCanvas(asset.id as any); }}
+                                  className="relative z-20 p-1.5 bg-zinc-900 text-white rounded-lg hover:bg-trust-green transition-colors"
+                                  title="Add to Canvas"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              )}
+                              {(currentTemplate.assets as any)[asset.id] && <CheckCircle2 className="w-4 h-4 text-trust-green" />}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -861,7 +966,7 @@ export default function GeneratePage() {
                                        />
                                      </div>
                                      <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Text Ink</label>
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Ink Color</label>
                                        <input 
                                          type="color"
                                          value={selectedElement.style.color}
@@ -878,11 +983,12 @@ export default function GeneratePage() {
                                        >
                                          <option value="400">Regular</option>
                                          <option value="600">Semibold</option>
-                                         <option value="900">Black</option>
+                                         <option value="700">Bold</option>
+                                         <option value="900">Black/Heavy</option>
                                        </select>
                                      </div>
                                      <div className="space-y-2">
-                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Align</label>
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Alignment</label>
                                        <select 
                                          value={selectedElement.style.textAlign}
                                          onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, textAlign: e.target.value as any }})}
@@ -893,10 +999,31 @@ export default function GeneratePage() {
                                          <option value="right">Right</option>
                                        </select>
                                      </div>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Spacing</label>
+                                       <input 
+                                         type="text"
+                                         placeholder="0.1em"
+                                         value={selectedElement.style.letterSpacing}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, letterSpacing: e.target.value }})}
+                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                       />
+                                     </div>
+                                     <div className="space-y-2">
+                                       <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Leading</label>
+                                       <input 
+                                         type="text"
+                                         placeholder="1.2"
+                                         value={selectedElement.style.lineHeight}
+                                         onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, lineHeight: e.target.value }})}
+                                         className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                       />
+                                     </div>
                                    </>
                                  )}
+                                 
                                  <div className="space-y-2">
-                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Layer Depth</label>
+                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Layer</label>
                                    <input 
                                      type="number"
                                      value={selectedElement.style.zIndex}
@@ -904,10 +1031,24 @@ export default function GeneratePage() {
                                      className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
                                    />
                                  </div>
+
+                                 <div className="space-y-2">
+                                   <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Opacity</label>
+                                   <input 
+                                     type="number"
+                                     step="0.1"
+                                     min="0"
+                                     max="1"
+                                     value={selectedElement.style.opacity ?? 1}
+                                     onChange={(e) => updateElement(selectedElement.id, { style: { ...selectedElement.style, opacity: parseFloat(e.target.value) }})}
+                                     className="w-full h-10 px-3 bg-white border border-zinc-200 rounded-lg font-mono text-xs"
+                                   />
+                                 </div>
+
                                  {selectedElement.type === 'shape' && (
                                    <>
                                       <div className="space-y-2">
-                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Hex Color</label>
+                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Fill Color</label>
                                         <input 
                                           type="color"
                                           value={selectedElement.style.color}
@@ -916,7 +1057,7 @@ export default function GeneratePage() {
                                         />
                                       </div>
                                       <div className="space-y-2">
-                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Curve</label>
+                                        <label className="font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Radius</label>
                                         <input 
                                           type="text"
                                           placeholder="10px"
@@ -942,7 +1083,7 @@ export default function GeneratePage() {
                       )}
                     </div>
 
-                    <div className="bg-zinc-950 p-8 rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)]">
+                    <div id="preview-container" className="bg-zinc-950 p-4 sm:p-8 rounded-[3.5rem] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] flex justify-center items-center overflow-hidden h-[650px]">
                        <CertificatePreview 
                           template={currentTemplate} 
                           data={issuance} 
@@ -951,6 +1092,7 @@ export default function GeneratePage() {
                           onElementUpdate={(els) => setCurrentTemplate({...currentTemplate, elements: els})}
                           selectedElementId={selectedElementId}
                           onElementSelect={setSelectedElementId}
+                          scale={previewScale}
                        />
                     </div>
 
