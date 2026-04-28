@@ -154,7 +154,7 @@ export default function ProfilePage() {
                         onClick={() => setUser({...user, entityType: type})}
                         className={`flex-1 h-12 rounded-xl font-display font-bold text-xs uppercase tracking-widest border transition-all ${
                           user?.entityType === type 
-                            ? 'bg-zinc-950 text-white border-zinc-900' 
+                            ? 'bg-zinc-100 text-zinc-950 border-zinc-200' 
                             : 'bg-white text-zinc-400 border-zinc-100 hover:border-zinc-200'
                         }`}
                       >
@@ -180,10 +180,10 @@ export default function ProfilePage() {
                 <button 
                   type="submit"
                   disabled={isSaving}
-                  className="w-full h-14 bg-zinc-950 text-white rounded-2xl font-display font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200 disabled:opacity-50"
+                  className="w-full h-14 bg-trust-green text-white rounded-2xl font-display font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/10 disabled:opacity-50"
                 >
                   {isSaving ? 'Updating...' : 'Save Profile Changes'}
-                  <Save className="w-5 h-5 text-trust-green" />
+                  <Save className="w-5 h-5 text-white" />
                 </button>
               </div>
             </motion.form>
@@ -223,18 +223,17 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="glass rounded-[2rem] p-8 border border-zinc-100 bg-zinc-950 text-white overflow-hidden relative"
+              className="glass rounded-[2rem] p-8 border border-zinc-100 bg-gradient-to-br from-trust-green/[0.02] to-transparent overflow-hidden relative shadow-sm"
             >
               <div className="relative z-10">
-                <h3 className="font-display font-bold text-lg mb-2">Technical Core</h3>
-                <p className="font-sans text-xs text-zinc-400 mb-6 leading-relaxed">Your account is connected to the primary verification relay.</p>
+                <h3 className="font-display font-bold text-lg text-zinc-900 mb-2">Technical Core</h3>
+                <p className="font-sans text-xs text-zinc-500 mb-6 leading-relaxed">Your account is connected to the primary verification relay.</p>
                 
-                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                  <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest mb-1">Public Key Hash</p>
-                  <p className="font-mono text-[10px] text-trust-green truncate">TC_X84_92K_L0P_0091_X902_V1</p>
+                <div className="p-4 bg-white rounded-xl border border-zinc-100 shadow-sm">
+                  <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest mb-1">Public Key Hash</p>
+                  <p className="font-mono text-[10px] text-trust-green truncate font-bold">TC_X84_92K_L0P_0091_X902_V1</p>
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-trust-green/10 blur-3xl rounded-full" />
             </motion.section>
           </div>
         </div>

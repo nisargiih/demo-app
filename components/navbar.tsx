@@ -54,8 +54,9 @@ export function Sidebar() {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { name: 'My Hashes', icon: History, path: '/archive' },
+    { name: 'Verify Doc', icon: ShieldCheck, path: '/verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
-    { name: 'History', icon: History, path: '/history' },
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
@@ -135,12 +136,18 @@ export function Sidebar() {
                       href={item.path}
                       className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-display font-bold text-sm transition-all group ${
                         isActive 
-                          ? 'bg-zinc-950 text-white shadow-xl' 
+                          ? 'bg-zinc-100 text-zinc-950 shadow-sm' 
                           : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950'
                       }`}
                     >
-                      <item.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-950'}`} />
+                      <item.icon className={`w-4 h-4 transition-colors ${isActive ? 'text-zinc-950' : 'text-zinc-400 group-hover:text-zinc-950'}`} />
                       {item.name}
+                      {isActive && (
+                        <motion.div 
+                          layoutId="active-indicator-security"
+                          className="ml-auto w-1.5 h-1.5 bg-zinc-950 rounded-full"
+                        />
+                      )}
                     </Link>
                   );
                 })}

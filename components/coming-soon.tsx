@@ -29,7 +29,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-24 h-24 bg-zinc-950 rounded-[2rem] flex items-center justify-center mx-auto mb-12 shadow-2xl shadow-zinc-200"
+          className="w-24 h-24 bg-white border border-zinc-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-xl shadow-zinc-100"
         >
           <Hammer className="text-trust-green w-10 h-10 animate-bounce" />
         </motion.div>
@@ -68,7 +68,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
         >
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-zinc-950 text-white rounded-2xl font-bold hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-zinc-200 text-zinc-900 rounded-2xl font-bold hover:bg-zinc-50 transition-all shadow-md"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Dashboard

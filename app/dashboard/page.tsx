@@ -17,7 +17,10 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 
+import { useRouter } from 'next/navigation';
+
 export default function DashboardPage() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [hash, setHash] = useState<string | null>(null);
@@ -25,6 +28,8 @@ export default function DashboardPage() {
   const [isEditingExpiry, setIsEditingExpiry] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
 
   const fetchHistory = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -38,6 +43,8 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsHistoryLoading(false);
     }
   }, []);
 
@@ -212,14 +219,14 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-6"
                       >
-                        <div className="p-8 bg-zinc-950 rounded-[2rem] text-white overflow-hidden relative group">
-                          <div className="absolute inset-0 bg-gradient-to-br from-trust-green/10 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+                        <div className="p-8 bg-white border-2 border-trust-green/20 rounded-[2rem] text-zinc-950 overflow-hidden relative group shadow-xl shadow-trust-green/5">
+                          <div className="absolute inset-0 bg-gradient-to-br from-trust-green/[0.03] to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                           <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-4">
                               <Fingerprint className="w-4 h-4 text-trust-green" />
                               <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Document Fingerprint (SHA-256)</span>
                             </div>
-                            <p className="font-mono text-lg font-bold break-all tracking-wider text-trust-green leading-tight">
+                            <p className="font-mono text-lg font-bold break-all tracking-wider text-zinc-950 leading-tight">
                               {hash}
                             </p>
                           </div>
@@ -272,10 +279,10 @@ export default function DashboardPage() {
 
                           <button 
                             onClick={handleStoreHash}
-                            className="px-8 bg-zinc-950 text-white rounded-3xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all font-display"
+                            className="px-8 bg-trust-green text-white rounded-3xl font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 transition-all font-display shadow-lg shadow-trust-green/20"
                           >
                             Store on Chain
-                            <CheckCircle2 className="w-5 h-5 text-trust-green shadow-[0_4px_12px_rgba(16,185,129,0.4)]" />
+                            <CheckCircle2 className="w-5 h-5 shadow-[0_4px_12px_rgba(255,255,255,0.4)]" />
                           </button>
                         </div>
                       </motion.div>
@@ -313,8 +320,12 @@ export default function DashboardPage() {
                 <h3 className="font-display font-bold text-lg text-zinc-900">Recent Hashes</h3>
               </div>
               <div className="space-y-4">
-                 {history.length > 0 ? (
-                   history.map((record, i) => (
+                 {isHistoryLoading ? (
+                   [1, 2, 3].map(i => (
+                     <div key={i} className="h-20 bg-zinc-50 border border-zinc-100 rounded-2xl animate-pulse" />
+                   ))
+                 ) : history.length > 0 ? (
+                   history.slice(0, 3).map((record, i) => (
                      <div key={i} className="p-4 bg-white/50 border border-zinc-100 rounded-2xl hover:border-trust-green/20 transition-all cursor-pointer group">
                        <p className="font-mono text-[10px] text-trust-green font-bold mb-1 opacity-50">RECORD_{i + 1}</p>
                        <p className="font-display font-bold text-sm text-zinc-900 mb-1 group-hover:text-trust-green transition-colors truncate">{record.fileName}</p>
@@ -325,7 +336,12 @@ export default function DashboardPage() {
                    <p className="font-sans text-xs text-zinc-400 text-center py-8">No records indexed yet.</p>
                  )}
               </div>
-              <button className="w-full mt-6 py-3 font-display font-bold text-xs text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-[0.2em]">View All Records</button>
+              <button 
+                onClick={() => router.push('/archive')}
+                className="w-full mt-6 py-3 font-display font-bold text-xs text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-[0.2em]"
+              >
+                View Archive
+              </button>
             </section>
           </div>
         </div>

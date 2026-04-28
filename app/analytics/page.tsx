@@ -118,8 +118,8 @@ export default function AnalyticsPage() {
                 className="h-11 pl-10 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-xs w-64"
               />
             </div>
-            <button className="px-6 bg-zinc-950 text-white rounded-xl font-bold text-sm hover:bg-zinc-800 transition-colors">
-              Export YAML
+            <button className="px-6 bg-zinc-50 border border-zinc-100 text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 hover:border-zinc-200 transition-all shadow-sm">
+              Export Ledger
             </button>
           </div>
         </header>
