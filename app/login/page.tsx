@@ -40,6 +40,7 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
+        localStorage.setItem('user_first_name', result.user.firstName);
         setIsSuccess(true);
         setTimeout(() => {
           router.push('/dashboard');

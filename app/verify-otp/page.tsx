@@ -85,7 +85,7 @@ export default function VerifyOtpPage() {
                 <Lock className="text-trust-green w-8 h-8" />
               </div>
               <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Verify Identity</h2>
-              <p className="font-sans text-zinc-500 text-sm">We've sent a 4-digit code to your email.</p>
+              <p className="font-sans text-zinc-500 text-sm">We&apos;ve sent a 4-digit code to your email.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -113,7 +113,7 @@ export default function VerifyOtpPage() {
               </button>
 
               <p className="text-center font-sans text-xs text-zinc-500">
-                Didn't receive the code? <button type="button" className="text-trust-green font-bold">Resend</button>
+                Didn&apos;t receive the code? <button type="button" className="text-trust-green font-bold">Resend</button>
               </p>
             </form>
           </div>

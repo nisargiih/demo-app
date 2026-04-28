@@ -47,6 +47,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         localStorage.setItem('pending_verification_email', data.email);
+        localStorage.setItem('user_first_name', data.firstName);
         setIsSuccess(true);
         setTimeout(() => {
           router.push('/verify-otp');
