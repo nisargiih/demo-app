@@ -37,6 +37,9 @@ export async function PATCH(req: Request) {
        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    // Remove immutable fields that might be sent from the client
+    delete updateData._id;
+
     const client = await clientPromise;
     const db = client.db('tech-core');
     const users = db.collection('users');

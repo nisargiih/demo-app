@@ -11,7 +11,11 @@ import {
   CheckCircle2,
   Fingerprint,
   HardDrive,
-  Network
+  Network,
+  Briefcase,
+  Phone,
+  MapPin,
+  FileText
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -130,19 +134,76 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                    <input 
-                      type="email" 
-                      value={user?.email || ''}
-                      disabled
-                      className="w-full h-12 pl-11 pr-4 bg-zinc-100 border border-zinc-100 rounded-xl font-sans text-sm text-zinc-400 cursor-not-allowed"
-                    />
+                  <div className="space-y-2">
+                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                      <input 
+                        type="email" 
+                        value={user?.email || ''}
+                        disabled
+                        className="w-full h-12 pl-11 pr-4 bg-zinc-100 border border-zinc-100 rounded-xl font-sans text-sm text-zinc-400 cursor-not-allowed"
+                      />
+                    </div>
+                    <p className="font-mono text-[9px] text-zinc-400 pl-1">Immutable network identifier</p>
                   </div>
-                  <p className="font-mono text-[9px] text-zinc-400 pl-1">Immutable network identifier</p>
-                </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Job Title</label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                        <input 
+                          type="text" 
+                          placeholder="e.g. Protocol Engineer"
+                          value={user?.jobTitle || ''}
+                          onChange={(e) => setUser({...user, jobTitle: e.target.value})}
+                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Phone Number</label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                        <input 
+                          type="tel" 
+                          placeholder="+1 (555) 000-0000"
+                          value={user?.phone || ''}
+                          onChange={(e) => setUser({...user, phone: e.target.value})}
+                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Location</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                      <input 
+                        type="text" 
+                        placeholder="City, Country"
+                        value={user?.location || ''}
+                        onChange={(e) => setUser({...user, location: e.target.value})}
+                        className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Bio / Mission Statement</label>
+                    <div className="relative">
+                      <FileText className="absolute left-4 top-6 w-4 h-4 text-zinc-300" />
+                      <textarea 
+                        rows={4}
+                        placeholder="Tell us about your core mission..."
+                        value={user?.bio || ''}
+                        onChange={(e) => setUser({...user, bio: e.target.value})}
+                        className="w-full pl-11 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all resize-none"
+                      />
+                    </div>
+                  </div>
 
                 {message && (
                   <motion.div 
