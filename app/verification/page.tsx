@@ -396,14 +396,14 @@ function TierBadge({ entityType, isVerified }: { entityType?: string, isVerified
     ? 'bg-trust-green text-white border-trust-green shadow-lg shadow-trust-green/20' 
     : 'bg-zinc-950 text-white border-zinc-800 shadow-lg shadow-zinc-950/20';
 
-  const label = `${isVerified ? 'VERIFIED' : 'UNVERIFIED'} ${entityType.toUpperCase()}`;
+  const label = `${isVerified ? 'VERIFIED' : 'PENDING'} ${entityType.toUpperCase()}`;
 
   return (
     <div className={`px-4 py-1.5 rounded-full font-mono text-[10px] font-black uppercase tracking-[0.2em] border flex items-center gap-2.5 transition-all ${colors}`}>
       <div className="flex items-center gap-1.5 border-r border-white/20 pr-2.5 mr-0.5">
-        <span className="text-[8px] opacity-70">STATUS:</span>
+        <span className="text-[8px] opacity-70">NODE:</span>
       </div>
-      {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3 text-white/50" />}
+      {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-2 h-2 rounded-full bg-white/40 animate-pulse" />}
       {label}
     </div>
   );
@@ -415,7 +415,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'ghost',
       name: 'Ghost Node',
       icon: Lock,
-      status: (currentTier === 'individual' && !isVerified) ? 'current' : (isVerified || currentTier === 'business') ? 'completed' : 'upcoming',
+      status: (currentTier === 'individual' && !isVerified) ? 'current' : isVerified ? 'completed' : 'locked',
       label: 'Initial Access',
       perks: ['Base transactions', 'Limited storage', 'Standard support']
     },
@@ -423,7 +423,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'citizen',
       name: 'Citizen Node',
       icon: User,
-      status: (currentTier === 'individual' && isVerified) ? 'current' : (currentTier === 'business') ? 'completed' : (currentTier === 'individual' && !isVerified) ? 'upcoming' : 'locked',
+      status: (currentTier === 'individual' && isVerified) ? 'current' : (currentTier === 'business' && isVerified) ? 'completed' : 'locked',
       label: 'Verified Citizen',
       perks: ['Higher sig limits', 'Priority validation', 'Verified badge']
     },
@@ -431,7 +431,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'enterprise',
       name: 'Enterprise Hub',
       icon: Building,
-      status: (currentTier === 'business' && !isVerified) ? 'current' : (currentTier === 'business' && isVerified) ? 'completed' : (currentTier === 'individual' && isVerified) ? 'upcoming' : 'locked',
+      status: (currentTier === 'business' && !isVerified) ? 'current' : (currentTier === 'business' && isVerified) ? 'completed' : 'locked',
       label: 'Provisional Corp',
       perks: ['Unlimited sigs', 'Team sub-nodes', 'Enterprise API']
     },
@@ -439,7 +439,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'sovereign',
       name: 'Sovereign Node',
       icon: Star,
-      status: (currentTier === 'business' && isVerified) ? 'current' : 'upcoming',
+      status: (currentTier === 'business' && isVerified) ? 'current' : 'locked',
       label: 'Full Autonomy',
       perks: ['Zero-trust priority', 'Network governance', 'Maximum security']
     }
@@ -447,7 +447,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
 
   return (
     <div className="glass rounded-[2.5rem] p-10 border border-zinc-100 overflow-hidden relative">
-      <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+      <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none text-zinc-400">
         <Zap className="w-64 h-64 rotate-12" />
       </div>
 
@@ -465,7 +465,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
         <div className="flex items-center gap-4 px-4 py-2 bg-zinc-50 rounded-full border border-zinc-100">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-trust-green shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-            <span className="font-mono text-[9px] font-bold text-zinc-600 uppercase">Current</span>
+            <span className="font-mono text-[9px] font-bold text-zinc-600 uppercase">You are here</span>
           </div>
           <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-4">
             <div className="w-2 h-2 rounded-full bg-zinc-200" />
@@ -481,13 +481,13 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
         {tiers.map((tier, idx) => (
           <div key={idx} className="relative group">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 z-10 relative transition-all duration-500 
-              ${tier.status === 'current' ? 'bg-zinc-950 text-trust-green scale-110 shadow-xl shadow-zinc-900/20' : 
-                tier.status === 'completed' ? 'bg-trust-green text-white' : 'bg-zinc-50 text-zinc-300'}`}>
+              ${tier.status === 'current' ? 'bg-zinc-950 text-trust-green scale-110 shadow-xl shadow-zinc-900/40 ring-4 ring-trust-green/10' : 
+                tier.status === 'completed' ? 'bg-trust-green text-white shadow-lg shadow-trust-green/20' : 'bg-zinc-50 text-zinc-300 opacity-60'}`}>
               
               {tier.status === 'completed' ? <CheckCircle2 className="w-6 h-6" /> : <tier.icon className="w-5 h-5" />}
               
               {tier.status === 'current' && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-trust-green border-2 border-white rounded-full flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-trust-green border-2 border-white rounded-full flex items-center justify-center shadow-lg">
                   <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                 </div>
               )}
@@ -495,19 +495,19 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h4 className={`font-display font-bold text-sm ${['current', 'completed'].includes(tier.status) ? 'text-zinc-900' : 'text-zinc-400'}`}>
+                <h4 className={`font-display font-bold text-sm ${['current', 'completed'].includes(tier.status) ? 'text-zinc-900' : 'text-zinc-400 opacity-50'}`}>
                   {tier.name}
                 </h4>
               </div>
-              <p className={`font-mono text-[9px] uppercase tracking-widest font-black ${tier.status === 'current' ? 'text-trust-green' : tier.status === 'completed' ? 'text-zinc-400' : 'text-zinc-300'}`}>
-                {tier.status === 'current' ? 'OPERATIONAL' : tier.status.toUpperCase()}
+              <p className={`font-mono text-[9px] uppercase tracking-widest font-black ${tier.status === 'current' ? 'text-trust-green' : tier.status === 'completed' ? 'text-zinc-500' : 'text-zinc-200'}`}>
+                {tier.status === 'current' ? 'ACTIVE SECTOR' : tier.status.toUpperCase()}
               </p>
               
               <ul className="pt-4 space-y-2">
                 {tier.perks.map((perk, pIdx) => (
                   <li key={pIdx} className="flex items-start gap-2">
                     <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${['current', 'completed'].includes(tier.status) ? 'bg-trust-green/40' : 'bg-zinc-100'}`} />
-                    <span className={`font-sans text-[10px] leading-tight ${tier.status === 'current' ? 'text-zinc-600 font-medium' : tier.status === 'completed' ? 'text-zinc-400' : 'text-zinc-300'}`}>
+                    <span className={`font-sans text-[10px] leading-tight ${tier.status === 'current' ? 'text-zinc-600 font-medium' : tier.status === 'completed' ? 'text-zinc-400' : 'text-zinc-200'}`}>
                       {perk}
                     </span>
                   </li>
