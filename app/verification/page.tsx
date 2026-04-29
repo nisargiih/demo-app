@@ -85,6 +85,25 @@ export default function VerificationPage() {
     }
   };
 
+  const handleUpdateEntityType = async (type: 'individual' | 'business') => {
+    if (!user || user.entityType === type) return;
+    
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, entityType: type }),
+      });
+
+      if (res.ok) {
+        setUser({ ...user, entityType: type });
+        notify(`Operational mode switched to ${type.toUpperCase()}.`, 'info');
+      }
+    } catch (err) {
+      notify('Failed to switch protocol mode.', 'error');
+    }
+  };
+
   const submitVerification = async (type: string) => {
     notify(`Verification request for ${type.toUpperCase()} submitted for manual review.`, 'info');
     setVerificationType(null);
@@ -146,18 +165,47 @@ export default function VerificationPage() {
                   </p>
                 </div>
 
-                {user?.entityType === 'individual' && (
-                  <button 
-                    onClick={handleUpgradeToBusiness}
-                    className="w-full flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 hover:border-trust-green group transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Plus className="w-4 h-4 text-zinc-300 group-hover:text-trust-green" />
-                      <span className="font-display font-bold text-xs uppercase tracking-widest text-zinc-400 group-hover:text-zinc-900">Upgrade to Business</span>
+                <div className="space-y-4">
+                  {/* Rule 1: Not verified -> can switch freely */}
+                  {!user?.isVerified && (
+                    <div className="flex gap-2 p-1 bg-zinc-50 rounded-xl">
+                      <button 
+                        onClick={() => handleUpdateEntityType('individual')}
+                        className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'individual' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
+                      >
+                        Individual
+                      </button>
+                      <button 
+                        onClick={() => handleUpdateEntityType('business')}
+                        className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'business' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
+                      >
+                        Business
+                      </button>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-trust-green group-hover:translate-x-1 transition-all" />
-                  </button>
-                )}
+                  )}
+
+                  {/* Rule 2: Verified as individual -> can upgrade to business */}
+                  {user?.isVerified && user?.entityType === 'individual' && (
+                    <button 
+                      onClick={handleUpgradeToBusiness}
+                      className="w-full flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 hover:border-trust-green group transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Plus className="w-4 h-4 text-zinc-300 group-hover:text-trust-green" />
+                        <span className="font-display font-bold text-xs uppercase tracking-widest text-zinc-400 group-hover:text-zinc-900">Upgrade to Business</span>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-trust-green group-hover:translate-x-1 transition-all" />
+                    </button>
+                  )}
+
+                  {/* Rule 3: Verified as business -> no downgrade (just show status) */}
+                  {user?.isVerified && user?.entityType === 'business' && (
+                    <div className="flex items-center gap-3 p-4 bg-trust-green/5 rounded-2xl border border-trust-green/10">
+                      <ShieldCheck className="w-4 h-4 text-trust-green" />
+                      <span className="font-display font-bold text-[10px] uppercase tracking-widest text-trust-green">Entity Locked: Business Class</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Trust Score / Verification Status */}
