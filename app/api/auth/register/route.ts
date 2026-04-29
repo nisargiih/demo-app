@@ -23,11 +23,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    // In a real app, hash the password!
+    // Generate 6-char alphanumeric OTP
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let otp = '';
+    for (let i = 0; i < 6; i++) {
+      otp += chars[Math.floor(Math.random() * chars.length)];
+    }
+
     const newUser = {
       ...validatedData,
       isVerified: false,
-      otp: Math.floor(1000 + Math.random() * 9000).toString(), // Simple 4-digit OTP
+      otp, 
       createdAt: new Date(),
     };
 

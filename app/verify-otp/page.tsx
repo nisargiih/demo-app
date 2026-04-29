@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { useNotification } from '@/hooks/use-notification';
 
 const otpSchema = z.object({
-  otp: z.string().length(4, 'OTP must be 4 digits'),
+  otp: z.string().length(6, 'OTP must be 6 characters'),
 });
 
 type OtpInputs = z.infer<typeof otpSchema>;
@@ -42,7 +42,7 @@ export default function VerifyOtpPage() {
       const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: data.otp }),
+        body: JSON.stringify({ email, otp: data.otp.toUpperCase() }),
       });
       
       const result = await response.json();
@@ -70,7 +70,7 @@ export default function VerifyOtpPage() {
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 40 }}
+  initial={{ opacity: 0, scale: 0.9, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className="w-full max-w-[450px]"
         >
@@ -88,7 +88,7 @@ export default function VerifyOtpPage() {
                 <Lock className="text-trust-green w-8 h-8" />
               </div>
               <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Verify Identity</h2>
-              <p className="font-sans text-zinc-500 text-sm">We&apos;ve sent a 4-digit code to your email.</p>
+              <p className="font-sans text-zinc-500 text-sm">We&apos;ve sent a 6-character code to your email.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -97,10 +97,11 @@ export default function VerifyOtpPage() {
                 <div className="relative">
                   <input
                     {...register('otp')}
-                    maxLength={4}
+                    maxLength={6}
                     type="text"
-                    placeholder="0000"
-                    className="w-full h-20 text-center text-4xl font-display font-bold tracking-[0.5em] bg-zinc-50 border border-zinc-100 rounded-3xl focus:outline-none focus:border-trust-green/50 focus:ring-8 focus:ring-trust-green/5 transition-all"
+                    placeholder="XXXXXX"
+                    style={{ textTransform: 'uppercase' }}
+                    className="w-full h-20 text-center text-4xl font-display font-bold tracking-[0.3em] bg-zinc-50 border border-zinc-100 rounded-3xl focus:outline-none focus:border-trust-green/50 focus:ring-8 focus:ring-trust-green/5 transition-all"
                   />
                 </div>
                 {errors.otp && <p className="text-[10px] text-red-500 font-mono">{errors.otp.message}</p>}

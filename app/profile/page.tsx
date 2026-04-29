@@ -144,26 +144,6 @@ export default function ProfilePage() {
                   <p className="font-mono text-[9px] text-zinc-400 pl-1">Immutable network identifier</p>
                 </div>
 
-                <div className="space-y-2 pt-4">
-                  <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Account Entity</label>
-                  <div className="flex gap-4">
-                    {['individual', 'business'].map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setUser({...user, entityType: type})}
-                        className={`flex-1 h-12 rounded-xl font-display font-bold text-xs uppercase tracking-widest border transition-all ${
-                          user?.entityType === type 
-                            ? 'bg-zinc-100 text-zinc-950 border-zinc-200' 
-                            : 'bg-white text-zinc-400 border-zinc-100 hover:border-zinc-200'
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {message && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }}
