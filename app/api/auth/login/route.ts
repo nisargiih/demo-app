@@ -26,6 +26,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Please verify your email first', redirect: '/verify-otp' }, { status: 403 });
     }
 
+    // Check for 2FA
+    if (user.is2FAEnabled) {
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let otp = '';
+      for (let i = 0; i < 6; i++) {
+        otp += chars[Math.floor(Math.random() * chars.length)];
+      }
+
+      await users.updateOne(
+        { email },
+        { $set: { otp } }
+      );
+
+      return NextResponse.json({ 
+        requires2FA: true, 
+        message: 'Secondary authentication required' 
+      });
+    }
+
     return NextResponse.json({ 
       message: 'Login successful',
       user: { id: user._id, email: user.email, firstName: user.firstName }

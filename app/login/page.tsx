@@ -42,8 +42,16 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (response.ok) {
+        if (result.requires2FA) {
+          localStorage.setItem('pending_verification_email', data.email);
+          notify('Secondary authentication required. Check your email.', 'info');
+          router.push('/verify-otp');
+          return;
+        }
+
         localStorage.setItem('user_first_name', result.user.firstName);
         localStorage.setItem('authenticated_user_email', data.email);
+        localStorage.setItem('authenticated_user_id', result.user.id);
         setIsSuccess(true);
         notify('Authentication successful.', 'success');
         setTimeout(() => {

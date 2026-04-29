@@ -37,6 +37,23 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [notifications, setNotifications] = useState({ email: true, push: false, alerts: true });
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const email = localStorage.getItem('authenticated_user_email');
+      if (!email) return;
+      try {
+        const res = await fetch(`/api/auth/me?email=${email}`);
+        if (res.ok) {
+          const user = await res.json();
+          setIs2FAEnabled(!!user.is2FAEnabled);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwords.new !== passwords.confirm) {
@@ -44,10 +61,29 @@ export default function SettingsPage() {
       return;
     }
     
-    // API Call Mock
-    notify('Password updated successfully', 'success');
-    setShowPasswordChange(false);
-    setPasswords({ current: '', new: '', confirm: '' });
+    if (passwords.new.length < 8) {
+      notify('Password must be at least 8 characters', 'error');
+      return;
+    }
+
+    const email = localStorage.getItem('authenticated_user_email');
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: passwords.new }),
+      });
+
+      if (res.ok) {
+        notify('Credentials updated across network nodes.', 'success');
+        setShowPasswordChange(false);
+        setPasswords({ current: '', new: '', confirm: '' });
+      } else {
+        notify('Failed to update credentials.', 'error');
+      }
+    } catch (err) {
+      notify('Protocol error during update.', 'error');
+    }
   };
 
   const handleToggle2FA = async () => {
@@ -55,15 +91,28 @@ export default function SettingsPage() {
     const ok = await confirm({
       title: nextState ? 'Enable Two-Factor Authentication' : 'Disable Two-Factor Authentication',
       message: nextState 
-        ? 'Enabling 2FA adds an extra layer of security. You will need to verify your identity with a 6-character code during sensitive operations.'
+        ? 'Enabling 2FA adds an extra layer of security. You will need to verify your identity with a 6-character alphanumeric code during sensitive operations.'
         : 'Disabling 2FA reduces your account security. Are you sure you want to proceed?',
       confirmText: nextState ? 'Enable 2FA' : 'Disable 2FA',
       cancelText: 'Cancel'
     });
 
     if (ok) {
-      setIs2FAEnabled(nextState);
-      notify(`2FA successfully ${nextState ? 'enabled' : 'disabled'}.`, 'success');
+      const email = localStorage.getItem('authenticated_user_email');
+      try {
+        const res = await fetch('/api/auth/me', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, is2FAEnabled: nextState }),
+        });
+
+        if (res.ok) {
+          setIs2FAEnabled(nextState);
+          notify(`2FA protocol successfully ${nextState ? 'enforced' : 'decommissioned'}.`, 'success');
+        }
+      } catch (err) {
+        notify('Failed to synchronize 2FA status.', 'error');
+      }
     }
   };
 
