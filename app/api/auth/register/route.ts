@@ -34,19 +34,17 @@ export async function POST(req: Request) {
       otp += chars[Math.floor(Math.random() * chars.length)];
     }
 
-    // 2. Prepare for Storage
-    const encryptedUser = {
-      email: validatedData.email, // Indexable
-      firstName: SecurityService.prepareForStorage(validatedData.firstName),
-      lastName: SecurityService.prepareForStorage(validatedData.lastName),
-      password: SecurityService.prepareForStorage(validatedData.password), // Use storage encryption as requested
+    // 2. Prepare for Storage (Store in plain text as requested)
+    const email = validatedData.email.trim().toLowerCase();
+    const newUser = {
+      ...validatedData,
+      email, // Indexable
       isVerified: false,
       otp, 
       createdAt: new Date(),
-      isStoredEncrypted: true
     };
 
-    await users.insertOne(encryptedUser);
+    await users.insertOne(newUser);
 
     const response = { message: 'Registration successful' };
     return NextResponse.json(SecurityService.prepareForTransit(response), { status: 201 });

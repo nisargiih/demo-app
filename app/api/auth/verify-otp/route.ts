@@ -8,7 +8,8 @@ export async function POST(req: Request) {
     
     // 1. Process from Transit
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { email, otp } = data;
+    const { email: rawEmail, otp } = data;
+    const email = rawEmail?.trim().toLowerCase();
 
     if (!email || !otp) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Missing parameters' }), { status: 400 });

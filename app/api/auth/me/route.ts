@@ -6,11 +6,13 @@ import { SecurityService } from '@/lib/security-service';
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
+    const rawEmail = searchParams.get('email');
 
-    if (!email) {
+    if (!rawEmail) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+
+    const email = rawEmail.trim().toLowerCase();
 
     const client = await clientPromise;
     const db = client.db('tech-core');
@@ -20,16 +22,6 @@ export async function GET(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Decrypt sensitive fields from storage
-    if (user.isStoredEncrypted) {
-      const sensitiveFields = ['firstName', 'lastName', 'jobTitle', 'phone', 'location', 'bio', 'company'];
-      sensitiveFields.forEach(field => {
-        if (user[field]) {
-          user[field] = SecurityService.processFromStorage(user[field]);
-        }
-      });
     }
 
     // Don't send password or internal data
@@ -49,24 +41,16 @@ export async function PATCH(req: Request) {
     
     // 1. Decrypt from transit
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { email, ...updateData } = data;
+    const { email: rawEmail, ...updateData } = data;
 
-    if (!email) {
+    if (!rawEmail) {
        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    const email = rawEmail.trim().toLowerCase();
+
     // Remove immutable fields
     delete updateData._id;
-
-    // 2. Encrypt sensitive fields for storage
-    const encryptedUpdateData: any = { ...updateData, isStoredEncrypted: true };
-    const sensitiveFields = ['firstName', 'lastName', 'jobTitle', 'phone', 'location', 'bio', 'company'];
-    
-    sensitiveFields.forEach(field => {
-      if (encryptedUpdateData[field]) {
-        encryptedUpdateData[field] = SecurityService.prepareForStorage(encryptedUpdateData[field]);
-      }
-    });
 
     const client = await clientPromise;
     const db = client.db('tech-core');
@@ -74,7 +58,7 @@ export async function PATCH(req: Request) {
 
     await users.updateOne(
       { email },
-      { $set: encryptedUpdateData }
+      { $set: updateData }
     );
 
     const response = { message: 'Profile updated' };

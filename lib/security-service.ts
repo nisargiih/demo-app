@@ -31,15 +31,17 @@ export const SecurityService = {
 
   /**
    * Used by BACKEND to prepare data for database storage.
+   * (Disabled: Storing as plain data as requested)
    */
   prepareForStorage: (data: any) => {
-    return encryptStorage(data);
+    return data;
   },
 
   /**
    * Used by BACKEND to process data coming from database.
+   * (Disabled: Reading as plain data as requested)
    */
-  processFromStorage: (ciphertext: string) => {
-    return decryptStorage(ciphertext);
+  processFromStorage: (data: any) => {
+    return data;
   }
 };

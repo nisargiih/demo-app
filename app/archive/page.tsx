@@ -41,7 +41,7 @@ export default function ArchivePage() {
     if (!email) return;
 
     try {
-      const res = await fetch(`/api/hashes?email=${email}`);
+      const res = await fetch(`/api/hashes?email=${encodeURIComponent(email)}`);
       if (res.ok) {
         const body = await res.json();
         // Process encrypted response from transit

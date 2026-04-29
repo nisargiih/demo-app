@@ -6,7 +6,7 @@ import { SecurityService } from '@/lib/security-service';
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
+    const rawEmail = searchParams.get('email');
     const hashValue = searchParams.get('hash');
 
     const client = await clientPromise;
@@ -15,33 +15,18 @@ export async function GET(req: Request) {
 
     if (hashValue) {
       const record = await hashes.findOne({ hash: hashValue });
-      if (record && record.isStoredEncrypted) {
-        // Decrypt storage data before sending
-        record.fileName = SecurityService.processFromStorage(record.fileName);
-        record.hashValue = SecurityService.processFromStorage(record.hashValue);
-      }
       return NextResponse.json(record);
     }
 
-    if (!email) {
+    if (!rawEmail) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    const email = rawEmail.trim().toLowerCase();
+
     const history = await hashes.find({ userEmail: email }).sort({ createdAt: -1 }).toArray();
     
-    // Decrypt storage data for the list
-    const decryptedHistory = history.map(item => {
-      if (item.isStoredEncrypted) {
-        return {
-          ...item,
-          fileName: SecurityService.processFromStorage(item.fileName),
-          hash: SecurityService.processFromStorage(item.hash)
-        };
-      }
-      return item;
-    });
-
-    return NextResponse.json(SecurityService.prepareForTransit(decryptedHistory));
+    return NextResponse.json(SecurityService.prepareForTransit(history));
   } catch (error) {
     console.error('API GET Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -64,26 +49,18 @@ export async function POST(req: Request) {
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
-    // 2. Prepare for Storage (Encrypt sensitive fields using different key/algo)
-    const encryptedFileName = SecurityService.prepareForStorage(fileName);
-    const encryptedHash = SecurityService.prepareForStorage(hash);
-
-    // Check for duplicate (we search by userEmail and hash, but if hash is encrypted we can't easily search unless we hash it or keep a searchable index)
-    // For this demo, we'll just insert
-    
     const newHash = {
-      userEmail,
-      fileName: encryptedFileName,
+      userEmail: userEmail.trim().toLowerCase(),
+      fileName,
       fileSize,
-      hash: encryptedHash,
+      hash,
       expiryDate,
       createdAt: new Date(),
-      isStoredEncrypted: true // Flag to know we need to decrypt on read
     };
 
     const result = await hashes.insertOne(newHash);
 
-    // 3. Return encrypted for transit (Optional but good for symmetry)
+    // 2. Return encrypted for transit
     const responseData = { message: 'Hash stored successfully', id: result.insertedId };
     return NextResponse.json(SecurityService.prepareForTransit(responseData));
   } catch (error) {

@@ -593,7 +593,7 @@ export default function GeneratePage() {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) return;
     try {
-      const res = await fetch(`/api/templates?email=${email}`);
+      const res = await fetch(`/api/templates?email=${encodeURIComponent(email)}`);
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);

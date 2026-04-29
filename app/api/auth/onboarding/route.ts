@@ -8,7 +8,8 @@ export async function POST(req: Request) {
     
     // 1. Process from Transit
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { email, entityType } = data;
+    const { email: rawEmail, entityType } = data;
+    const email = rawEmail?.trim().toLowerCase();
 
     if (!email || !entityType) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Missing information' }), { status: 400 });

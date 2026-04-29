@@ -14,7 +14,8 @@ export async function POST(req: Request) {
     
     // 1. Process from Transit
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { email, password } = loginSchema.parse(data);
+    const { email: rawEmail, password } = loginSchema.parse(data);
+    const email = rawEmail.trim().toLowerCase();
 
     const client = await clientPromise;
     const db = client.db('tech-core');
@@ -26,12 +27,8 @@ export async function POST(req: Request) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Invalid credentials' }), { status: 401 });
     }
 
-    // Compare passwords (decrypt from storage if needed)
-    const storedPassword = user.isStoredEncrypted 
-      ? SecurityService.processFromStorage(user.password)
-      : user.password;
-
-    if (storedPassword !== password) {
+    // Compare passwords (plain text comparison in DB as requested)
+    if (user.password !== password) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Invalid credentials' }), { status: 401 });
     }
 
@@ -58,12 +55,9 @@ export async function POST(req: Request) {
       }));
     }
 
-    // Decrypt names for the response user object
-    const firstName = user.isStoredEncrypted ? SecurityService.processFromStorage(user.firstName) : user.firstName;
-
     const response = { 
       message: 'Login successful',
-      user: { id: user._id, email: user.email, firstName }
+      user: { id: user._id, email: user.email, firstName: user.firstName }
     };
     
     return NextResponse.json(SecurityService.prepareForTransit(response));
