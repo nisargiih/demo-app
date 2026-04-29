@@ -6,9 +6,11 @@ import { ArrowRight, User as UserIcon, Building, ShieldCheck } from 'lucide-reac
 import { BackgroundAnimation } from '@/components/background-animation';
 import { Footer } from '@/components/layout-shared';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '@/hooks/use-notification';
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [selected, setSelected] = useState<'individual' | 'business' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,12 +27,13 @@ export default function OnboardingPage() {
       });
       
       if (response.ok) {
+        notify('Account protocol initialized successfully.', 'success');
         router.push('/dashboard'); 
       } else {
-        alert('Failed to save configuration');
+        notify('Failed to save configuration', 'error');
       }
     } catch (error) {
-      alert('An error occurred');
+      notify('An error occurred during onboarding', 'error');
     } finally {
       setIsSubmitting(false);
     }

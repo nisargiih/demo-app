@@ -10,6 +10,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '@/hooks/use-notification';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -20,6 +21,7 @@ type LoginInputs = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -41,7 +43,9 @@ export default function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem('user_first_name', result.user.firstName);
+        localStorage.setItem('authenticated_user_email', data.email);
         setIsSuccess(true);
+        notify('Authentication successful.', 'success');
         setTimeout(() => {
           router.push('/dashboard');
         }, 2000);
@@ -49,11 +53,11 @@ export default function LoginPage() {
         if (result.redirect) {
           router.push(result.redirect);
         } else {
-          alert(result.error || 'Login failed');
+          notify(result.error || 'Authentication mismatch', 'error');
         }
       }
     } catch (error) {
-      alert('An error occurred');
+      notify('An error occurred during authentication', 'error');
     } finally {
       setIsSubmitting(false);
     }

@@ -20,8 +20,10 @@ import {
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { useNotification } from '@/hooks/use-notification';
 
 export default function ArchivePage() {
+  const { notify, confirm } = useNotification();
   const [history, setHistory] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,15 +58,24 @@ export default function ArchivePage() {
   }, [fetchHistory]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this ledger entry?')) return;
+    const ok = await confirm({
+      title: 'Remove Ledger Entry',
+      message: 'Are you sure you want to remove this ledger entry? This action is irreversible.',
+      confirmText: 'Delete Entry',
+      cancelText: 'Keep Entry'
+    });
+    
+    if (!ok) return;
     
     try {
       const res = await fetch(`/api/hashes?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         setHistory(history.filter(h => h._id !== id));
+        notify('Archive entry successfully purged.', 'success');
       }
     } catch (err) {
       console.error(err);
+      notify('Failed to delete entry.', 'error');
     }
   };
 

@@ -16,11 +16,13 @@ import {
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { useNotification } from '@/hooks/use-notification';
 
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [hash, setHash] = useState<string | null>(null);
@@ -99,7 +101,9 @@ export default function DashboardPage() {
 
       if (res.ok) {
         if (data.alreadyExists) {
-          alert('Note: This document fingerprint is already indexed in your secure archive.');
+          notify('Note: This document fingerprint is already indexed in your secure archive.', 'info');
+        } else {
+          notify('Document successfully notarized on-chain.', 'success');
         }
         fetchHistory();
         resetUpload();

@@ -10,6 +10,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '@/hooks/use-notification';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -26,6 +27,7 @@ type RegisterInputs = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -49,16 +51,17 @@ export default function RegisterPage() {
         localStorage.setItem('pending_verification_email', data.email);
         localStorage.setItem('user_first_name', data.firstName);
         setIsSuccess(true);
+        notify('Initial registration hash generated. Awaiting signature.', 'success');
         setTimeout(() => {
           router.push('/verify-otp');
         }, 2000);
       } else {
         const errDetails = result.error;
         const msg = typeof errDetails === 'string' ? errDetails : 'Registration failed. Check connectivity.';
-        alert(msg);
+        notify(msg, 'error');
       }
     } catch (error) {
-      alert('An error occurred');
+      notify('An error occurred. Protocol failure.', 'error');
     } finally {
       setIsSubmitting(false);
     }

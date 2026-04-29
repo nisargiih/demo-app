@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { useNotification } from '@/hooks/use-notification';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Rnd } from 'react-rnd';
@@ -479,6 +480,7 @@ const CertificatePreview = ({
 // --- Main Page Component ---
 
 export default function GeneratePage() {
+  const { notify, confirm } = useNotification();
   // State: Workflow
   const [activeTab, setActiveTab] = useState<'create' | 'issue' | 'history'>('create');
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Design, 2: Preview, 3: Issue
@@ -500,7 +502,6 @@ export default function GeneratePage() {
 
   // State: UI & Feedback
   const [isLoading, setIsLoading] = useState(false);
-  const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   // State: Advanced Editor
@@ -598,11 +599,18 @@ export default function GeneratePage() {
 
   // --- Effects ---
 
-  const handleNewTemplate = () => {
-    if (confirm('Initialize new blueprint protocol? Current unsaved state will be purged.')) {
+  const handleNewTemplate = async () => {
+    const ok = await confirm({
+      title: 'Initialize New Blueprint',
+      message: 'Are you sure you want to initialize a new blueprint protocol? Current unsaved state will be purged.',
+      confirmText: 'Purge & Start',
+      cancelText: 'Resume Session'
+    });
+
+    if (ok) {
       setCurrentTemplate({ ...DEFAULT_TEMPLATE, _id: undefined, pageSize: 'a4_landscape' });
       setSelectedElementId(null);
-      notify('New blueprint environment ready.');
+      notify('New blueprint environment ready.', 'success');
     }
   };
 
@@ -617,11 +625,6 @@ export default function GeneratePage() {
     };
     init();
   }, [fetchTemplates]);
-
-  const notify = (message: string, type: 'success' | 'error' = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 4000);
-  };
 
   const handleSaveTemplate = async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -655,11 +658,18 @@ export default function GeneratePage() {
 
   const handleDeleteTemplate = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Permanent deletion requested. Confirm?')) return;
+    const ok = await confirm({
+      title: 'Purge Template',
+      message: 'Permanent deletion requested. Are you sure you want to purge this template archive?',
+      confirmText: 'Purge Archive',
+      cancelText: 'Retain'
+    });
+
+    if (!ok) return;
     try {
       const res = await fetch(`/api/templates?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        notify('Template purged.');
+        notify('Template purged.', 'success');
         fetchTemplates();
         if (selectedTemplateId === id) setSelectedTemplateId('');
       }
@@ -775,25 +785,6 @@ export default function GeneratePage() {
       <Sidebar />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto py-12 lg:py-20">
-        {/* Top Notification */}
-        <AnimatePresence>
-          {notification && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className={`fixed top-12 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-3xl flex items-center gap-3 border shadow-2xl backdrop-blur-xl ${
-                notification.type === 'success' 
-                  ? 'bg-zinc-950/90 border-trust-green/20 text-white' 
-                  : 'bg-red-500/90 border-red-400/20 text-white'
-              }`}
-            >
-              {notification.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-trust-green" /> : <AlertCircle className="w-5 h-5" />}
-              <p className="font-display font-bold text-sm">{notification.message}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
             <div className="flex items-center gap-4 mb-4">
@@ -979,13 +970,21 @@ export default function GeneratePage() {
                     {PRESETS.map((preset, idx) => (
                       <button
                         key={idx}
-                        onClick={() => {
-                          if(confirm('Apply preset? This will overwrite current canvas layers.')) {
+                        onClick={async () => {
+                          const ok = await confirm({
+                            title: 'Apply Preset',
+                            message: 'This will overwrite your current canvas layers with the selected preset. Proceed?',
+                            confirmText: 'Apply Layer Preset',
+                            cancelText: 'Cancel'
+                          });
+
+                          if(ok) {
                             setCurrentTemplate({
                               ...currentTemplate,
                               ...preset,
                               _id: undefined // Don't preserve preset ID
                             } as TemplateConfig);
+                            notify('Preset configuration applied.', 'success');
                           }
                         }}
                         className="w-full p-3 bg-white border border-zinc-100 rounded-xl hover:border-trust-green/20 transition-all flex items-center justify-between group"

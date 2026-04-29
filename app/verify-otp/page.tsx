@@ -10,6 +10,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { Footer } from '@/components/layout-shared';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useNotification } from '@/hooks/use-notification';
 
 const otpSchema = z.object({
   otp: z.string().length(4, 'OTP must be 4 digits'),
@@ -19,6 +20,7 @@ type OtpInputs = z.infer<typeof otpSchema>;
 
 export default function VerifyOtpPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -31,7 +33,7 @@ export default function VerifyOtpPage() {
     const email = localStorage.getItem('pending_verification_email');
 
     if (!email) {
-      alert('Session expired. Please register again.');
+      notify('Session expired. Please register again.', 'error');
       router.push('/');
       return;
     }
@@ -48,14 +50,15 @@ export default function VerifyOtpPage() {
       if (response.ok) {
         localStorage.setItem('authenticated_user_email', email);
         setIsSuccess(true);
+        notify('Identity verified. Synchronizing node...', 'success');
         setTimeout(() => {
           router.push('/onboarding');
         }, 2000);
       } else {
-        alert(result.error || 'Invalid OTP');
+        notify(result.error || 'Invalid OTP segment', 'error');
       }
     } catch (error) {
-      alert('An error occurred');
+      notify('An error occurred during verification', 'error');
     } finally {
       setIsSubmitting(false);
     }

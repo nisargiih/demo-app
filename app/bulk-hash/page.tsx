@@ -20,6 +20,7 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '@/hooks/use-notification';
 
 interface FileRecord {
   file: File;
@@ -30,6 +31,7 @@ interface FileRecord {
 
 export default function BulkHashPage() {
   const router = useRouter();
+  const { notify, confirm } = useNotification();
   const [files, setFiles] = useState<FileRecord[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -118,9 +120,17 @@ export default function BulkHashPage() {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const clearAll = () => {
-    if (confirm('Clear all files from the current session?')) {
+  const clearAll = async () => {
+    const ok = await confirm({
+      title: 'Clear Session Manifest',
+      message: 'Are you sure you want to clear all imported files from the current session? This cannot be undone.',
+      confirmText: 'Clear All',
+      cancelText: 'Keep Files'
+    });
+    
+    if (ok) {
       setFiles([]);
+      notify('Session manifest cleared.', 'info');
     }
   };
 
