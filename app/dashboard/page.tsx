@@ -87,7 +87,7 @@ export default function DashboardPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
+          userEmail: email,
           fileName: file.name,
           fileSize: file.size,
           hash,
