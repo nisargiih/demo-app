@@ -38,6 +38,7 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -376,7 +377,7 @@ const CertificatePreview = ({
                       className="object-contain pointer-events-none" 
                       alt="" 
                       fill 
-                      unoptimized
+                      referrerPolicy="no-referrer"
                     />
                   </div>
                 )}
@@ -423,7 +424,7 @@ const CertificatePreview = ({
                   className="object-contain" 
                   alt="" 
                   fill 
-                  unoptimized
+                  referrerPolicy="no-referrer"
                 />
               </div>
             )}
@@ -454,7 +455,7 @@ const CertificatePreview = ({
                   className="object-contain" 
                   alt="Logo" 
                   fill 
-                  unoptimized
+                  referrerPolicy="no-referrer"
                 />
               </div>
             ) : (
@@ -498,7 +499,7 @@ const CertificatePreview = ({
                     className="object-contain grayscale" 
                     alt="Stamp" 
                     fill 
-                    unoptimized
+                    referrerPolicy="no-referrer"
                   />
                 )}
               </div>
@@ -515,7 +516,7 @@ const CertificatePreview = ({
                     className="object-contain mix-blend-multiply" 
                     alt="Signature" 
                     fill 
-                    unoptimized
+                    referrerPolicy="no-referrer"
                   />
                 )}
               </div>

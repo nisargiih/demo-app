@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { 
   User, 
@@ -193,6 +194,35 @@ export default function ProfilePage() {
                           placeholder="+1 (555) 000-0000"
                           value={user?.phone || ''}
                           onChange={(e) => setUser({...user, phone: e.target.value})}
+                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">PAN Card Number</label>
+                      <div className="relative">
+                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                        <input 
+                          type="text" 
+                          placeholder="ABCDE1234F"
+                          value={user?.pan || ''}
+                          onChange={(e) => setUser({...user, pan: e.target.value.toUpperCase()})}
+                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all uppercase"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Aadhaar Number</label>
+                      <div className="relative">
+                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                        <input 
+                          type="text" 
+                          placeholder="1234 5678 9012"
+                          value={user?.aadhaar || ''}
+                          onChange={(e) => setUser({...user, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12)})}
                           className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
                         />
                       </div>

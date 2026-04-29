@@ -22,10 +22,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { SecurityService } from '@/lib/security-service';
 
 export function Sidebar() {
   const [userName, setUserName] = useState('User Account');
   const [userEmail, setUserEmail] = useState('user@techcore.io');
+  const [isVerified, setIsVerified] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -38,9 +40,12 @@ export function Sidebar() {
       try {
         const res = await fetch(`/api/auth/me?email=${email}`);
         if (res.ok) {
-          const data = await res.json();
+          const body = await res.json();
+          const data = SecurityService.processFromTransit(body);
           if (data.firstName) setUserName(data.firstName);
           if (data.email) setUserEmail(data.email);
+          // Check if PAN and Aadhaar are present
+          setIsVerified(!!(data.pan && data.aadhaar));
         }
       } catch (err) {
         console.error(err);
@@ -166,8 +171,16 @@ export function Sidebar() {
                 {userName.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-display font-bold text-sm text-zinc-900 truncate">{userName}</p>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <p className="font-display font-bold text-sm text-zinc-900 truncate">{userName}</p>
+                  {isVerified && <ShieldCheck className="w-3 h-3 text-trust-green fill-trust-green/10 shrink-0" />}
+                </div>
                 <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
+                {isVerified ? (
+                  <p className="font-mono text-[8px] text-trust-green font-bold uppercase tracking-widest mt-0.5">Identity Verified</p>
+                ) : (
+                  <p className="font-mono text-[8px] text-amber-500 font-bold uppercase tracking-widest mt-0.5">Unverified Phase</p>
+                )}
               </div>
               <button 
                 onClick={handleLogout}
