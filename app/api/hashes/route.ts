@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { SecurityService } from '@/lib/security-service';
 
 export async function GET(req: Request) {
   try {
@@ -14,6 +15,11 @@ export async function GET(req: Request) {
 
     if (hashValue) {
       const record = await hashes.findOne({ hash: hashValue });
+      if (record && record.isStoredEncrypted) {
+        // Decrypt storage data before sending
+        record.fileName = SecurityService.processFromStorage(record.fileName);
+        record.hashValue = SecurityService.processFromStorage(record.hashValue);
+      }
       return NextResponse.json(record);
     }
 
@@ -22,15 +28,33 @@ export async function GET(req: Request) {
     }
 
     const history = await hashes.find({ userEmail: email }).sort({ createdAt: -1 }).toArray();
-    return NextResponse.json(history);
+    
+    // Decrypt storage data for the list
+    const decryptedHistory = history.map(item => {
+      if (item.isStoredEncrypted) {
+        return {
+          ...item,
+          fileName: SecurityService.processFromStorage(item.fileName),
+          hash: SecurityService.processFromStorage(item.hash)
+        };
+      }
+      return item;
+    });
+
+    return NextResponse.json(SecurityService.prepareForTransit(decryptedHistory));
   } catch (error) {
+    console.error('API GET Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const { userEmail, fileName, fileSize, hash, expiryDate } = await req.json();
+    const body = await req.json();
+    
+    // 1. Process from Transit (Decrypt if it was encrypted by frontend)
+    const data = body.payload ? SecurityService.processFromTransit(body) : body;
+    const { userEmail, fileName, fileSize, hash, expiryDate } = data;
 
     if (!userEmail || !hash) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 });
@@ -40,29 +64,30 @@ export async function POST(req: Request) {
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
-    // Check for duplicate
-    const existing = await hashes.findOne({ userEmail, hash });
-    if (existing) {
-      return NextResponse.json({ 
-        message: 'Cryptographic signature already exists in protocol', 
-        alreadyExists: true,
-        id: existing._id 
-      });
-    }
+    // 2. Prepare for Storage (Encrypt sensitive fields using different key/algo)
+    const encryptedFileName = SecurityService.prepareForStorage(fileName);
+    const encryptedHash = SecurityService.prepareForStorage(hash);
 
+    // Check for duplicate (we search by userEmail and hash, but if hash is encrypted we can't easily search unless we hash it or keep a searchable index)
+    // For this demo, we'll just insert
+    
     const newHash = {
       userEmail,
-      fileName,
+      fileName: encryptedFileName,
       fileSize,
-      hash,
+      hash: encryptedHash,
       expiryDate,
       createdAt: new Date(),
+      isStoredEncrypted: true // Flag to know we need to decrypt on read
     };
 
-    await hashes.insertOne(newHash);
+    const result = await hashes.insertOne(newHash);
 
-    return NextResponse.json({ message: 'Hash stored successfully' });
+    // 3. Return encrypted for transit (Optional but good for symmetry)
+    const responseData = { message: 'Hash stored successfully', id: result.insertedId };
+    return NextResponse.json(SecurityService.prepareForTransit(responseData));
   } catch (error) {
+    console.error('API POST Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -41,6 +41,7 @@ import { useNotification } from '@/hooks/use-notification';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Rnd } from 'react-rnd';
+import { SecurityService } from '@/lib/security-service';
 
 // --- Types & Interfaces ---
 
@@ -594,7 +595,8 @@ export default function GeneratePage() {
     try {
       const res = await fetch(`/api/templates?email=${email}`);
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
         setSavedTemplates(data);
       }
     } catch (err) {
@@ -643,13 +645,17 @@ export default function GeneratePage() {
         ? { ...currentTemplate, id: currentTemplate._id } 
         : { ...currentTemplate, userEmail: email };
 
+      const payload = SecurityService.prepareForTransit(body);
+
       const res = await fetch('/api/templates', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
+        const responseBody = await res.json();
+        const data = SecurityService.processFromTransit(responseBody);
         notify('Template saved successfully.');
         fetchTemplates();
       } else {
@@ -675,6 +681,8 @@ export default function GeneratePage() {
     try {
       const res = await fetch(`/api/templates?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
         notify('Template purged.', 'success');
         fetchTemplates();
         if (selectedTemplateId === id) setSelectedTemplateId('');

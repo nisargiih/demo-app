@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -33,13 +34,15 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginInputs) => {
     setIsSubmitting(true);
     try {
+      const payload = SecurityService.prepareForTransit(data);
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       
-      const result = await response.json();
+      const body = await response.json();
+      const result = SecurityService.processFromTransit(body);
 
       if (response.ok) {
         if (result.requires2FA) {

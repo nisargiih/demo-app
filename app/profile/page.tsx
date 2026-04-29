@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { SecurityService } from '@/lib/security-service';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -34,7 +35,8 @@ export default function ProfilePage() {
       try {
         const res = await fetch(`/api/auth/me?email=${email}`);
         if (res.ok) {
-          const data = await res.json();
+          const body = await res.json();
+          const data = SecurityService.processFromTransit(body);
           setUser(data);
         }
       } catch (err) {
@@ -52,13 +54,16 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      const payload = SecurityService.prepareForTransit(user);
       const res = await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(user),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
         setMessage({ type: 'success', text: 'Profile updated successfully' });
         localStorage.setItem('user_first_name', user.firstName);
       } else {

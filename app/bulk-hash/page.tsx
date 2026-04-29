@@ -21,6 +21,7 @@ import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 interface FileRecord {
   file: File;
@@ -92,19 +93,22 @@ export default function BulkHashPage() {
 
     for (const record of readyFiles) {
       try {
+        const payload = SecurityService.prepareForTransit({
+          userEmail: email,
+          fileName: record.file.name,
+          fileSize: record.file.size,
+          hash: record.hash,
+          expiryDate: record.expiryDate || bulkExpiryDate || null
+        });
+
         const res = await fetch('/api/hashes', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userEmail: email,
-            fileName: record.file.name,
-            fileSize: record.file.size,
-            hash: record.hash,
-            expiryDate: record.expiryDate || bulkExpiryDate || null
-          }),
+          body: JSON.stringify(payload),
         });
 
-        const data = await res.json();
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
 
         if (res.ok) {
           setFiles(prev => prev.map(f => f.file === record.file ? { ...f, status: 'authenticated' as const } : f));

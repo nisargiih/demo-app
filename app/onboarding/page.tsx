@@ -7,6 +7,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { Footer } from '@/components/layout-shared';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -20,12 +21,16 @@ export default function OnboardingPage() {
     const email = localStorage.getItem('authenticated_user_email');
     
     try {
+      const payload = SecurityService.prepareForTransit({ email, entityType: selected });
       const response = await fetch('/api/auth/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, entityType: selected }),
+        body: JSON.stringify(payload),
       });
       
+      const body = await response.json();
+      const data = SecurityService.processFromTransit(body);
+
       if (response.ok) {
         notify('Account protocol initialized successfully.', 'success');
         router.push('/dashboard'); 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { SecurityService } from '@/lib/security-service';
 
 export async function GET(req: Request) {
   try {
@@ -21,24 +22,51 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Don't send password
+    // Decrypt sensitive fields from storage
+    if (user.isStoredEncrypted) {
+      const sensitiveFields = ['firstName', 'lastName', 'jobTitle', 'phone', 'location', 'bio', 'company'];
+      sensitiveFields.forEach(field => {
+        if (user[field]) {
+          user[field] = SecurityService.processFromStorage(user[field]);
+        }
+      });
+    }
+
+    // Don't send password or internal data
     const { password, otp, ...safeUser } = user;
-    return NextResponse.json(safeUser);
+    
+    // Encrypt for transit
+    return NextResponse.json(SecurityService.prepareForTransit(safeUser));
   } catch (error) {
+    console.error('Profile GET Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(req: Request) {
   try {
-    const { email, ...updateData } = await req.json();
+    const body = await req.json();
+    
+    // 1. Decrypt from transit
+    const data = body.payload ? SecurityService.processFromTransit(body) : body;
+    const { email, ...updateData } = data;
 
     if (!email) {
        return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Remove immutable fields that might be sent from the client
+    // Remove immutable fields
     delete updateData._id;
+
+    // 2. Encrypt sensitive fields for storage
+    const encryptedUpdateData: any = { ...updateData, isStoredEncrypted: true };
+    const sensitiveFields = ['firstName', 'lastName', 'jobTitle', 'phone', 'location', 'bio', 'company'];
+    
+    sensitiveFields.forEach(field => {
+      if (encryptedUpdateData[field]) {
+        encryptedUpdateData[field] = SecurityService.prepareForStorage(encryptedUpdateData[field]);
+      }
+    });
 
     const client = await clientPromise;
     const db = client.db('tech-core');
@@ -46,11 +74,13 @@ export async function PATCH(req: Request) {
 
     await users.updateOne(
       { email },
-      { $set: updateData }
+      { $set: encryptedUpdateData }
     );
 
-    return NextResponse.json({ message: 'Profile updated' });
+    const response = { message: 'Profile updated' };
+    return NextResponse.json(SecurityService.prepareForTransit(response));
   } catch (error) {
+    console.error('Profile PATCH Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

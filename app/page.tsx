@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -39,13 +40,15 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterInputs) => {
     setIsSubmitting(true);
     try {
+      const payload = SecurityService.prepareForTransit(data);
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       
-      const result = await response.json();
+      const body = await response.json();
+      const result = SecurityService.processFromTransit(body);
 
       if (response.ok) {
         localStorage.setItem('pending_verification_email', data.email);

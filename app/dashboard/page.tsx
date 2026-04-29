@@ -19,6 +19,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
 
 import { useRouter } from 'next/navigation';
+import { SecurityService } from '@/lib/security-service';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -40,7 +41,9 @@ export default function DashboardPage() {
     try {
       const res = await fetch(`/api/hashes?email=${email}`);
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        // Process encrypted response from transit
+        const data = SecurityService.processFromTransit(body);
         setHistory(data);
       }
     } catch (err) {
@@ -85,19 +88,23 @@ export default function DashboardPage() {
     const email = localStorage.getItem('authenticated_user_email');
     
     try {
+      // 1. Prepare data for transit (Encrypt)
+      const payload = SecurityService.prepareForTransit({
+        userEmail: email,
+        fileName: file.name,
+        fileSize: file.size,
+        hash,
+        expiryDate
+      });
+
       const res = await fetch('/api/hashes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userEmail: email,
-          fileName: file.name,
-          fileSize: file.size,
-          hash,
-          expiryDate
-        }),
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const body = await res.json();
+      const data = SecurityService.processFromTransit(body);
 
       if (res.ok) {
         if (data.alreadyExists) {

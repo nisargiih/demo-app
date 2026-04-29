@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import * as z from 'zod';
+import { SecurityService } from '@/lib/security-service';
 
 const registerSchema = z.object({
   firstName: z.string().min(2),
@@ -12,7 +13,10 @@ const registerSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const validatedData = registerSchema.parse(body);
+    
+    // 1. Process from Transit
+    const data = body.payload ? SecurityService.processFromTransit(body) : body;
+    const validatedData = registerSchema.parse(data);
 
     const client = await clientPromise;
     const db = client.db('tech-core');
@@ -20,7 +24,7 @@ export async function POST(req: Request) {
 
     const existingUser = await users.findOne({ email: validatedData.email });
     if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+      return NextResponse.json(SecurityService.prepareForTransit({ error: 'User already exists' }), { status: 400 });
     }
 
     // Generate 6-char alphanumeric OTP
@@ -30,24 +34,28 @@ export async function POST(req: Request) {
       otp += chars[Math.floor(Math.random() * chars.length)];
     }
 
-    const newUser = {
-      ...validatedData,
+    // 2. Prepare for Storage
+    const encryptedUser = {
+      email: validatedData.email, // Indexable
+      firstName: SecurityService.prepareForStorage(validatedData.firstName),
+      lastName: SecurityService.prepareForStorage(validatedData.lastName),
+      password: SecurityService.prepareForStorage(validatedData.password), // Use storage encryption as requested
       isVerified: false,
       otp, 
       createdAt: new Date(),
+      isStoredEncrypted: true
     };
 
-    await users.insertOne(newUser);
+    await users.insertOne(encryptedUser);
 
-    // TODO: Send email with OTP
-
-    return NextResponse.json({ message: 'Registration successful' }, { status: 201 });
+    const response = { message: 'Registration successful' };
+    return NextResponse.json(SecurityService.prepareForTransit(response), { status: 201 });
   } catch (error) {
     console.error('Registration Error:', error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 400 });
+      return NextResponse.json(SecurityService.prepareForTransit({ error: error.issues }), { status: 400 });
     }
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json(SecurityService.prepareForTransit({ error: errorMessage }), { status: 500 });
   }
 }

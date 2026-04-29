@@ -11,6 +11,7 @@ import { Footer } from '@/components/layout-shared';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 const otpSchema = z.object({
   otp: z.string().length(6, 'OTP must be 6 characters'),
@@ -39,13 +40,15 @@ export default function VerifyOtpPage() {
     }
 
     try {
+      const payload = SecurityService.prepareForTransit({ email, otp: data.otp.toUpperCase() });
       const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp: data.otp.toUpperCase() }),
+        body: JSON.stringify(payload),
       });
       
-      const result = await response.json();
+      const body = await response.json();
+      const result = SecurityService.processFromTransit(body);
 
       if (response.ok) {
         localStorage.setItem('authenticated_user_email', email);

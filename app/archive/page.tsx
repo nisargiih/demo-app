@@ -22,6 +22,9 @@ import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
 
+import { useRouter } from 'next/navigation';
+import { SecurityService } from '@/lib/security-service';
+
 export default function ArchivePage() {
   const { notify, confirm } = useNotification();
   const [history, setHistory] = useState<any[]>([]);
@@ -40,7 +43,9 @@ export default function ArchivePage() {
     try {
       const res = await fetch(`/api/hashes?email=${email}`);
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        // Process encrypted response from transit
+        const data = SecurityService.processFromTransit(body);
         setHistory(data);
       }
     } catch (err) {
