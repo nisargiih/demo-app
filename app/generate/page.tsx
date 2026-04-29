@@ -237,6 +237,10 @@ const DEFAULT_TEMPLATE: TemplateConfig = {
 
 // --- Logic: Placeholder Replacement ---
 
+const generateId = (prefix: string) => {
+  return `${prefix}-${Math.floor(Math.random() * 1000000).toString(36)}`;
+};
+
 const replacePlaceholders = (text: string, data: IssuanceData, template: TemplateConfig) => {
   let result = text;
   result = result.replace(/\{\{recipient_name\}\}/g, data.recipientName || '[RECIPIENT]');
@@ -528,7 +532,8 @@ export default function GeneratePage() {
   }, [isAutoFit, currentTemplate.pageSize]);
 
   useEffect(() => {
-    updateScale();
+    const triggerUpdate = () => updateScale();
+    triggerUpdate();
     const timer = setTimeout(updateScale, 100); // Small delay to ensure layout is ready
     window.addEventListener('resize', updateScale);
     return () => {
@@ -546,7 +551,7 @@ export default function GeneratePage() {
 
   const addElement = (type: 'text' | 'image' | 'shape') => {
     const newEl: DocElement = {
-      id: `el-${Math.random().toString(36).substring(2, 9)}`,
+      id: generateId('el'),
       type,
       x: 300,
       y: 300,
@@ -617,10 +622,11 @@ export default function GeneratePage() {
   useEffect(() => {
     const init = async () => {
       await fetchTemplates();
+      const randomSuffix = Math.floor(Math.random() * 1000000).toString(36).toUpperCase();
       setIssuance(prev => ({
         ...prev,
         issueDate: new Date().toISOString().split('T')[0],
-        certificateId: `TC-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+        certificateId: `TC-${randomSuffix}`
       }));
     };
     init();
@@ -732,7 +738,7 @@ export default function GeneratePage() {
     }
     
     const newEl: DocElement = {
-      id: `el-${type}-${Math.random().toString(36).substring(2, 5)}`,
+      id: generateId(`el-${type}`),
       type: 'image',
       x: 400,
       y: 400,

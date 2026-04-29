@@ -15,7 +15,10 @@ import {
   Plus,
   ArrowRight,
   Fingerprint,
-  HardDrive
+  HardDrive,
+  Zap,
+  Lock,
+  Star
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -231,6 +234,11 @@ export default function VerificationPage() {
                 </div>
               </div>
 
+              {/* Trust Roadmap */}
+              <div className="md:col-span-2">
+                <TrustRoadmap currentTier={user?.entityType} isVerified={user?.isVerified} />
+              </div>
+
               {/* Requirement Feed */}
               <div className="md:col-span-2 glass rounded-[2.5rem] p-10 border border-zinc-100">
                 <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">Required Documentation</h3>
@@ -372,6 +380,91 @@ function TierBadge({ entityType, isVerified }: { entityType?: string, isVerified
     <div className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 transition-all ${colors}`}>
       {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3 text-zinc-300" />}
       {label}
+    </div>
+  );
+}
+
+function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVerified?: boolean }) {
+  const tiers = [
+    {
+      id: 'ghost',
+      name: 'Ghost Node',
+      icon: Lock,
+      color: 'zinc',
+      condition: currentTier === 'individual' && !isVerified,
+      label: 'Initial Access',
+      perks: ['Base transactions', 'Limited storage', 'Standard support']
+    },
+    {
+      id: 'citizen',
+      name: 'Citizen Node',
+      icon: User,
+      color: 'trust-green',
+      condition: currentTier === 'individual' && isVerified,
+      label: 'Verified Citizen',
+      perks: ['Higher sig limits', 'Priority validation', 'Verified badge']
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise Hub',
+      icon: Building,
+      color: 'zinc',
+      condition: currentTier === 'business' && !isVerified,
+      label: 'Provisional Corp',
+      perks: ['Unlimited sigs', 'Team sub-nodes', 'Enterprise API']
+    },
+    {
+      id: 'sovereign',
+      name: 'Sovereign Node',
+      icon: Star,
+      color: 'trust-green',
+      condition: currentTier === 'business' && isVerified,
+      label: 'Full Autonomy',
+      perks: ['Zero-trust priority', 'Network governance', 'Maximum security']
+    }
+  ];
+
+  return (
+    <div className="glass rounded-[2.5rem] p-10 border border-zinc-100">
+      <div className="flex items-center gap-3 mb-10">
+        <Zap className="w-5 h-5 text-trust-green" />
+        <h3 className="font-display font-bold text-xl text-zinc-900 tracking-tight">Trust Evolution Roadmap</h3>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+        {/* Connection Line */}
+        <div className="hidden md:block absolute top-[2.25rem] left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-zinc-100 via-trust-green/20 to-zinc-100" />
+
+        {tiers.map((tier, idx) => (
+          <div key={idx} className="relative group">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 z-10 relative transition-all duration-500 ${tier.condition ? 'bg-zinc-950 text-trust-green scale-110 shadow-xl shadow-zinc-900/20' : 'bg-zinc-50 text-zinc-300'}`}>
+              <tier.icon className="w-5 h-5" />
+              {tier.condition && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-trust-green border-2 border-white rounded-full animate-pulse" />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h4 className={`font-display font-bold text-sm ${tier.condition ? 'text-zinc-900' : 'text-zinc-400'}`}>{tier.name}</h4>
+                {tier.condition && (
+                  <span className="px-2 py-0.5 bg-trust-green/10 text-trust-green text-[8px] font-black uppercase tracking-tighter rounded-full">Active</span>
+                )}
+              </div>
+              <p className="font-sans text-[10px] text-zinc-500 uppercase tracking-widest font-bold">{tier.label}</p>
+              
+              <ul className="pt-4 space-y-1.5">
+                {tier.perks.map((perk, pIdx) => (
+                  <li key={pIdx} className="flex items-center gap-2">
+                    <div className={`w-1 h-1 rounded-full ${tier.condition ? 'bg-trust-green' : 'bg-zinc-200'}`} />
+                    <span className={`font-sans text-[10px] ${tier.condition ? 'text-zinc-600 font-medium' : 'text-zinc-300'}`}>{perk}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

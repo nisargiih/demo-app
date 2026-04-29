@@ -270,7 +270,7 @@ export default function ArchivePage() {
                     </div>
                     <div className="flex items-center gap-2 text-zinc-400">
                       <CalendarDays className="w-3 h-3" />
-                      <span className="font-sans text-[10px] font-medium">Issued on {new Date(item.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      <span className="font-sans text-[10px] font-medium">Issued on {new Date(item.createdAt || 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                   </div>
 
