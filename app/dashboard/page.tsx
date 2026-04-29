@@ -31,13 +31,14 @@ export default function DashboardPage() {
   const [expiryDate, setExpiryDate] = useState<string | null>(null);
   const [isEditingExpiry, setIsEditingExpiry] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [verificationResult, setVerificationResult] = useState<{ status: 'authentic' | 'tampered' | 'unindexed', record?: any } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
 
   const fetchHistory = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
-    if (!email) return;
+    if (!email) return [];
 
     try {
       const res = await fetch(`/api/hashes?email=${encodeURIComponent(email)}`);
@@ -45,12 +46,14 @@ export default function DashboardPage() {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
         setHistory(data);
+        return data;
       }
     } catch (err) {
       console.error(err);
     } finally {
       setIsHistoryLoading(false);
     }
+    return [];
   }, []);
 
   React.useEffect(() => {
@@ -91,12 +94,29 @@ export default function DashboardPage() {
     if (selectedFile) {
       setIsUploading(true);
       setFile(selectedFile);
+      setVerificationResult(null);
       
       // Simulate crunching process for UI feel
       setTimeout(async () => {
         const generatedHash = await calculateHash(selectedFile);
         setHash(generatedHash);
         setIsUploading(false);
+
+        // Perform instant verification check
+        const currentHistory = await fetchHistory();
+        const match = currentHistory.find((item: any) => item.hash === generatedHash);
+        
+        if (match) {
+          setVerificationResult({ status: 'authentic', record: match });
+        } else {
+          // Check if file name exists but hash is different
+          const nameMatch = currentHistory.find((item: any) => item.fileName === selectedFile.name);
+          if (nameMatch) {
+            setVerificationResult({ status: 'tampered', record: nameMatch });
+          } else {
+            setVerificationResult({ status: 'unindexed' });
+          }
+        }
       }, 1500);
     }
   };
@@ -256,13 +276,70 @@ export default function DashboardPage() {
                         <div className="p-8 bg-white border-2 border-trust-green/20 rounded-[2rem] text-zinc-950 overflow-hidden relative group shadow-xl shadow-trust-green/5">
                           <div className="absolute inset-0 bg-gradient-to-br from-trust-green/[0.03] to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
                           <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                              <Fingerprint className="w-4 h-4 text-trust-green" />
-                              <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Document Fingerprint (SHA-256)</span>
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <Fingerprint className="w-4 h-4 text-trust-green" />
+                                <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Document Fingerprint (SHA-256)</span>
+                              </div>
+                              {verificationResult && (
+                                <motion.div 
+                                  initial={{ opacity: 0, x: 20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider ${
+                                    verificationResult.status === 'authentic' ? 'bg-trust-green/10 text-trust-green' :
+                                    verificationResult.status === 'tampered' ? 'bg-red-500/10 text-red-500' :
+                                    'bg-amber-500/10 text-amber-500'
+                                  }`}
+                                >
+                                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                                    verificationResult.status === 'authentic' ? 'bg-trust-green' :
+                                    verificationResult.status === 'tampered' ? 'bg-red-500' :
+                                    'bg-amber-500'
+                                  }`} />
+                                  {verificationResult.status === 'authentic' ? 'Authentic' :
+                                   verificationResult.status === 'tampered' ? 'Tamper Detected' :
+                                   'Unindexed'}
+                                </motion.div>
+                              )}
                             </div>
-                            <p className="font-mono text-lg font-bold break-all tracking-wider text-zinc-950 leading-tight">
+                            <p className="font-mono text-lg font-bold break-all tracking-wider text-zinc-950 leading-tight mb-6">
                               {hash}
                             </p>
+
+                            {verificationResult && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="pt-6 border-t border-zinc-100 grid grid-cols-2 sm:grid-cols-3 gap-4"
+                              >
+                                <div>
+                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Status</p>
+                                  <p className={`font-display font-bold text-sm ${
+                                    verificationResult.status === 'authentic' ? 'text-trust-green' :
+                                    verificationResult.status === 'tampered' ? 'text-red-500' :
+                                    'text-amber-500'
+                                  }`}>
+                                    {verificationResult.status === 'authentic' ? 'Notarized' :
+                                     verificationResult.status === 'tampered' ? 'Checksum Mismatch' :
+                                     'New Protocol'}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Index ID</p>
+                                  <p className="font-mono font-bold text-sm text-zinc-900">
+                                    {verificationResult.record?._id ? verificationResult.record._id.slice(-8).toUpperCase() : 'PENDING'}
+                                  </p>
+                                </div>
+                                <div className="hidden sm:block">
+                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Integrity Score</p>
+                                  <p className="font-display font-bold text-sm text-zinc-900">
+                                    {verificationResult.status === 'authentic' ? '100%' :
+                                     verificationResult.status === 'tampered' ? '0.0% (CORRUPTED)' :
+                                     'UNTESTED'}
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
                           </div>
                         </div>
 

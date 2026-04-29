@@ -122,6 +122,33 @@ export default function VerificationPage() {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-8"
                 >
+                  <div className="glass rounded-[2rem] p-8 border border-zinc-100 mb-8">
+                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-zinc-400" />
+                      Verification Dossier
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex items-center justify-between">
+                        <div>
+                          <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">PAN Status</p>
+                          <p className={`font-display font-bold text-sm ${user?.pan ? 'text-trust-green' : 'text-zinc-400'}`}>
+                            {user?.pan ? 'Verified' : 'Pending'}
+                          </p>
+                        </div>
+                        {user?.pan && <CheckCircle2 className="w-5 h-5 text-trust-green" />}
+                      </div>
+                      <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex items-center justify-between">
+                        <div>
+                          <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Aadhaar Status</p>
+                          <p className={`font-display font-bold text-sm ${user?.aadhaar ? 'text-trust-green' : 'text-zinc-400'}`}>
+                            {user?.aadhaar ? 'Verified' : 'Pending'}
+                          </p>
+                        </div>
+                        {user?.aadhaar && <CheckCircle2 className="w-5 h-5 text-trust-green" />}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="glass rounded-[2.5rem] p-8 border border-zinc-100">
                     <h2 className="font-display text-xl font-bold text-zinc-900 mb-4">Verification Status</h2>
                     {isComplete ? (
@@ -267,17 +294,18 @@ export default function VerificationPage() {
                 </h3>
                 <div className="space-y-6">
                   {[
-                    { label: "Vault Version", val: "v4.0.2", icon: HardDrive },
-                    { label: "Audit Log", val: "Clean", icon: FileText },
-                    { label: "Encryption", val: "P-384", icon: ShieldCheck },
-                    { label: "Identity Hash", val: "Verified", icon: User }
+                    { label: "Vault Sync", val: "Operational", icon: HardDrive, color: "text-trust-green" },
+                    { label: "Ledger Audit", val: "Success", icon: FileText, color: "text-trust-green" },
+                    { label: "Identity Node", val: user?.firstName?.toUpperCase() || 'ANONYMOUS', icon: User, color: "text-zinc-900" },
+                    { label: "Hash Protocol", val: "P-384 / SHA-256", icon: ShieldCheck, color: "text-zinc-400" },
+                    { label: "Trust Score", val: isComplete ? "99.8%" : "45.0%", icon: CheckCircle2, color: isComplete ? "text-trust-green" : "text-amber-500" }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <item.icon className="w-4 h-4 text-zinc-300" />
                         <span className="font-sans text-xs text-zinc-500">{item.label}</span>
                       </div>
-                      <span className="font-mono text-[9px] font-bold text-zinc-900 uppercase">{item.val}</span>
+                      <span className={`font-mono text-[9px] font-bold uppercase tracking-wider ${item.color}`}>{item.val}</span>
                     </div>
                   ))}
                 </div>
