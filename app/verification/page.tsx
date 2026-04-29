@@ -152,96 +152,118 @@ export default function VerificationPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-8"
+              className="space-y-8"
             >
-              {/* Entity Overview */}
-              <div className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col justify-between">
-                <div>
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${user?.entityType === 'business' ? 'bg-zinc-950 text-trust-green' : 'bg-zinc-100 text-zinc-400'}`}>
-                    {user?.entityType === 'business' ? <Building className="w-7 h-7" /> : <User className="w-7 h-7" />}
-                  </div>
-                  <h3 className="font-display text-2xl font-bold text-zinc-900 mb-2 capitalize">{user?.entityType} Protocol</h3>
-                  <p className="font-sans text-sm text-zinc-500 mb-8">
-                    Your account is currently operating under the {user?.entityType} node configuration.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {/* Rule 1: Not verified -> can switch freely */}
-                  {!user?.isVerified && (
-                    <div className="flex gap-2 p-1 bg-zinc-50 rounded-xl">
-                      <button 
-                        onClick={() => handleUpdateEntityType('individual')}
-                        className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'individual' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
-                      >
-                        Individual
-                      </button>
-                      <button 
-                        onClick={() => handleUpdateEntityType('business')}
-                        className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'business' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
-                      >
-                        Business
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Rule 2: Verified as individual -> can upgrade to business */}
-                  {user?.isVerified && user?.entityType === 'individual' && (
-                    <button 
-                      onClick={handleUpgradeToBusiness}
-                      className="w-full flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 hover:border-trust-green group transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Plus className="w-4 h-4 text-zinc-300 group-hover:text-trust-green" />
-                        <span className="font-display font-bold text-xs uppercase tracking-widest text-zinc-400 group-hover:text-zinc-900">Upgrade to Business</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Where you are */}
+                <div className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${user?.entityType === 'business' ? 'bg-zinc-950 text-trust-green' : 'bg-zinc-100 text-zinc-400'}`}>
+                        {user?.entityType === 'business' ? <Building className="w-7 h-7" /> : <User className="w-7 h-7" />}
                       </div>
-                      <ArrowRight className="w-4 h-4 text-zinc-300 group-hover:text-trust-green group-hover:translate-x-1 transition-all" />
-                    </button>
-                  )}
-
-                  {/* Rule 3: Verified as business -> no downgrade (just show status) */}
-                  {user?.isVerified && user?.entityType === 'business' && (
-                    <div className="flex items-center gap-3 p-4 bg-trust-green/5 rounded-2xl border border-trust-green/10">
-                      <ShieldCheck className="w-4 h-4 text-trust-green" />
-                      <span className="font-display font-bold text-[10px] uppercase tracking-widest text-trust-green">Entity Locked: Business Class</span>
+                      <div className="px-3 py-1 bg-zinc-50 border border-zinc-100 rounded-full font-mono text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Current Sector</div>
                     </div>
-                  )}
-                </div>
-              </div>
+                    <h3 className="font-display text-2xl font-bold text-zinc-900 mb-2 capitalize">{user?.entityType} Protocol</h3>
+                    <p className="font-sans text-sm text-zinc-500 mb-8">
+                      Your node is currently operating with <span className="font-bold text-zinc-900">{user?.isVerified ? 'Verified' : 'Limited'}</span> permissions.
+                    </p>
+                  </div>
 
-              {/* Trust Score / Verification Status */}
-              <div className="glass rounded-[2.5rem] p-8 border border-zinc-100">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="w-14 h-14 bg-trust-green/10 text-trust-green rounded-2xl flex items-center justify-center">
-                    <ShieldCheck className="w-7 h-7" />
+                  <div className="p-6 bg-zinc-50 rounded-2xl border border-zinc-100">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest">
+                        <span className="text-zinc-400">Node ID:</span>
+                        <span className="font-mono text-zinc-900">NODE-{user?.email.split('@')[0].toUpperCase()}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest">
+                        <span className="text-zinc-400">Daily Sig Cap:</span>
+                        <span className="font-mono text-zinc-900">{user?.entityType === 'business' ? 'UNLIMITED' : '100 UNITS'}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest">
+                        <span className="text-zinc-400">Network Layer:</span>
+                        <span className="font-mono text-zinc-900">{user?.isVerified ? 'TRUSTED-GATE' : 'PUBLIC-MESH'}</span>
+                      </div>
+                    </div>
                   </div>
-                  {user?.isVerified ? (
-                    <div className="px-4 py-1.5 bg-trust-green/10 text-trust-green border border-trust-green/20 rounded-full font-mono text-[9px] font-black uppercase tracking-wider">Verified Resident</div>
-                  ) : (
-                    <div className="px-4 py-1.5 bg-zinc-100 text-zinc-400 rounded-full font-mono text-[9px] font-black uppercase tracking-wider">Pending Trust</div>
-                  )}
                 </div>
-                <h3 className="font-display text-2xl font-bold text-zinc-900 mb-4">Node Autonomy</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b border-zinc-50">
-                    <span className="text-zinc-500 text-xs font-medium">Daily Limit</span>
-                    <span className="font-mono font-bold text-xs text-zinc-900">{user?.entityType === 'business' ? '∞' : '100'} Sigs</span>
+
+                {/* Where you can go / Actions */}
+                <div className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-14 h-14 bg-trust-green/10 text-trust-green rounded-2xl flex items-center justify-center">
+                        <Zap className="w-7 h-7" />
+                      </div>
+                      <div className="px-3 py-1 bg-trust-green/5 border border-trust-green/10 rounded-full font-mono text-[8px] font-bold text-trust-green uppercase tracking-widest">Available Upgrade</div>
+                    </div>
+                    <h3 className="font-display text-2xl font-bold text-zinc-900 mb-2">Protocol Evolution</h3>
+                    <p className="font-sans text-sm text-zinc-500 mb-8">
+                      Advance your node to unlock premium cryptographic features and higher network priority.
+                    </p>
                   </div>
-                  <div className="flex justify-between items-center py-2 border-b border-zinc-50">
-                    <span className="text-zinc-500 text-xs font-medium">Network Access</span>
-                    <span className="font-mono font-bold text-xs text-zinc-900">GHOST-NET</span>
+
+                  <div className="space-y-4">
+                    {/* Rule 1: Not verified -> can switch freely */}
+                    {!user?.isVerified ? (
+                      <div className="space-y-4">
+                        <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest font-bold text-center">Switch Operational Mode</p>
+                        <div className="flex gap-2 p-1 bg-zinc-50 rounded-xl">
+                          <button 
+                            onClick={() => handleUpdateEntityType('individual')}
+                            className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'individual' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
+                          >
+                            Individual
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateEntityType('business')}
+                            className={`flex-1 py-3 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${user?.entityType === 'business' ? 'bg-white text-zinc-950 shadow-sm border border-zinc-100' : 'text-zinc-400 hover:text-zinc-600'}`}
+                          >
+                            Business
+                          </button>
+                        </div>
+                        <button 
+                          onClick={() => setActiveTab('verify')}
+                          className="w-full flex items-center justify-center gap-2 h-14 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest"
+                        >
+                          Complete Verification
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : user?.entityType === 'individual' ? (
+                      <button 
+                        onClick={handleUpgradeToBusiness}
+                        className="w-full flex items-center justify-between p-6 bg-zinc-950 text-white rounded-[2rem] group transition-all shadow-xl shadow-zinc-900/20"
+                      >
+                        <div className="text-left">
+                          <p className="font-mono text-[8px] text-trust-green font-black uppercase tracking-widest mb-1">Upgrade Available</p>
+                          <h4 className="font-display font-bold text-lg">Switch to Business</h4>
+                          <p className="font-sans text-[10px] text-zinc-400">Unlock Enterprise-grade ledger tools</p>
+                        </div>
+                        <ArrowRight className="w-6 h-6 text-trust-green group-hover:translate-x-1 transition-all" />
+                      </button>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-8 bg-trust-green/5 border border-trust-green/10 rounded-[2rem] text-center">
+                        <Star className="w-8 h-8 text-trust-green mb-4 animate-pulse" />
+                        <h4 className="font-display font-bold text-zinc-900">Maximum Protocol Level</h4>
+                        <p className="font-sans text-[10px] text-zinc-500">Your node is fully optimized and verified.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Trust Roadmap */}
-              <div className="md:col-span-2">
-                <TrustRoadmap currentTier={user?.entityType} isVerified={user?.isVerified} />
-              </div>
+              <TrustRoadmap currentTier={user?.entityType} isVerified={user?.isVerified} />
 
               {/* Requirement Feed */}
-              <div className="md:col-span-2 glass rounded-[2.5rem] p-10 border border-zinc-100">
-                <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">Required Documentation</h3>
+              <div className="glass rounded-[2.5rem] p-10 border border-zinc-100">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="font-display font-bold text-xl text-zinc-900">Required Documentation</h3>
+                  <div className="px-4 py-1.5 bg-zinc-50 border border-zinc-100 rounded-full font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                    {user?.entityType?.toUpperCase()} TRACK
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {user?.entityType === 'individual' ? (
                     <>
@@ -371,14 +393,17 @@ function TierBadge({ entityType, isVerified }: { entityType?: string, isVerified
   );
 
   const colors = isVerified 
-    ? 'bg-trust-green/10 text-trust-green border-trust-green/20' 
-    : 'bg-zinc-50 text-zinc-400 border-zinc-100';
+    ? 'bg-trust-green text-white border-trust-green shadow-lg shadow-trust-green/20' 
+    : 'bg-zinc-950 text-white border-zinc-800 shadow-lg shadow-zinc-950/20';
 
-  const label = `${entityType} ${isVerified ? 'verified' : 'unverified'}`;
+  const label = `${isVerified ? 'VERIFIED' : 'UNVERIFIED'} ${entityType.toUpperCase()}`;
 
   return (
-    <div className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 transition-all ${colors}`}>
-      {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3 text-zinc-300" />}
+    <div className={`px-4 py-1.5 rounded-full font-mono text-[10px] font-black uppercase tracking-[0.2em] border flex items-center gap-2.5 transition-all ${colors}`}>
+      <div className="flex items-center gap-1.5 border-r border-white/20 pr-2.5 mr-0.5">
+        <span className="text-[8px] opacity-70">STATUS:</span>
+      </div>
+      {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3 text-white/50" />}
       {label}
     </div>
   );
@@ -390,8 +415,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'ghost',
       name: 'Ghost Node',
       icon: Lock,
-      color: 'zinc',
-      condition: currentTier === 'individual' && !isVerified,
+      status: (currentTier === 'individual' && !isVerified) ? 'current' : (isVerified || currentTier === 'business') ? 'completed' : 'upcoming',
       label: 'Initial Access',
       perks: ['Base transactions', 'Limited storage', 'Standard support']
     },
@@ -399,8 +423,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'citizen',
       name: 'Citizen Node',
       icon: User,
-      color: 'trust-green',
-      condition: currentTier === 'individual' && isVerified,
+      status: (currentTier === 'individual' && isVerified) ? 'current' : (currentTier === 'business') ? 'completed' : (currentTier === 'individual' && !isVerified) ? 'upcoming' : 'locked',
       label: 'Verified Citizen',
       perks: ['Higher sig limits', 'Priority validation', 'Verified badge']
     },
@@ -408,8 +431,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'enterprise',
       name: 'Enterprise Hub',
       icon: Building,
-      color: 'zinc',
-      condition: currentTier === 'business' && !isVerified,
+      status: (currentTier === 'business' && !isVerified) ? 'current' : (currentTier === 'business' && isVerified) ? 'completed' : (currentTier === 'individual' && isVerified) ? 'upcoming' : 'locked',
       label: 'Provisional Corp',
       perks: ['Unlimited sigs', 'Team sub-nodes', 'Enterprise API']
     },
@@ -417,53 +439,118 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
       id: 'sovereign',
       name: 'Sovereign Node',
       icon: Star,
-      color: 'trust-green',
-      condition: currentTier === 'business' && isVerified,
+      status: (currentTier === 'business' && isVerified) ? 'current' : 'upcoming',
       label: 'Full Autonomy',
       perks: ['Zero-trust priority', 'Network governance', 'Maximum security']
     }
   ];
 
   return (
-    <div className="glass rounded-[2.5rem] p-10 border border-zinc-100">
-      <div className="flex items-center gap-3 mb-10">
-        <Zap className="w-5 h-5 text-trust-green" />
-        <h3 className="font-display font-bold text-xl text-zinc-900 tracking-tight">Trust Evolution Roadmap</h3>
+    <div className="glass rounded-[2.5rem] p-10 border border-zinc-100 overflow-hidden relative">
+      <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
+        <Zap className="w-64 h-64 rotate-12" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-trust-green/10 text-trust-green rounded-xl flex items-center justify-center">
+            <Zap className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-display font-bold text-xl text-zinc-900 tracking-tight">Trust Evolution Roadmap</h3>
+            <p className="font-sans text-xs text-zinc-500">Track your node&apos;s journey through the trust layers.</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 px-4 py-2 bg-zinc-50 rounded-full border border-zinc-100">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-trust-green shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+            <span className="font-mono text-[9px] font-bold text-zinc-600 uppercase">Current</span>
+          </div>
+          <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-4">
+            <div className="w-2 h-2 rounded-full bg-zinc-200" />
+            <span className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Locked</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
         {/* Connection Line */}
-        <div className="hidden md:block absolute top-[2.25rem] left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-zinc-100 via-trust-green/20 to-zinc-100" />
+        <div className="hidden md:block absolute top-[2.25rem] left-[12.5%] right-[12.5%] h-px bg-zinc-100" />
 
         {tiers.map((tier, idx) => (
           <div key={idx} className="relative group">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 z-10 relative transition-all duration-500 ${tier.condition ? 'bg-zinc-950 text-trust-green scale-110 shadow-xl shadow-zinc-900/20' : 'bg-zinc-50 text-zinc-300'}`}>
-              <tier.icon className="w-5 h-5" />
-              {tier.condition && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-trust-green border-2 border-white rounded-full animate-pulse" />
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 z-10 relative transition-all duration-500 
+              ${tier.status === 'current' ? 'bg-zinc-950 text-trust-green scale-110 shadow-xl shadow-zinc-900/20' : 
+                tier.status === 'completed' ? 'bg-trust-green text-white' : 'bg-zinc-50 text-zinc-300'}`}>
+              
+              {tier.status === 'completed' ? <CheckCircle2 className="w-6 h-6" /> : <tier.icon className="w-5 h-5" />}
+              
+              {tier.status === 'current' && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-trust-green border-2 border-white rounded-full flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h4 className={`font-display font-bold text-sm ${tier.condition ? 'text-zinc-900' : 'text-zinc-400'}`}>{tier.name}</h4>
-                {tier.condition && (
-                  <span className="px-2 py-0.5 bg-trust-green/10 text-trust-green text-[8px] font-black uppercase tracking-tighter rounded-full">Active</span>
-                )}
+                <h4 className={`font-display font-bold text-sm ${['current', 'completed'].includes(tier.status) ? 'text-zinc-900' : 'text-zinc-400'}`}>
+                  {tier.name}
+                </h4>
               </div>
-              <p className="font-sans text-[10px] text-zinc-500 uppercase tracking-widest font-bold">{tier.label}</p>
+              <p className={`font-mono text-[9px] uppercase tracking-widest font-black ${tier.status === 'current' ? 'text-trust-green' : tier.status === 'completed' ? 'text-zinc-400' : 'text-zinc-300'}`}>
+                {tier.status === 'current' ? 'OPERATIONAL' : tier.status.toUpperCase()}
+              </p>
               
-              <ul className="pt-4 space-y-1.5">
+              <ul className="pt-4 space-y-2">
                 {tier.perks.map((perk, pIdx) => (
-                  <li key={pIdx} className="flex items-center gap-2">
-                    <div className={`w-1 h-1 rounded-full ${tier.condition ? 'bg-trust-green' : 'bg-zinc-200'}`} />
-                    <span className={`font-sans text-[10px] ${tier.condition ? 'text-zinc-600 font-medium' : 'text-zinc-300'}`}>{perk}</span>
+                  <li key={pIdx} className="flex items-start gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${['current', 'completed'].includes(tier.status) ? 'bg-trust-green/40' : 'bg-zinc-100'}`} />
+                    <span className={`font-sans text-[10px] leading-tight ${tier.status === 'current' ? 'text-zinc-600 font-medium' : tier.status === 'completed' ? 'text-zinc-400' : 'text-zinc-300'}`}>
+                      {perk}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
+            
+            {/* Transition Arrow for MD screens */}
+            {idx < tiers.length - 1 && (
+              <div className="hidden md:flex absolute top-[1.5rem] -right-4 z-20 w-8 h-6 bg-white items-center justify-center">
+                <ChevronRight className={`w-4 h-4 ${tier.status === 'completed' ? 'text-trust-green' : 'text-zinc-100'}`} />
+              </div>
+            )}
           </div>
         ))}
+      </div>
+
+      {/* Progress Message */}
+      <div className="mt-12 p-6 bg-zinc-50 rounded-[1.5rem] border border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+            <Fingerprint className="w-5 h-5 text-zinc-400" />
+          </div>
+          <div>
+            <p className="font-display font-bold text-sm text-zinc-900">
+              {isVerified 
+                ? (currentTier === 'individual' ? 'Ready for Enterprise expansion?' : 'Ultimate node status achieved.')
+                : 'Cryptographic credentials required.'}
+            </p>
+            <p className="font-sans text-[10px] text-zinc-500">
+              {isVerified 
+                ? (currentTier === 'individual' ? 'Upgrade to Business to unlock team hubs and unlimited signatures.' : 'Your node is operating at maximum protocol efficiency.')
+                : 'Upload documentation to progress to the next trust tier and unlock more features.'}
+            </p>
+          </div>
+        </div>
+        
+        {!isVerified && (
+          <div className="px-5 py-2 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 group cursor-pointer hover:bg-zinc-800 transition-all">
+            Start Verification
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+          </div>
+        )}
       </div>
     </div>
   );
