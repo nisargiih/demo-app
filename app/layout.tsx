@@ -12,13 +12,16 @@ export const metadata: Metadata = {
 };
 
 import { NotificationProvider } from '@/hooks/use-notification';
+import { AuthGuard } from '@/components/auth-guard';
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased">
         <NotificationProvider>
-          {children}
+          <AuthGuard>
+            {children}
+          </AuthGuard>
         </NotificationProvider>
       </body>
     </html>
