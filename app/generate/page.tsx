@@ -38,6 +38,7 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
+import Image from 'next/image';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Rnd } from 'react-rnd';
@@ -368,7 +369,17 @@ const CertificatePreview = ({
                 }}
               >
                 {el.type === 'text' && content}
-                {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain pointer-events-none" alt="" />}
+                {el.type === 'image' && (
+                  <div className="relative w-full h-full">
+                    <Image 
+                      src={el.content} 
+                      className="object-contain pointer-events-none" 
+                      alt="" 
+                      fill 
+                      unoptimized
+                    />
+                  </div>
+                )}
                 {el.type === 'shape' && (
                   <div 
                     className="w-full h-full" 
@@ -405,7 +416,17 @@ const CertificatePreview = ({
             }}
           >
             {el.type === 'text' && content}
-            {el.type === 'image' && <img src={el.content} className="w-full h-full object-contain" alt="" />}
+            {el.type === 'image' && (
+              <div className="relative w-full h-full">
+                <Image 
+                  src={el.content} 
+                  className="object-contain" 
+                  alt="" 
+                  fill 
+                  unoptimized
+                />
+              </div>
+            )}
             {el.type === 'shape' && (
               <div 
                 className="w-full h-full" 
@@ -427,7 +448,15 @@ const CertificatePreview = ({
           {/* Header Area */}
           <div className="w-full flex flex-col items-center">
             {template.assets.logo ? (
-              <img src={template.assets.logo} className="h-16 mb-6 object-contain" alt="Logo" />
+              <div className="relative h-16 w-32 mb-6">
+                <Image 
+                  src={template.assets.logo} 
+                  className="object-contain" 
+                  alt="Logo" 
+                  fill 
+                  unoptimized
+                />
+              </div>
             ) : (
               <ShieldCheck className="w-16 h-16 text-trust-green mb-6" />
             )}
@@ -462,8 +491,16 @@ const CertificatePreview = ({
             </div>
 
             <div className="flex flex-col items-center relative gap-2">
-              <div className="absolute -top-16 opacity-30">
-                {template.assets.stamp && <img src={template.assets.stamp} className="w-32 h-32 object-contain grayscale" alt="Stamp" />}
+              <div className="absolute -top-16 opacity-30 w-32 h-32">
+                {template.assets.stamp && (
+                  <Image 
+                    src={template.assets.stamp} 
+                    className="object-contain grayscale" 
+                    alt="Stamp" 
+                    fill 
+                    unoptimized
+                  />
+                )}
               </div>
               <p className="font-sans text-[10px] text-zinc-300 text-center uppercase tracking-widest mb-1">{template.footerText}</p>
               <div className="font-mono text-[9px] font-bold text-trust-green">#ID {data.certificateId}</div>
@@ -471,7 +508,17 @@ const CertificatePreview = ({
 
             <div className="flex flex-col items-center gap-2">
               <div className="w-full h-px bg-zinc-100 mb-2" />
-              {template.assets.signature && <img src={template.assets.signature} className="h-10 object-contain mb-2 mix-blend-multiply" alt="Signature" />}
+              <div className="relative h-10 w-24 mb-2">
+                {template.assets.signature && (
+                  <Image 
+                    src={template.assets.signature} 
+                    className="object-contain mix-blend-multiply" 
+                    alt="Signature" 
+                    fill 
+                    unoptimized
+                  />
+                )}
+              </div>
               <div className="font-mono text-[9px] text-zinc-400 uppercase tracking-wider">Authorized Registry</div>
             </div>
           </div>
@@ -485,10 +532,12 @@ const CertificatePreview = ({
 // --- Main Page Component ---
 
 export default function GeneratePage() {
+  const router = useRouter();
   const { notify, confirm } = useNotification();
   // State: Workflow
   const [activeTab, setActiveTab] = useState<'create' | 'issue' | 'history'>('create');
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Design, 2: Preview, 3: Issue
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   
   // State: Templates
   const [currentTemplate, setCurrentTemplate] = useState<TemplateConfig>(DEFAULT_TEMPLATE);
@@ -622,6 +671,12 @@ export default function GeneratePage() {
   };
 
   useEffect(() => {
+    const email = localStorage.getItem('authenticated_user_email');
+    if (!email) {
+      router.push('/login');
+      return;
+    }
+
     const init = async () => {
       await fetchTemplates();
       const randomSuffix = Math.floor(Math.random() * 1000000).toString(36).toUpperCase();
@@ -630,9 +685,21 @@ export default function GeneratePage() {
         issueDate: new Date().toISOString().split('T')[0],
         certificateId: `TC-${randomSuffix}`
       }));
+      setIsAuthLoading(false);
     };
     init();
-  }, [fetchTemplates]);
+  }, [fetchTemplates, router]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
+          <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   const handleSaveTemplate = async () => {
     const email = localStorage.getItem('authenticated_user_email');

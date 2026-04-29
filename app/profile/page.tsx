@@ -22,16 +22,21 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { SecurityService } from '@/lib/security-service';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const email = localStorage.getItem('authenticated_user_email');
-      if (!email) return;
+    const email = localStorage.getItem('authenticated_user_email');
+    if (!email) {
+      router.push('/login');
+      return;
+    }
 
+    const fetchUser = async () => {
       try {
         const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
         if (res.ok) {
@@ -43,10 +48,22 @@ export default function ProfilePage() {
         console.error(err);
       } finally {
         setIsLoading(false);
+        setIsAuthLoading(false);
       }
     };
     fetchUser();
-  }, []);
+  }, [router]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
+          <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();

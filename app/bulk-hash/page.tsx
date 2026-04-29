@@ -35,11 +35,38 @@ export default function BulkHashPage() {
   const { notify, confirm } = useNotification();
   const [files, setFiles] = useState<FileRecord[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [bulkExpiryDate, setBulkExpiryDate] = useState<string>('');
   const [isApplyingBulkExpiry, setIsApplyingBulkExpiry] = useState(false);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      const email = localStorage.getItem('authenticated_user_email');
+      if (!email) {
+        router.push('/login');
+      } else {
+        setIsAuthLoading(false);
+      }
+    };
+    
+    // Use a microtask/timeout to avoid synchronous state update in effect body
+    const timeout = setTimeout(checkAuth, 0);
+    return () => clearTimeout(timeout);
+  }, [router]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
+          <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   const calculateHash = async (file: File) => {
     const buffer = await file.arrayBuffer();
