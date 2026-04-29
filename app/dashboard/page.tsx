@@ -121,16 +121,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
       <Sidebar />
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto py-12 lg:py-20">
-        <header className="mb-12">
+ 
+      <div className="relative z-10 w-full max-w-5xl mx-auto py-8 sm:py-12 lg:py-20">
+        <header className="mb-8 sm:mb-12">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-4xl font-bold text-zinc-900 mb-2"
+            className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 mb-2"
           >
             Terminal Dashboard
           </motion.h1>
@@ -138,7 +138,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="font-sans text-zinc-500"
+            className="font-sans text-sm sm:text-base text-zinc-500"
           >
             Access military-grade document hashing and verification.
           </motion.p>
@@ -147,8 +147,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Upload Section */}
           <div className="lg:col-span-2 space-y-8">
-            <section className="glass rounded-[3rem] p-8 md:p-12 border border-zinc-100 shadow-2xl shadow-zinc-200/50">
-              <div className="flex items-center gap-4 mb-10">
+            <section className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-zinc-100 shadow-2xl shadow-zinc-200/50">
+              <div className="flex items-center gap-4 mb-8 sm:mb-10">
                 <div className="w-12 h-12 bg-trust-green/10 rounded-2xl flex items-center justify-center">
                   <Upload className="text-trust-green w-6 h-6" />
                 </div>

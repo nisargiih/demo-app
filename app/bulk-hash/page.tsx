@@ -146,45 +146,45 @@ export default function BulkHashPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
       <Sidebar />
-
-      <div className="relative z-10 w-full max-w-6xl mx-auto py-12 lg:py-20">
-        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+ 
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-8 sm:py-12 lg:py-20">
+        <header className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div>
             <motion.div 
                initial={{ opacity: 0, x: -20 }}
                animate={{ opacity: 1, x: 0 }}
                className="flex items-center gap-2 mb-4"
             >
-               <div className="px-3 py-1 bg-trust-green/10 text-trust-green rounded-full font-mono text-[10px] font-bold uppercase tracking-widest ">
+               <div className="px-3 py-1 bg-trust-green/10 text-trust-green rounded-full font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ">
                  Beta Protocol v2.1
                </div>
             </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-display text-4xl font-bold text-zinc-900 mb-2"
+              className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 mb-2"
             >
               Bulk Hash Engine
             </motion.h1>
-            <p className="font-sans text-zinc-500">Process entire directories or multiple sets of sensitive documentation.</p>
+            <p className="font-sans text-sm text-zinc-500">Process entire directories or multiple sets of sensitive documentation.</p>
           </div>
-
-          <div className="flex items-center gap-3">
+ 
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
              <button 
                onClick={() => folderInputRef.current?.click()}
-               className="h-11 px-6 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all hover:scale-[1.02]"
+               className="h-10 sm:h-11 px-4 sm:px-6 bg-zinc-950 text-white rounded-xl font-display font-bold text-[9px] sm:text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all hover:scale-[1.02]"
              >
-               <Layers className="w-4 h-4" />
+               <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                Select Directory
              </button>
              <button 
                onClick={() => fileInputRef.current?.click()}
-               className="h-11 px-6 bg-zinc-100 text-zinc-900 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-200 transition-all"
+               className="h-10 sm:h-11 px-4 sm:px-6 bg-zinc-100 text-zinc-900 rounded-xl font-display font-bold text-[9px] sm:text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-200 transition-all"
              >
-               <Plus className="w-4 h-4" />
+               <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                Add Files
              </button>
              <input 

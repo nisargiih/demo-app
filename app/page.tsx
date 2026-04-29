@@ -71,8 +71,8 @@ export default function RegisterPage() {
     <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white selection:bg-trust-green/20">
       <BackgroundAnimation />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-        <div className="flex-1 text-center lg:text-left space-y-8 max-w-xl">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+        <div className="flex-1 text-center lg:text-left space-y-6 lg:space-y-8 max-w-xl">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -80,18 +80,18 @@ export default function RegisterPage() {
             className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass border border-zinc-100 shadow-sm"
           >
             <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
-            <span className="font-mono text-xs font-bold tracking-widest text-zinc-500 uppercase">Cryptographic Node Online</span>
+            <span className="font-mono text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Cryptographic Node Online</span>
           </motion.div>
-
+ 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="font-display text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-8 text-zinc-900">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 lg:mb-8 text-zinc-900">
               Immutable<br /><span className="text-gradient">Validation.</span>
             </h1>
-            <p className="font-sans text-xl text-zinc-600 leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="font-sans text-lg lg:text-xl text-zinc-600 leading-relaxed max-w-md mx-auto lg:mx-0">
               Transform your documents into unbreakable cryptographic hashes. Verified. Forever.
             </p>
           </motion.div>
@@ -120,7 +120,7 @@ export default function RegisterPage() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           className="w-full max-w-[500px]"
         >
-          <div className="glass rounded-[3rem] p-8 md:p-12 border border-white/40 shadow-2xl relative overflow-hidden">
+          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-white/40 shadow-2xl relative overflow-hidden">
             <AnimatePresence>
               {isSuccess && (
                 <motion.div

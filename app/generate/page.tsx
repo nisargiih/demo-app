@@ -786,30 +786,28 @@ export default function GeneratePage() {
   // --- Render Sections ---
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
       <Sidebar />
-
-      <div className="relative z-10 w-full max-w-7xl mx-auto py-12 lg:py-20">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-14 h-14 bg-trust-green/10 rounded-[1.25rem] flex items-center justify-center text-trust-green shadow-sm ring-4 ring-trust-green/5">
-                <FileText className="w-7 h-7" />
-              </div>
-              <div>
-                <h1 className="font-display text-4xl font-black text-zinc-900 tracking-tighter uppercase">DocEngine v2</h1>
-                <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Advanced Document Generation Protocol</p>
-              </div>
+ 
+      <div className="relative z-10 w-full max-w-7xl mx-auto py-8 sm:py-12 lg:py-20">
+        <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-trust-green/10 rounded-[1rem] lg:rounded-[1.25rem] flex items-center justify-center text-trust-green shadow-sm ring-4 ring-trust-green/5">
+              <FileText className="w-6 h-6 lg:w-7 lg:h-7" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl lg:text-4xl font-black text-zinc-900 tracking-tighter uppercase">DocEngine v2</h1>
+              <p className="font-mono text-[9px] lg:text-[10px] text-zinc-400 font-bold uppercase tracking-widest mt-1">Advanced Document Generation Protocol</p>
             </div>
           </div>
-
-          <div className="flex gap-2 p-1.5 bg-zinc-50 border border-zinc-100 rounded-2xl shadow-sm">
+ 
+          <div className="flex gap-1 p-1 bg-zinc-50 border border-zinc-100 rounded-xl lg:rounded-2xl shadow-sm overflow-x-auto no-scrollbar">
             {['create', 'issue', 'history'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
-                className={`px-8 py-3 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition-all ${
+                className={`px-4 sm:px-8 py-2 sm:py-3 rounded-lg lg:rounded-xl font-display font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all whitespace-nowrap ${
                   activeTab === tab 
                     ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-200' 
                     : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100'
@@ -823,9 +821,9 @@ export default function GeneratePage() {
 
         <div className="grid grid-cols-1 gap-12">
           {activeTab === 'create' && (
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 h-[calc(100vh-16rem)] min-h-[700px]">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:h-[calc(100vh-16rem)] xl:min-h-[700px]">
               {/* 1. Global Controls (Left) */}
-              <div className="xl:col-span-3 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="xl:col-span-3 space-y-6 xl:overflow-y-auto xl:pr-2 custom-scrollbar order-2 xl:order-1">
                 <section className="bg-zinc-50 border border-zinc-100 rounded-[2rem] p-6 space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-black text-sm text-zinc-900 flex items-center gap-2">
@@ -1026,10 +1024,10 @@ export default function GeneratePage() {
               </div>
 
               {/* 2. Main Workbench (Center) */}
-              <div className="xl:col-span-6 flex flex-col gap-4">
+              <div className="xl:col-span-6 flex flex-col gap-4 order-1 xl:order-2 h-[500px] xl:h-full">
                 {/* Workbench Toolbar */}
-                <div className="flex items-center justify-between px-6 h-14 bg-zinc-900 text-white rounded-2xl shadow-xl">
-                  <div className="flex items-center gap-6">
+                <div className="flex items-center justify-between px-4 sm:px-6 h-14 bg-zinc-900 text-white rounded-2xl shadow-xl shrink-0 overflow-x-auto no-scrollbar">
+                  <div className="flex items-center gap-4 sm:gap-6 shrink-0">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
                       <span className="font-mono text-[10px] font-bold text-white/50 tracking-widest uppercase">Live Workbench</span>
@@ -1118,7 +1116,7 @@ export default function GeneratePage() {
               </div>
 
               {/* 3. Object Parameters (Right) */}
-              <div className="xl:col-span-3 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="xl:col-span-3 space-y-6 xl:overflow-y-auto xl:pr-2 custom-scrollbar order-3">
                 {selectedElement ? (
                   <section className="bg-white border border-zinc-100 rounded-[2rem] p-6 shadow-xl shadow-zinc-200/50 space-y-6">
                     <div className="flex items-center justify-between border-b border-zinc-100 pb-4">

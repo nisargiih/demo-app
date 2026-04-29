@@ -115,21 +115,21 @@ export default function VerificationPage() {
   if (isLoading) return null;
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
       <Sidebar />
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto py-12 lg:py-20">
-        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+ 
+      <div className="relative z-10 w-full max-w-5xl mx-auto py-8 sm:py-12 lg:py-20">
+        <header className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <TierBadge entityType={user?.entityType} isVerified={user?.isVerified} />
             </div>
-            <h1 className="font-display text-4xl font-bold text-zinc-900 mb-2">Verification Center</h1>
-            <p className="font-sans text-zinc-500">Secure your node presence and unlock higher ledger permissions.</p>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 mb-2">Verification Center</h1>
+            <p className="font-sans text-sm text-zinc-500">Secure your node presence and unlock higher ledger permissions.</p>
           </div>
-
-          <div className="flex bg-zinc-50 p-1 rounded-xl">
+ 
+          <div className="flex bg-zinc-50 p-1 rounded-xl w-fit">
             <button 
               onClick={() => setActiveTab('status')}
               className={`px-6 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${activeTab === 'status' ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`}
@@ -156,7 +156,7 @@ export default function VerificationPage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Where you are */}
-                <div className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col justify-between">
+                <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-zinc-100 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${user?.entityType === 'business' ? 'bg-zinc-950 text-trust-green' : 'bg-zinc-100 text-zinc-400'}`}>
@@ -189,7 +189,7 @@ export default function VerificationPage() {
                 </div>
 
                 {/* Where you can go / Actions */}
-                <div className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col justify-between">
+                <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border border-zinc-100 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-6">
                       <div className="w-14 h-14 bg-trust-green/10 text-trust-green rounded-2xl flex items-center justify-center">
@@ -257,10 +257,10 @@ export default function VerificationPage() {
               <TrustRoadmap currentTier={user?.entityType} isVerified={user?.isVerified} />
 
               {/* Requirement Feed */}
-              <div className="glass rounded-[2.5rem] p-10 border border-zinc-100">
-                <div className="flex items-center justify-between mb-8">
+              <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 border border-zinc-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <h3 className="font-display font-bold text-xl text-zinc-900">Required Documentation</h3>
-                  <div className="px-4 py-1.5 bg-zinc-50 border border-zinc-100 rounded-full font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest">
+                  <div className="px-4 py-1.5 bg-zinc-50 border border-zinc-100 rounded-full font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest w-fit">
                     {user?.entityType?.toUpperCase()} TRACK
                   </div>
                 </div>
@@ -446,7 +446,7 @@ function TrustRoadmap({ currentTier, isVerified }: { currentTier?: string, isVer
   ];
 
   return (
-    <div className="glass rounded-[2.5rem] p-10 border border-zinc-100 overflow-hidden relative">
+    <div className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 border border-zinc-100 overflow-hidden relative">
       <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none text-zinc-400">
         <Zap className="w-64 h-64 rotate-12" />
       </div>

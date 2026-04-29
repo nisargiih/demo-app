@@ -72,23 +72,23 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
       <Sidebar />
-
-      <div className="relative z-10 w-full max-w-4xl mx-auto py-12 lg:py-20">
-        <header className="mb-12">
+ 
+      <div className="relative z-10 w-full max-w-4xl mx-auto py-8 sm:py-12 lg:py-20">
+        <header className="mb-8 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 mb-4"
           >
-            <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center">
-              <User className="text-trust-green w-6 h-6" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-zinc-950 rounded-xl sm:rounded-2xl flex items-center justify-center">
+              <User className="text-trust-green w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h1 className="font-display text-4xl font-bold text-zinc-900">User Profile</h1>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900">User Profile</h1>
           </motion.div>
-          <p className="font-sans text-zinc-500">Manage your network identity and security configurations.</p>
+          <p className="font-sans text-sm text-zinc-500">Manage your network identity and security configurations.</p>
         </header>
 
         {isLoading ? (
@@ -104,7 +104,7 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               onSubmit={handleUpdate}
-              className="glass rounded-[2.5rem] p-8 md:p-10 border border-zinc-100 shadow-xl"
+              className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 border border-zinc-100 shadow-xl"
             >
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
