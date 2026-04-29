@@ -17,7 +17,8 @@ import {
   Hexagon,
   Menu,
   X,
-  FileText
+  FileText,
+  Layers
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -56,6 +57,7 @@ export function Sidebar() {
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { name: 'Generate', icon: FileText, path: '/generate' },
+    { name: 'Bulk Hash', icon: Layers, path: '/bulk-hash' },
     { name: 'My Hashes', icon: History, path: '/archive' },
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
