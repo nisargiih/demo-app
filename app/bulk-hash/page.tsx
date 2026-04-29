@@ -102,6 +102,8 @@ export default function BulkHashPage() {
           }),
         });
 
+        const data = await res.json();
+
         if (res.ok) {
           setFiles(prev => prev.map(f => f.file === record.file ? { ...f, status: 'authenticated' as const } : f));
         }

@@ -40,6 +40,16 @@ export async function POST(req: Request) {
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
+    // Check for duplicate
+    const existing = await hashes.findOne({ userEmail, hash });
+    if (existing) {
+      return NextResponse.json({ 
+        message: 'Cryptographic signature already exists in protocol', 
+        alreadyExists: true,
+        id: existing._id 
+      });
+    }
+
     const newHash = {
       userEmail,
       fileName,

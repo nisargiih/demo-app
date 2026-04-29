@@ -95,7 +95,12 @@ export default function DashboardPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
+        if (data.alreadyExists) {
+          alert('Note: This document fingerprint is already indexed in your secure archive.');
+        }
         fetchHistory();
         resetUpload();
       }
