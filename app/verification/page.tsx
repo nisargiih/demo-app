@@ -120,9 +120,7 @@ export default function VerificationPage() {
         <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="px-3 py-1 bg-trust-green/10 text-trust-green rounded-full font-mono text-[10px] font-bold uppercase tracking-widest ">
-                Identity Tier: {user?.entityType?.toUpperCase() || 'UNINITIALIZED'}
-              </div>
+              <TierBadge entityType={user?.entityType} isVerified={user?.isVerified} />
             </div>
             <h1 className="font-display text-4xl font-bold text-zinc-900 mb-2">Verification Center</h1>
             <p className="font-sans text-zinc-500">Secure your node presence and unlock higher ledger permissions.</p>
@@ -353,6 +351,28 @@ export default function VerificationPage() {
         )}
       </AnimatePresence>
     </main>
+  );
+}
+
+function TierBadge({ entityType, isVerified }: { entityType?: string, isVerified?: boolean }) {
+  if (!entityType) return (
+    <div className="px-3 py-1 bg-zinc-100 text-zinc-400 rounded-full font-mono text-[10px] font-bold uppercase tracking-widest border border-zinc-200 flex items-center gap-2">
+      <AlertCircle className="w-3 h-3" />
+      Uninitialized Node
+    </div>
+  );
+
+  const colors = isVerified 
+    ? 'bg-trust-green/10 text-trust-green border-trust-green/20' 
+    : 'bg-zinc-50 text-zinc-400 border-zinc-100';
+
+  const label = `${entityType} ${isVerified ? 'verified' : 'unverified'}`;
+
+  return (
+    <div className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 transition-all ${colors}`}>
+      {isVerified ? <CheckCircle2 className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3 text-zinc-300" />}
+      {label}
+    </div>
   );
 }
 
