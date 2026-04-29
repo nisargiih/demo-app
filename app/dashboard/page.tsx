@@ -6,6 +6,7 @@ import {
   Upload, 
   FileText, 
   ShieldAlert, 
+  ShieldCheck,
   Fingerprint, 
   Calendar, 
   Clock, 
@@ -31,11 +32,12 @@ export default function DashboardPage() {
   const [expiryDate, setExpiryDate] = useState<string | null>(null);
   const [isEditingExpiry, setIsEditingExpiry] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [user, setUser] = useState<any>(null);
   const [verificationResult, setVerificationResult] = useState<{ status: 'authentic' | 'tampered' | 'unindexed', record?: any } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+ 
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
-
+ 
   const fetchHistory = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) return [];
@@ -56,6 +58,22 @@ export default function DashboardPage() {
     return [];
   }, []);
 
+  const fetchUser = React.useCallback(async () => {
+    const email = localStorage.getItem('authenticated_user_email');
+    if (!email) return;
+
+    try {
+      const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
+      if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
+        setUser(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   React.useEffect(() => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) {
@@ -64,11 +82,11 @@ export default function DashboardPage() {
     }
     
     const init = async () => {
-      await fetchHistory();
+      await Promise.all([fetchHistory(), fetchUser()]);
       setIsAuthLoading(false);
     };
     init();
-  }, [fetchHistory, router]);
+  }, [fetchHistory, fetchUser, router]);
 
   if (isAuthLoading) {
     return (
@@ -165,6 +183,8 @@ export default function DashboardPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const isVerified = user?.pan && user?.aadhaar;
+
   return (
     <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
@@ -172,20 +192,33 @@ export default function DashboardPage() {
  
       <div className="relative z-10 w-full max-w-5xl mx-auto py-8 sm:py-12 lg:py-20">
         <header className="mb-8 sm:mb-12">
-          <motion.h1 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 mb-2"
+            className="flex items-center gap-3 mb-2"
           >
-            Terminal Dashboard
-          </motion.h1>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900">
+              Terminal Dashboard
+            </h1>
+            {isVerified && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
+                <ShieldCheck className="w-4 h-4 text-trust-green" />
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-trust-green">Verified</span>
+              </div>
+            )}
+            {user?.entityType && (
+              <div className="px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full">
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-500">{user.entityType}</span>
+              </div>
+            )}
+          </motion.div>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="font-sans text-sm sm:text-base text-zinc-500"
           >
-            Access military-grade document hashing and verification.
+            Welcome back, <span className="font-bold text-zinc-900">{user?.firstName || 'User'}</span>. Access military-grade document hashing and verification.
           </motion.p>
         </header>
 

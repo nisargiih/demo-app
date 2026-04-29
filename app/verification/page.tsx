@@ -172,6 +172,12 @@ export default function VerificationPage() {
 
                     <div className="mt-8 space-y-4">
                       <div className="flex items-center justify-between py-3 border-b border-zinc-50">
+                        <span className="font-sans text-sm text-zinc-500">Identity Mode</span>
+                        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-900">
+                          {user?.entityType || 'Individual'} Node
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between py-3 border-b border-zinc-50">
                         <span className="font-sans text-sm text-zinc-500">PAN Verification</span>
                         <span className={`font-mono text-[10px] font-bold uppercase tracking-widest ${user?.pan ? 'text-trust-green' : 'text-zinc-300'}`}>
                           {user?.pan ? 'Synchronized' : 'Missing'}
@@ -192,6 +198,27 @@ export default function VerificationPage() {
                       {isComplete ? 'Update Identity Data' : 'Begin Verification'}
                       <ArrowRight className="w-5 h-5" />
                     </button>
+                  </div>
+
+                  <div className="glass rounded-[2rem] p-8 border border-zinc-100">
+                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
+                      <HardDrive className="w-5 h-5 text-zinc-400" />
+                      Protocol Specifications
+                    </h3>
+                    <div className="space-y-4">
+                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
+                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Hash Algorithm</p>
+                          <p className="font-mono text-sm text-zinc-900 font-bold">P-384 + SHA-256 CASCADE</p>
+                       </div>
+                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
+                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Storage Persistence</p>
+                          <p className="font-mono text-sm text-zinc-900 font-bold">Distributed Node Clusters (Global)</p>
+                       </div>
+                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
+                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Immutable Index</p>
+                          <p className="font-mono text-sm text-zinc-900 font-bold uppercase">TechCore_{user?.firstName?.toUpperCase() || 'USER'}_v4.0</p>
+                       </div>
+                    </div>
                   </div>
 
                   <div className="glass rounded-[2rem] p-8 border border-zinc-100">

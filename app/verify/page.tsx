@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { SecurityService } from '@/lib/security-service';
 
 export default function VerifyPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -262,20 +263,29 @@ export default function VerifyPage() {
                              </div>
                              <p className="font-display font-bold text-sm text-zinc-900">{new Date(result.createdAt).toLocaleDateString()}</p>
                            </div>
-                           <div className="p-4 bg-white rounded-2xl border border-zinc-100">
+                           <div className="p-4 bg-white rounded-2xl border border-zinc-100 relative overflow-hidden group">
                              <div className="flex items-center gap-2 mb-2 text-zinc-400">
                                <User className="w-3.5 h-3.5" />
-                               <span className="font-mono text-[9px] font-bold uppercase tracking-widest">Registrar</span>
+                               <span className="font-mono text-[9px] font-bold uppercase tracking-widest">Registrar / Issuer</span>
                              </div>
-                             <p className="font-display font-bold text-sm text-zinc-900 truncate">{result.userEmail}</p>
+                             <div className="flex items-center gap-2">
+                               <p className="font-display font-bold text-sm text-zinc-900 truncate flex-1">{result.userEmail}</p>
+                               <div className="flex items-center gap-1 group-hover:scale-110 transition-transform">
+                                 <ShieldCheck className="w-4 h-4 text-trust-green fill-trust-green/10" />
+                                 <span className="font-mono text-[8px] font-bold text-trust-green uppercase">Verified</span>
+                               </div>
+                             </div>
+                             <div className="absolute top-0 right-0 p-1">
+                               <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                             </div>
                            </div>
                            <div className="p-4 bg-white rounded-2xl border border-zinc-100">
                              <div className="flex items-center gap-2 mb-2 text-zinc-400">
                                <ShieldCheck className="w-3.5 h-3.5" />
-                               <span className="font-mono text-[9px] font-bold uppercase tracking-widest">Expiry</span>
+                               <span className="font-mono text-[9px] font-bold uppercase tracking-widest">Expiry Policy</span>
                              </div>
                              <p className={`font-display font-bold text-sm ${result.expiryDate ? 'text-zinc-900' : 'text-zinc-400 italic'}`}>
-                               {result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'None Set'}
+                               {result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Lifelong Notarization'}
                              </p>
                            </div>
                         </div>
