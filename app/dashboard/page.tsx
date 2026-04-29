@@ -291,10 +291,10 @@ export default function DashboardPage() {
                                     'bg-amber-500/10 text-amber-500'
                                   }`}
                                 >
-                                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-                                    verificationResult.status === 'authentic' ? 'bg-trust-green' :
-                                    verificationResult.status === 'tampered' ? 'bg-red-500' :
-                                    'bg-amber-500'
+                                  <div className={`w-1.5 h-1.5 rounded-full ${
+                                    verificationResult.status === 'authentic' ? 'bg-trust-green animate-pulse' :
+                                    verificationResult.status === 'tampered' ? 'bg-red-500 animate-pulse' :
+                                    'bg-amber-500 animate-pulse'
                                   }`} />
                                   {verificationResult.status === 'authentic' ? 'Authentic' :
                                    verificationResult.status === 'tampered' ? 'Tamper Detected' :

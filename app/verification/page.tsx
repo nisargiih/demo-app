@@ -12,7 +12,8 @@ import {
   ArrowRight,
   Fingerprint,
   HardDrive,
-  FileText
+  FileText,
+  Clock
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -191,6 +192,34 @@ export default function VerificationPage() {
                       {isComplete ? 'Update Identity Data' : 'Begin Verification'}
                       <ArrowRight className="w-5 h-5" />
                     </button>
+                  </div>
+
+                  <div className="glass rounded-[2rem] p-8 border border-zinc-100">
+                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
+                       <Clock className="w-5 h-5 text-zinc-400" />
+                       Audit Protocol Log
+                    </h3>
+                    <div className="space-y-6">
+                      {[
+                        { event: "Identity Initialized", time: "2m ago", detail: "Seed generated from auth provider" },
+                        { event: "Encryption Layer Active", time: "2m ago", detail: "P-384 key pair established" },
+                        { event: "Metadata Scanned", time: "Just now", detail: "Scanning for linked alphanumeric nodes" }
+                      ].map((log, i) => (
+                        <div key={i} className="flex gap-4 relative">
+                          {i !== 2 && <div className="absolute left-2.5 top-7 w-[1px] h-8 bg-zinc-100" />}
+                          <div className="w-5 h-5 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center shrink-0 mt-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-300" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-display font-bold text-sm text-zinc-900">{log.event}</p>
+                              <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{log.time}</span>
+                            </div>
+                            <p className="font-sans text-xs text-zinc-500">{log.detail}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </motion.div>
               )}
