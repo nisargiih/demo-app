@@ -30,9 +30,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { email, fileName, fileSize, hash, expiryDate } = await req.json();
+    const { userEmail, fileName, fileSize, hash, expiryDate } = await req.json();
 
-    if (!email || !hash) {
+    if (!userEmail || !hash) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 });
     }
 
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     const hashes = db.collection('hashes');
 
     const newHash = {
-      userEmail: email,
+      userEmail,
       fileName,
       fileSize,
       hash,
@@ -59,18 +59,27 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const { id, expiryDate } = await req.json();
+    const { id, ids, expiryDate } = await req.json();
 
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id && (!ids || !Array.isArray(ids))) {
+      return NextResponse.json({ error: 'ID or IDs required' }, { status: 400 });
+    }
 
     const client = await clientPromise;
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
-    await hashes.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { expiryDate } }
-    );
+    if (ids) {
+      await hashes.updateMany(
+        { _id: { $in: ids.map((i: string) => new ObjectId(i)) } },
+        { $set: { expiryDate } }
+      );
+    } else {
+      await hashes.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { expiryDate } }
+      );
+    }
 
     return NextResponse.json({ message: 'Expiry updated' });
   } catch (error) {

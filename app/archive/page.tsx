@@ -14,7 +14,9 @@ import {
   X,
   Edit2,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Check,
+  CalendarDays
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -25,6 +27,9 @@ export default function ArchivePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newExpiry, setNewExpiry] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkEditing, setIsBulkEditing] = useState(false);
+  const [bulkExpiry, setBulkExpiry] = useState('');
 
   const fetchHistory = useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -79,6 +84,36 @@ export default function ArchivePage() {
     }
   };
 
+  const handleBulkUpdateExpiry = async () => {
+    if (!bulkExpiry) return;
+    try {
+      const res = await fetch('/api/hashes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds, expiryDate: bulkExpiry }),
+      });
+      if (res.ok) {
+        setHistory(history.map(h => selectedIds.includes(h._id) ? { ...h, expiryDate: bulkExpiry } : h));
+        setSelectedIds([]);
+        setIsBulkEditing(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredHistory.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredHistory.map(h => h._id));
+    }
+  };
+
   const filteredHistory = history.filter(item => 
     item.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.hash.toLowerCase().includes(searchQuery.toLowerCase())
@@ -105,8 +140,66 @@ export default function ArchivePage() {
             <p className="font-sans text-zinc-500">Manage and oversee your registered cryptographic signatures.</p>
           </div>
 
-          <div className="flex gap-3">
-             <div className="relative">
+          <div className="flex items-center flex-wrap gap-3">
+             <AnimatePresence>
+               {selectedIds.length > 0 && (
+                 <motion.div 
+                   initial={{ opacity: 0, x: -20 }}
+                   animate={{ opacity: 1, x: 0 }}
+                   exit={{ opacity: 0, x: -20 }}
+                   className="flex items-center gap-2 px-4 bg-zinc-950 text-white rounded-xl h-11 shadow-lg shadow-zinc-950/20"
+                 >
+                   <span className="font-mono text-[9px] font-bold mr-2 whitespace-nowrap">{selectedIds.length} SELECTED</span>
+                   <div className="h-4 w-px bg-white/10 mx-1" />
+                   {isBulkEditing ? (
+                     <div className="flex items-center gap-2">
+                       <input 
+                         type="date"
+                         className="bg-zinc-800 border-none rounded-lg px-2 py-1 text-[10px] text-white focus:ring-1 focus:ring-trust-green outline-none"
+                         value={bulkExpiry}
+                         onChange={(e) => setBulkExpiry(e.target.value)}
+                       />
+                       <button 
+                         onClick={handleBulkUpdateExpiry} 
+                         className="p-1.5 hover:text-trust-green transition-colors"
+                         title="Apply Expiry"
+                       >
+                         <CheckCircle2 className="w-4 h-4" />
+                       </button>
+                       <button 
+                         onClick={() => setIsBulkEditing(false)} 
+                         className="p-1.5 hover:text-red-400 transition-colors"
+                         title="Cancel"
+                       >
+                         <X className="w-4 h-4" />
+                       </button>
+                     </div>
+                   ) : (
+                     <button 
+                       onClick={() => setIsBulkEditing(true)}
+                       className="flex items-center gap-2 hover:text-trust-green transition-colors text-[9px] font-bold uppercase tracking-widest whitespace-nowrap"
+                     >
+                       <Calendar className="w-3 h-3" />
+                       Bulk Expiry
+                     </button>
+                   )}
+                 </motion.div>
+               )}
+             </AnimatePresence>
+             
+             <button 
+               onClick={toggleSelectAll}
+               className={`h-11 px-4 rounded-xl border transition-all flex items-center gap-2 font-display font-bold text-[10px] uppercase tracking-widest whitespace-nowrap ${
+                 selectedIds.length > 0 
+                   ? 'bg-trust-green text-white border-trust-green shadow-lg shadow-trust-green/20' 
+                   : 'bg-zinc-50 text-zinc-400 border-zinc-100 hover:border-zinc-200'
+               }`}
+             >
+               <Check className={`w-3 h-3 ${selectedIds.length === filteredHistory.length ? 'text-white' : 'text-zinc-300'}`} />
+               {selectedIds.length === filteredHistory.length ? 'Deselect All' : 'Select All'}
+             </button>
+
+             <div className="relative flex-1 md:flex-none min-w-[200px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input 
                 type="text" 
@@ -136,9 +229,22 @@ export default function ArchivePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="group relative bg-white border border-zinc-100 hover:border-trust-green/20 hover:shadow-xl hover:shadow-zinc-200/40 rounded-[2rem] p-6 transition-all"
+                className={`group relative bg-white border rounded-[2rem] p-6 transition-all ${
+                  selectedIds.includes(item._id) ? 'border-trust-green shadow-xl shadow-trust-green/5' : 'border-zinc-100 hover:border-trust-green/20 hover:shadow-xl hover:shadow-zinc-200/40'
+                }`}
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
+                  <button 
+                    onClick={() => toggleSelect(item._id)}
+                    className={`shrink-0 w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${
+                      selectedIds.includes(item._id) 
+                        ? 'bg-trust-green border-trust-green text-white' 
+                        : 'border-zinc-100 hover:border-zinc-200 bg-zinc-50/50'
+                    }`}
+                  >
+                    {selectedIds.includes(item._id) && <Check className="w-4 h-4" />}
+                  </button>
+
                   <div className="w-14 h-14 bg-zinc-50 rounded-2xl flex items-center justify-center shrink-0">
                     <FileText className="w-7 h-7 text-zinc-300" />
                   </div>
@@ -148,8 +254,12 @@ export default function ArchivePage() {
                       <h3 className="font-display font-bold text-zinc-900 truncate">{item.fileName}</h3>
                       <div className="px-2 py-0.5 bg-trust-green/5 text-trust-green border border-trust-green/20 rounded-md font-mono text-[8px] font-bold uppercase tracking-wider">Authenticated</div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 mb-2">
                       <p className="font-mono text-[10px] text-zinc-400 truncate">SHA256: <span className="text-zinc-900 font-bold">{item.hash}</span></p>
+                    </div>
+                    <div className="flex items-center gap-2 text-zinc-400">
+                      <CalendarDays className="w-3 h-3" />
+                      <span className="font-sans text-[10px] font-medium">Issued on {new Date(item.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                   </div>
 
