@@ -1,19 +1,13 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useMemo } from 'react';
+import { motion } from 'motion/react';
 import { 
-  Upload, 
   FileText, 
-  ShieldAlert, 
   ShieldCheck,
   Fingerprint, 
-  Calendar, 
   Clock, 
-  CheckCircle2, 
-  X,
-  Plus,
-  Edit2
+  Plus
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -26,15 +20,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { notify } = useNotification();
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [file, setFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [hash, setHash] = useState<string | null>(null);
-  const [expiryDate, setExpiryDate] = useState<string | null>(null);
-  const [isEditingExpiry, setIsEditingExpiry] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [verificationResult, setVerificationResult] = useState<{ status: 'authentic' | 'tampered' | 'unindexed', record?: any } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
- 
   const [allHashes, setAllHashes] = useState<any[]>([]);
   const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month' | '3month'>('month');
 
@@ -87,7 +73,6 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     const now = new Date();
     
-    // Filter hashes by period
     const filtered = allHashes.filter(h => {
       const date = new Date(h.createdAt);
       const diff = now.getTime() - date.getTime();
@@ -119,53 +104,6 @@ export default function DashboardPage() {
     );
   }
 
-  const calculateHash = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-    return hashHex;
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setIsUploading(true);
-      setFile(selectedFile);
-      setVerificationResult(null);
-      
-      // Simulate crunching process for UI feel
-      setTimeout(async () => {
-        const generatedHash = await calculateHash(selectedFile);
-        setHash(generatedHash);
-        setIsUploading(false);
-
-        // Perform instant verification check against ledger
-        try {
-          const res = await fetch(`/api/hashes?hash=${generatedHash}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data) {
-              setVerificationResult({ status: 'authentic', record: data });
-            } else {
-              setVerificationResult({ status: 'unindexed' });
-            }
-          }
-        } catch (err) {
-          console.error(err);
-          setVerificationResult({ status: 'unindexed' });
-        }
-      }, 1500);
-    }
-  };
-
-  const resetUpload = () => {
-    setFile(null);
-    setHash(null);
-    setExpiryDate(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
   const isVerified = user?.pan && user?.aadhaar;
 
   return (
@@ -173,300 +111,212 @@ export default function DashboardPage() {
       <BackgroundAnimation />
       <Sidebar />
  
-      <div className="relative z-10 w-full max-w-5xl mx-auto py-8 sm:py-12 lg:py-20">
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-8 sm:py-12 lg:py-20">
         <header className="mb-8 sm:mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 mb-2"
-          >
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900">
-              Terminal Dashboard
-            </h1>
-            {isVerified && (
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
-                <ShieldCheck className="w-4 h-4 text-trust-green" />
-                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-trust-green">Verified</span>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900">
+                  Control Center
+                </h1>
+                {isVerified && (
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
+                    <ShieldCheck className="w-4 h-4 text-trust-green" />
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-trust-green">Verified</span>
+                  </div>
+                )}
+                {user?.entityType && (
+                  <div className="px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full">
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-500">{user.entityType}</span>
+                  </div>
+                )}
               </div>
-            )}
-            {user?.entityType && (
-              <div className="px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full">
-                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-500">{user.entityType}</span>
-              </div>
-            )}
-          </motion.div>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="font-sans text-sm sm:text-base text-zinc-500"
-          >
-            Welcome back, <span className="font-bold text-zinc-900">{user?.firstName || 'User'}</span>. Access military-grade document hashing and verification.
-          </motion.p>
+              <p className="font-sans text-sm sm:text-base text-zinc-500">
+                System Status: <span className="text-trust-green font-bold">Synchronized</span> | Node Lifecycle: <span className="text-zinc-900 font-bold">Active</span>
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex gap-3"
+            >
+              <button 
+                onClick={() => router.push('/notarize')}
+                className="h-12 px-6 bg-zinc-900 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
+              >
+                <Plus className="w-4 h-4" />
+                New Index
+              </button>
+            </motion.div>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
             { label: 'Total Index', value: stats.total, color: 'text-zinc-900', bg: 'bg-zinc-50' },
-            { label: 'Active Hashes', value: stats.active, color: 'text-trust-green', bg: 'bg-trust-green/5' },
-            { label: 'Expired', value: stats.expired, color: 'text-red-500', bg: 'bg-red-50' },
-            { label: `${statsPeriod.toUpperCase()} Growth`, value: stats.periodCount, color: 'text-trust-green', bg: 'bg-zinc-900', invert: true },
+            { label: 'Network Vitality', value: '99.9%', color: 'text-trust-green', bg: 'bg-trust-green/5' },
+            { label: 'Expired Records', value: stats.expired, color: 'text-red-500', bg: 'bg-red-50' },
+            { label: 'Period Volume', value: stats.periodCount, color: 'text-trust-green', bg: 'bg-zinc-900', invert: true },
           ].map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className={`${stat.invert ? 'bg-zinc-900 text-white' : `${stat.bg} ${stat.color}`} p-6 rounded-[2rem] border border-zinc-100 flex flex-col justify-between h-32 shadow-sm`}
+              className={`${stat.invert ? 'bg-zinc-900 text-white' : `${stat.bg} ${stat.color}`} p-6 rounded-[2.5rem] border border-zinc-100 flex flex-col justify-between h-36 shadow-sm`}
             >
               <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest ${stat.invert ? 'text-zinc-400' : 'opacity-60'}`}>{stat.label}</h4>
-              <p className="font-display text-3xl font-bold">{stat.value}</p>
+              <p className="font-display text-4xl font-bold">{stat.value}</p>
             </motion.div>
           ))}
         </div>
 
-        <div className="flex justify-center mb-12">
-          <div className="bg-zinc-50 p-1.5 rounded-2xl flex gap-1 border border-zinc-100">
-            {(['day', 'week', 'month', '3month'] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setStatsPeriod(p)}
-                className={`px-4 py-2 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${
-                  statsPeriod === p ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'
-                }`}
-              >
-                {p === '3month' ? '90 Days' : p}
-              </button>
-            ))}
-          </div>
+        <div className="flex justify-between items-center mb-8">
+            <h3 className="font-display text-xl font-bold text-zinc-900">System Monitoring</h3>
+            <div className="bg-zinc-50 p-1 rounded-xl flex gap-1 border border-zinc-100">
+                {(['day', 'week', 'month', '3month'] as const).map((p) => (
+                <button
+                    key={p}
+                    onClick={() => setStatsPeriod(p)}
+                    className={`px-3 py-1.5 rounded-lg font-display font-bold text-[9px] uppercase tracking-widest transition-all ${
+                    statsPeriod === p ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'
+                    }`}
+                >
+                    {p === '3month' ? '90D' : p}
+                </button>
+                ))}
+            </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Upload Section */}
           <div className="lg:col-span-2 space-y-8">
-            <section className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-zinc-100 shadow-2xl shadow-zinc-200/50">
-              <div className="flex items-center gap-4 mb-8 sm:mb-10">
-                <div className="w-12 h-12 bg-trust-green/10 rounded-2xl flex items-center justify-center">
-                  <Upload className="text-trust-green w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="font-display text-2xl font-bold text-zinc-900">Hash Generator</h2>
-                  <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Protocol: SHA-256_ACTIVE</p>
-                </div>
-              </div>
+            {/* Identity Node Health */}
+            <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
+               <div className="flex items-center justify-between mb-8">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center">
+                     <Fingerprint className="w-5 h-5 text-white" />
+                   </div>
+                   <div>
+                     <h3 className="font-display font-bold text-lg text-zinc-900">Identity Ledger Node</h3>
+                     <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">Protocol Version v4.0.2</p>
+                   </div>
+                 </div>
+                 <div className="text-right">
+                    <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">Node Address</p>
+                    <p className="font-mono text-xs text-zinc-900 font-bold">ais_node_{user?.firstName?.toLowerCase() || 'usr'}_582</p>
+                 </div>
+               </div>
 
-              <div className="p-4 bg-amber-50/50 border border-amber-100 rounded-2xl mb-8 flex gap-4 items-start">
-                <ShieldAlert className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-                <p className="font-sans text-xs text-amber-800 leading-relaxed">
-                  <span className="font-bold">Attention:</span> Our hashing mechanism is highly sensitive. Even a single bit change or a minor character alteration in the source file will result in a completely different hash string, ensuring absolute tampering detection.
-                </p>
-              </div>
-
-              {!file ? (
-                <div 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="group relative border-2 border-dashed border-zinc-100 rounded-[2.5rem] p-16 text-center cursor-pointer hover:border-trust-green/50 hover:bg-trust-green/[0.02] transition-all"
-                >
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                    <Upload className="w-8 h-8 text-zinc-300 group-hover:text-trust-green transition-colors" />
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-zinc-900 mb-2">Drop your secure file here</h3>
-                  <p className="font-sans text-sm text-zinc-400">PDF, JPG, PNG or DOCX up to 50MB</p>
-                  
-                  <div className="mt-8 flex justify-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-50 font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-wider">
-                      AES-256
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-50 font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-wider">
-                      End-to-End
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="p-5 bg-zinc-50 rounded-2xl border border-zinc-100">
+                    <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Sync Status</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
+                      <span className="font-display font-bold text-zinc-900">Synchronized</span>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-6 bg-zinc-50 rounded-3xl border border-zinc-100">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-zinc-100">
-                        <FileText className="text-zinc-400 w-6 h-6" />
-                      </div>
-                      <div>
-                        <p className="font-display font-bold text-zinc-900">{file.name}</p>
-                        <p className="font-sans text-xs text-zinc-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
+                  <div className="p-5 bg-zinc-50 rounded-2xl border border-zinc-100">
+                    <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Auth Tiers</p>
+                    <div className="flex items-center gap-2">
+                       <ShieldCheck className="w-4 h-4 text-trust-green" />
+                       <span className="font-display font-bold text-zinc-900">{isVerified ? 'Level 2' : 'Level 1'}</span>
                     </div>
-                    <button onClick={resetUpload} className="w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors">
-                      <X className="w-5 h-5" />
-                    </button>
                   </div>
+                  <div className="p-5 bg-zinc-50 rounded-2xl border border-zinc-100">
+                    <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Uptime</p>
+                    <div className="flex items-center gap-2">
+                       <Clock className="w-4 h-4 text-zinc-400" />
+                       <span className="font-display font-bold text-zinc-900">99.8%</span>
+                    </div>
+                  </div>
+               </div>
+            </section>
 
-                  <AnimatePresence mode="wait">
-                    {isUploading ? (
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="p-12 text-center"
-                      >
-                         <div className="relative w-16 h-16 mx-auto mb-6">
-                          <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
-                          <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
-                        </div>
-                        <p className="font-mono text-xs font-bold text-trust-green uppercase tracking-[0.2em] animate-pulse">Computing_Matrix_Hash...</p>
-                      </motion.div>
-                    ) : hash && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6"
-                      >
-                        <div className="p-8 bg-white border-2 border-trust-green/20 rounded-[2rem] text-zinc-950 overflow-hidden relative group shadow-xl shadow-trust-green/5">
-                          <div className="absolute inset-0 bg-gradient-to-br from-trust-green/[0.03] to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-2">
-                                <Fingerprint className="w-4 h-4 text-trust-green" />
-                                <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Document Fingerprint (SHA-256)</span>
-                              </div>
-                              {verificationResult && (
-                                <motion.div 
-                                  initial={{ opacity: 0, x: 20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-mono text-[9px] font-bold uppercase tracking-wider ${
-                                    verificationResult.status === 'authentic' ? 'bg-trust-green/10 text-trust-green' :
-                                    verificationResult.status === 'tampered' ? 'bg-red-500/10 text-red-500' :
-                                    'bg-amber-500/10 text-amber-500'
-                                  }`}
-                                >
-                                  <div className={`w-1.5 h-1.5 rounded-full ${
-                                    verificationResult.status === 'authentic' ? 'bg-trust-green animate-pulse' :
-                                    verificationResult.status === 'tampered' ? 'bg-red-500 animate-pulse' :
-                                    'bg-amber-500 animate-pulse'
-                                  }`} />
-                                  {verificationResult.status === 'authentic' ? 'Authentic' :
-                                   verificationResult.status === 'tampered' ? 'Tamper Detected' :
-                                   'Unindexed'}
-                                </motion.div>
-                              )}
-                            </div>
-                            <p className="font-mono text-lg font-bold break-all tracking-wider text-zinc-950 leading-tight mb-6">
-                              {hash}
-                            </p>
-
-                            {verificationResult && (
-                              <motion.div 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="pt-6 border-t border-zinc-100 grid grid-cols-2 sm:grid-cols-3 gap-4"
-                              >
-                                <div>
-                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Status</p>
-                                  <p className={`font-display font-bold text-sm ${
-                                    verificationResult.status === 'authentic' ? 'text-trust-green' :
-                                    verificationResult.status === 'tampered' ? 'text-red-500' :
-                                    'text-amber-500'
-                                  }`}>
-                                    {verificationResult.status === 'authentic' ? 'Notarized' :
-                                     verificationResult.status === 'tampered' ? 'Checksum Mismatch' :
-                                     'New Protocol'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Index ID</p>
-                                  <p className="font-mono font-bold text-sm text-zinc-900">
-                                    {verificationResult.record?._id ? verificationResult.record._id.slice(-8).toUpperCase() : 'PENDING'}
-                                  </p>
-                                </div>
-                                <div className="hidden sm:block">
-                                  <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Integrity Score</p>
-                                  <p className="font-display font-bold text-sm text-zinc-900">
-                                    {verificationResult.status === 'authentic' ? '100%' :
-                                     verificationResult.status === 'tampered' ? '0.0% (CORRUPTED)' :
-                                     'UNTESTED'}
-                                  </p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <div className="flex-1 p-6 bg-zinc-50 border border-zinc-100 rounded-3xl">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center gap-3">
-                                <Calendar className="w-4 h-4 text-zinc-400" />
-                                <span className="font-display font-bold text-sm text-zinc-500">Document Expiry</span>
-                              </div>
-                              <button 
-                                onClick={() => setIsEditingExpiry(!isEditingExpiry)}
-                                className="text-trust-green font-bold text-xs hover:underline flex items-center gap-1"
-                              >
-                                {expiryDate ? <Edit2 className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                                {expiryDate ? 'Change' : 'Add Date'}
-                              </button>
-                            </div>
-                            
-                            {isEditingExpiry ? (
-                              <div className="flex gap-2">
-                                <input 
-                                  type="date"
-                                  className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2 font-sans text-sm focus:outline-none focus:border-trust-green"
-                                  value={expiryDate || ''}
-                                  onChange={(e) => {
-                                    setExpiryDate(e.target.value);
-                                    setIsEditingExpiry(false);
-                                  }}
-                                />
-                                <button onClick={() => setIsEditingExpiry(false)} className="p-2 text-zinc-400 hover:text-zinc-900">
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                {expiryDate ? (
-                                  <>
-                                    <div className="w-2 h-2 bg-trust-green rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                    <span className="font-display font-bold text-zinc-900">{new Date(expiryDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                                  </>
-                                ) : (
-                                  <span className="font-display font-bold text-zinc-400 italic">No Expiration Document</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
+            {/* Simulated Activity Chart Area */}
+            <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 h-80 flex flex-col">
+               <div className="flex items-center justify-between mb-8">
+                 <h3 className="font-display font-bold text-lg text-zinc-900">Network Latency (Global)</h3>
+                 <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                       <div className="w-2 h-2 bg-trust-green rounded-full" />
+                       <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase">Mainnet</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <div className="w-2 h-2 bg-zinc-200 rounded-full" />
+                       <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase">Relay</span>
+                    </div>
+                 </div>
+               </div>
+               <div className="flex-1 flex items-end gap-1.5 px-2">
+                  {[40, 60, 45, 90, 65, 30, 85, 40, 55, 70, 75, 50, 40, 60, 45, 80, 55, 30, 45, 60].map((h, i) => (
+                    <motion.div 
+                      key={i}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${h}%` }}
+                      transition={{ delay: i * 0.02, duration: 1 }}
+                      className={`flex-1 rounded-t-lg transition-colors ${i === 10 ? 'bg-trust-green' : 'bg-zinc-100 hover:bg-zinc-200'}`}
+                    />
+                  ))}
+               </div>
+               <div className="mt-4 flex justify-between font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-widest">
+                  <span>00:00:00</span>
+                  <span>12:00:00</span>
+                  <span>24:00:00</span>
+               </div>
             </section>
           </div>
 
-          {/* Side Info / Activity */}
           <div className="space-y-8">
             <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
-              <h3 className="font-display font-bold text-xl text-zinc-900 mb-6">Network Health</h3>
-              <div className="space-y-6">
-                {[
-                  { label: "Verification Node", status: "Operational", color: "bg-trust-green" },
-                  { label: "IPFS Gateway", status: "Active", color: "bg-trust-green" },
-                  { label: "Auth Relay", status: "99.9% Up", color: "bg-trust-green" }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <span className="font-sans text-sm text-zinc-500">{item.label}</span>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 ${item.color} rounded-full`} />
-                      <span className="font-mono text-[10px] font-bold text-zinc-900 uppercase">{item.status}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+               <h3 className="font-display font-bold text-lg text-zinc-900 mb-6">Security Event Log</h3>
+               <div className="space-y-6">
+                 {[
+                   { event: "Node Synced", time: "2m ago", type: "system" },
+                   { event: "Fingerprint Indexed", time: "1h ago", type: "user" },
+                   { event: "Policy Update", time: "4h ago", type: "security" },
+                   { event: "Key Rotation", time: "1d ago", type: "system" },
+                   { event: "Access Granted", time: "2d ago", type: "auth" }
+                 ].map((log, i) => (
+                   <div key={i} className="flex gap-4 relative">
+                     {i !== 4 && <div className="absolute left-2.5 top-7 w-[1px] h-8 bg-zinc-50" />}
+                     <div className="w-5 h-5 rounded-full bg-zinc-50 border border-zinc-100 flex items-center justify-center shrink-0 mt-1">
+                       <div className={`w-1.5 h-1.5 rounded-full ${
+                         log.type === 'security' ? 'bg-red-400' : 
+                         log.type === 'user' ? 'bg-trust-green' : 
+                         'bg-zinc-300'
+                       }`} />
+                     </div>
+                     <div>
+                        <p className="font-display font-bold text-xs text-zinc-900">{log.event}</p>
+                        <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{log.time}</p>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+               <button className="w-full mt-8 py-3 bg-zinc-50 border border-zinc-100 rounded-2xl font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest hover:text-zinc-600 transition-colors">
+                 Download Full Audit
+               </button>
+            </section>
+
+            <section className="p-8 bg-zinc-950 rounded-[2.5rem] text-white">
+               <ShieldCheck className="w-8 h-8 text-trust-green mb-6" />
+               <h3 className="font-display font-bold text-xl mb-2">Vault Integrity</h3>
+               <p className="font-sans text-xs text-zinc-400 leading-relaxed mb-6">
+                 Your document index is protected by P-384 elliptic curve cryptography. All records are immutably signed.
+               </p>
+               <div className="flex items-center justify-between py-3 border-t border-white/10">
+                  <span className="font-mono text-[10px] text-zinc-500 uppercase">Redundancy</span>
+                  <span className="font-mono text-[10px] text-trust-green font-bold uppercase tracking-widest">3-Node Sync</span>
+               </div>
+               <div className="flex items-center justify-between py-3 border-t border-white/10">
+                  <span className="font-mono text-[10px] text-zinc-500 uppercase">Persistence</span>
+                  <span className="font-mono text-[10px] text-trust-green font-bold uppercase tracking-widest">High</span>
+               </div>
             </section>
           </div>
         </div>

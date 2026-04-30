@@ -12,7 +12,8 @@ import {
   Loader2,
   Trash2,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Search
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -30,7 +31,7 @@ interface NotaryItem {
 
 export default function NotarizePage() {
   const router = useRouter();
-  const { notify } = useNotification();
+  const { notify, confirm } = useNotification();
   const [items, setItems] = useState<NotaryItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +79,19 @@ export default function NotarizePage() {
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleFolderPathEntry = async () => {
+    const isConfirmed = await confirm({
+      title: 'Local Path Protocol',
+      message: 'Browser security constraints prevent direct filesystem path traversal. To index a local folder, use our "Index Directory" protocol which utilizes secure system-level hooks.',
+      confirmText: 'Use Protocol',
+      cancelText: 'Cancel'
+    });
+
+    if (isConfirmed) {
+      folderInputRef.current?.click();
+    }
   };
 
   const notarizeAll = async () => {
@@ -155,7 +169,7 @@ export default function NotarizePage() {
             </motion.p>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <button 
               onClick={() => fileInputRef.current?.click()}
               className="h-12 px-6 bg-zinc-900 text-white rounded-2xl font-display font-bold text-sm flex items-center gap-2 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
@@ -169,6 +183,13 @@ export default function NotarizePage() {
             >
               <Folder className="w-4 h-4" />
               Index Directory
+            </button>
+            <button 
+              onClick={handleFolderPathEntry}
+              className="h-12 px-6 bg-zinc-50 text-zinc-400 rounded-2xl font-display font-bold text-sm flex items-center gap-2 hover:bg-zinc-100 transition-all border border-zinc-100"
+            >
+              <Search className="w-4 h-4" />
+              Local Path
             </button>
             
             <input 
