@@ -36,6 +36,8 @@ export default function DashboardPage() {
   const [allHashes, setAllHashes] = useState<any[]>([]);
   const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month' | '3month'>('month');
 
+  const [isMounted, setIsMounted] = useState(false);
+
   const fetchUser = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) return;
@@ -77,6 +79,7 @@ export default function DashboardPage() {
     
     const init = async () => {
       await Promise.all([fetchUser(), fetchHashes()]);
+      setIsMounted(true);
       setIsAuthLoading(false);
     };
     init();
@@ -265,50 +268,57 @@ export default function DashboardPage() {
                 </div>
                </div>
 
-               <div className="flex-1 min-h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                        <defs>
-                            <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" />
-                        <XAxis 
-                            dataKey="name" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
-                            dy={10}
-                        />
-                        <YAxis 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
-                        />
-                        <Tooltip 
-                            contentStyle={{ 
-                                borderRadius: '16px', 
-                                border: '1px solid #f4f4f5',
-                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                fontFamily: 'var(--font-sans)',
-                                fontSize: '12px',
-                                fontWeight: 'bold'
-                            }}
-                        />
-                        <Area 
-                            type="monotone" 
-                            dataKey="count" 
-                            name="Indexed"
-                            stroke="#10b981" 
-                            strokeWidth={3}
-                            fillOpacity={1} 
-                            fill="url(#colorCount)" 
-                            animationDuration={1500}
-                        />
-                    </AreaChart>
-                  </ResponsiveContainer>
+               <div className="h-[350px] w-full">
+                  {isMounted ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                          <defs>
+                              <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                              </linearGradient>
+                          </defs>
+                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" />
+                          <XAxis 
+                              dataKey="name" 
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
+                              dy={10}
+                          />
+                          <YAxis 
+                              axisLine={false} 
+                              tickLine={false} 
+                              tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
+                              width={30}
+                          />
+                          <Tooltip 
+                              contentStyle={{ 
+                                  borderRadius: '16px', 
+                                  border: '1px solid #f4f4f5',
+                                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                                  fontFamily: 'var(--font-sans)',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold'
+                              }}
+                          />
+                          <Area 
+                              type="monotone" 
+                              dataKey="count" 
+                              name="Indexed"
+                              stroke="#10b981" 
+                              strokeWidth={3}
+                              fillOpacity={1} 
+                              fill="url(#colorCount)" 
+                              animationDuration={1500}
+                          />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+                    </div>
+                  )}
                </div>
             </section>
           </div>
