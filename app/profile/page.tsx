@@ -348,74 +348,69 @@ export default function ProfilePage() {
                       <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
                         <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
                           <ShieldCheck className="w-5 h-5 text-trust-green" />
-                          Network Identity
+                          Network Identity Status
                         </h3>
 
                         <div className="space-y-8">
-                          <div className="space-y-4">
-                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Configuration Node Type</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                              {[
-                                { 
-                                  id: 'Individual', 
-                                  label: 'Personal ID', 
-                                  desc: 'Individual notarization access.',
-                                  icon: User
-                                },
-                                { 
-                                  id: 'Company', 
-                                  label: 'Corporate', 
-                                  desc: 'Multi-signature operations.',
-                                  icon: Building2
-                                },
-                                { 
-                                  id: 'Enterprise', 
-                                  label: 'Strategic', 
-                                  desc: 'High-throughput nodes.',
-                                  icon: Network
-                                }
-                              ].map((type) => (
-                                <button
-                                  key={type.id}
-                                  type="button"
-                                  onClick={() => setUser({...user, entityType: type.id})}
-                                  className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden group ${
-                                    user?.entityType === type.id 
-                                      ? 'bg-zinc-950 border-zinc-950 text-white shadow-xl' 
-                                      : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200'
-                                  }`}
-                                >
-                                  <type.icon className={`w-5 h-5 mb-2 transition-colors ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
-                                  <p className={`font-display font-bold text-[11px] mb-1 leading-none ${user?.entityType === type.id ? 'text-white' : 'text-zinc-900'}`}>{type.label}</p>
-                                  <p className={`font-sans text-[9px] leading-tight ${user?.entityType === type.id ? 'text-zinc-400' : 'text-zinc-500'}`}>{type.desc}</p>
-                                </button>
-                              ))}
+                          <div className="flex flex-col items-center text-center p-10 bg-zinc-50 border border-zinc-100 rounded-3xl">
+                            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 relative ${
+                              isVerified ? 'bg-trust-green/10' : isPending ? 'bg-amber-50' : 'bg-red-50'
+                            }`}>
+                              {isVerified ? (
+                                <CheckCircle2 className="w-10 h-10 text-trust-green" />
+                              ) : isPending ? (
+                                <Clock className="w-10 h-10 text-amber-500 animate-pulse" />
+                              ) : (
+                                <AlertCircle className="w-10 h-10 text-red-400" />
+                              )}
+                              {isVerified && (
+                                <div className="absolute inset-0 bg-trust-green/20 rounded-full animate-ping opacity-20" />
+                              )}
                             </div>
+                            
+                            <h4 className="font-display text-2xl font-bold text-zinc-900 mb-2">
+                              {isVerified ? 'Cryptographically Verified' : isPending ? 'Identity Under Review' : 'Identity Unverified'}
+                            </h4>
+                            <p className="font-sans text-sm text-zinc-500 max-w-xs leading-relaxed">
+                              {isVerified 
+                                ? 'Your identifiers have been notarized on the TechCore ledger. You have full access to L2 operations.' 
+                                : isPending 
+                                  ? 'Our technical compliance team is manually validating your provided identifiers. This typically resolves in 2-3 days.'
+                                  : 'To unlock advanced notarization features, please complete the identity synchronization protocol.'}
+                            </p>
+
+                            {!isVerified && !isPending && (
+                              <button 
+                                type="button"
+                                onClick={() => router.push('/verification')}
+                                className="mt-8 px-8 h-12 bg-zinc-900 text-white rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg"
+                              >
+                                Begin Verification
+                              </button>
+                            )}
                           </div>
 
-                          <div className="h-px bg-zinc-50" />
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">PAN Identifier</label>
-                              <input 
-                                type="text" 
-                                placeholder="ABCDE1234F"
-                                value={user?.pan || ''}
-                                onChange={(e) => setUser({...user, pan: e.target.value.toUpperCase()})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all uppercase"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Aadhaar Protocol</label>
-                              <input 
-                                type="text" 
-                                placeholder="1234 5678 9012"
-                                value={user?.aadhaar || ''}
-                                onChange={(e) => setUser({...user, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12)})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                              />
-                            </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {[
+                              { label: 'KYC Phase', status: isVerified ? 'Complete' : isPending ? 'In Progress' : 'Pending', val: isVerified ? 100 : isPending ? 60 : 0 },
+                              { label: 'AML Check', status: isVerified ? 'Passed' : isPending ? 'Pending' : 'Required', val: isVerified ? 100 : isPending ? 30 : 0 },
+                              { label: 'Ledger Sync', status: isVerified ? 'Synced' : 'Waiting', val: isVerified ? 100 : 0 }
+                            ].map((item, i) => (
+                              <div key={i} className="p-4 bg-white border border-zinc-100 rounded-2xl">
+                                <p className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-2">{item.label}</p>
+                                <div className="flex items-end justify-between">
+                                  <span className="font-sans text-xs font-bold text-zinc-900">{item.status}</span>
+                                  <span className="font-mono text-[9px] text-zinc-400">{item.val}%</span>
+                                </div>
+                                <div className="mt-2 h-1 bg-zinc-50 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${item.val}%` }}
+                                    className={`h-full ${item.val === 100 ? 'bg-trust-green' : 'bg-amber-400'}`}
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </section>
