@@ -17,11 +17,14 @@ import {
   Phone,
   MapPin,
   FileText,
-  Clock
+  Clock,
+  Building2,
+  ChevronRight
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { SecurityService } from '@/lib/security-service';
+import { AnimatePresence } from 'motion/react';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -30,6 +33,7 @@ export default function ProfilePage() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [activeSection, setActiveSection] = useState<'personal' | 'professional' | 'identity'>('personal');
 
   useEffect(() => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -128,201 +132,302 @@ export default function ProfilePage() {
         </header>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
-            <div className="lg:col-span-2 h-[500px] bg-zinc-50 border border-zinc-100 rounded-[2.5rem]" />
-            <div className="h-[300px] bg-zinc-50 border border-zinc-100 rounded-[2rem]" />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-pulse">
+            <div className="lg:col-span-1 h-[200px] bg-zinc-50 rounded-2xl" />
+            <div className="lg:col-span-3 h-[500px] bg-zinc-50 border border-zinc-100 rounded-[2.5rem]" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Form */}
-          <div className="lg:col-span-2">
-            <motion.form 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              onSubmit={handleUpdate}
-              className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 border border-zinc-100 shadow-xl"
-            >
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Configuration Node Type</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[
-                      { 
-                        id: 'Individual', 
-                        label: 'Personal ID', 
-                        desc: 'For individual notarization and private ledger access.',
-                        icon: User
-                      },
-                      { 
-                        id: 'Company', 
-                        label: 'Corporate Entity', 
-                        desc: 'For business verification and multi-signature operations.',
-                        icon: Briefcase
-                      },
-                      { 
-                        id: 'Enterprise', 
-                        label: 'Strategic Tier', 
-                        desc: 'High-throughput nodes for massive scale notarization.',
-                        icon: Network
-                      }
-                    ].map((type) => (
-                      <button
-                        key={type.id}
-                        type="button"
-                        onClick={() => setUser({...user, entityType: type.id})}
-                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
-                          user?.entityType === type.id 
-                            ? 'bg-zinc-950 border-zinc-950 text-white shadow-2xl shadow-zinc-900/20' 
-                            : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200 hover:shadow-lg'
-                        }`}
-                      >
-                        <type.icon className={`w-6 h-6 mb-3 transition-colors ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
-                        <p className={`font-display font-bold text-sm mb-1 ${user?.entityType === type.id ? 'text-white' : 'text-zinc-900'}`}>{type.label}</p>
-                        <p className={`font-sans text-[10px] leading-relaxed ${user?.entityType === type.id ? 'text-zinc-400' : 'text-zinc-500'}`}>{type.desc}</p>
-                        {user?.entityType === type.id && (
-                          <div className="absolute top-2 right-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-trust-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Sidebar Nav */}
+            <div className="lg:col-span-1 space-y-2">
+              {[
+                { id: 'personal', label: 'Personal', icon: User, desc: 'Basic info' },
+                { id: 'professional', label: 'Professional', icon: Briefcase, desc: 'Work & Contact' },
+                { id: 'identity', label: 'Identity', icon: ShieldCheck, desc: 'Verification' }
+              ].map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id as any)}
+                  className={`w-full p-4 rounded-2xl flex flex-col items-start gap-1 transition-all text-left ${
+                    activeSection === section.id 
+                      ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
+                      : 'text-zinc-500 hover:bg-zinc-50 border border-transparent hover:border-zinc-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <section.icon className={`w-4 h-4 ${activeSection === section.id ? 'text-trust-green' : 'text-zinc-400'}`} />
+                    <span className="font-display font-bold text-[10px] uppercase tracking-widest">{section.label}</span>
+                  </div>
+                  <p className={`font-sans text-[9px] ${activeSection === section.id ? 'text-zinc-400' : 'text-zinc-400'}`}>{section.desc}</p>
+                </button>
+              ))}
+            </div>
+
+            {/* Main Content */}
+            <div className="lg:col-span-3">
+              <motion.form 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                onSubmit={handleUpdate}
+                className="space-y-8"
+              >
+                <AnimatePresence mode="wait">
+                  {activeSection === 'personal' && (
+                    <motion.div
+                      key="personal"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="space-y-6"
+                    >
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
+                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
+                          <User className="w-5 h-5 text-trust-green" />
+                          Personal Profile
+                        </h3>
+                        
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">First Name</label>
+                              <input 
+                                type="text" 
+                                value={user?.firstName || ''}
+                                onChange={(e) => setUser({...user, firstName: e.target.value})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Last Name</label>
+                              <input 
+                                type="text" 
+                                value={user?.lastName || ''}
+                                onChange={(e) => setUser({...user, lastName: e.target.value})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
                           </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                <div className="h-px bg-zinc-50" />
+                          <div className="space-y-2">
+                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Public ID / Email</label>
+                            <div className="relative">
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                              <input 
+                                type="email" 
+                                value={user?.email || ''}
+                                disabled
+                                className="w-full h-12 pl-11 pr-4 bg-zinc-100 border border-zinc-100 rounded-xl font-sans text-sm text-zinc-400 cursor-not-allowed"
+                              />
+                            </div>
+                          </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">First Name</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                      <input 
-                        type="text" 
-                        value={user?.firstName || ''}
-                        onChange={(e) => setUser({...user, firstName: e.target.value})}
-                        className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Last Name</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                      <input 
-                        type="text" 
-                        value={user?.lastName || ''}
-                        onChange={(e) => setUser({...user, lastName: e.target.value})}
-                        className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                      />
-                    </div>
-                  </div>
-                </div>
+                          <div className="space-y-2">
+                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Mission Statement</label>
+                            <textarea 
+                              rows={4}
+                              placeholder="Tell us about your core mission..."
+                              value={user?.bio || ''}
+                              onChange={(e) => setUser({...user, bio: e.target.value})}
+                              className="w-full px-4 py-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all resize-none"
+                            />
+                          </div>
+                        </div>
+                      </section>
+                    </motion.div>
+                  )}
 
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Email Address</label>
-                    <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                      <input 
-                        type="email" 
-                        value={user?.email || ''}
-                        disabled
-                        className="w-full h-12 pl-11 pr-4 bg-zinc-100 border border-zinc-100 rounded-xl font-sans text-sm text-zinc-400 cursor-not-allowed"
-                      />
-                    </div>
-                    <p className="font-mono text-[9px] text-zinc-400 pl-1">Immutable network identifier</p>
-                  </div>
+                  {activeSection === 'professional' && (
+                    <motion.div
+                      key="professional"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="space-y-6"
+                    >
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
+                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
+                          <Briefcase className="w-5 h-5 text-trust-green" />
+                          Professional Status
+                        </h3>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Job Title</label>
-                      <div className="relative">
-                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                        <input 
-                          type="text" 
-                          placeholder="e.g. Protocol Engineer"
-                          value={user?.jobTitle || ''}
-                          onChange={(e) => setUser({...user, jobTitle: e.target.value})}
-                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Phone Number</label>
-                      <div className="relative">
-                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                        <input 
-                          type="tel" 
-                          placeholder="+1 (555) 000-0000"
-                          value={user?.phone || ''}
-                          onChange={(e) => setUser({...user, phone: e.target.value})}
-                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Professional Title</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. Protocol Engineer"
+                                value={user?.jobTitle || ''}
+                                onChange={(e) => setUser({...user, jobTitle: e.target.value})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Phone Protocol</label>
+                              <input 
+                                type="tel" 
+                                placeholder="+1 (555) 000-0000"
+                                value={user?.phone || ''}
+                                onChange={(e) => setUser({...user, phone: e.target.value})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
+                          </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">PAN Card Number</label>
-                      <div className="relative">
-                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                        <input 
-                          type="text" 
-                          placeholder="ABCDE1234F"
-                          value={user?.pan || ''}
-                          onChange={(e) => setUser({...user, pan: e.target.value.toUpperCase()})}
-                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all uppercase"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Aadhaar Number</label>
-                      <div className="relative">
-                        <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                        <input 
-                          type="text" 
-                          placeholder="1234 5678 9012"
-                          value={user?.aadhaar || ''}
-                          onChange={(e) => setUser({...user, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12)})}
-                          className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                          {user?.entityType !== 'Individual' && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              className="space-y-6 pt-2"
+                            >
+                              <div className="h-px bg-zinc-50" />
+                              <div className="space-y-2">
+                                <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Company / Organization Name</label>
+                                <div className="relative">
+                                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                                  <input 
+                                    type="text" 
+                                    placeholder="e.g. TechCore Labs Inc."
+                                    value={user?.companyName || ''}
+                                    onChange={(e) => setUser({...user, companyName: e.target.value})}
+                                    className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Registration / Tax ID</label>
+                                  <input 
+                                    type="text" 
+                                    placeholder="e.g. TIN-90210-X"
+                                    value={user?.companyRegistration || ''}
+                                    onChange={(e) => setUser({...user, companyRegistration: e.target.value})}
+                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Corporate Website</label>
+                                  <input 
+                                    type="url" 
+                                    placeholder="https://techcore.io"
+                                    value={user?.companyWebsite || ''}
+                                    onChange={(e) => setUser({...user, companyWebsite: e.target.value})}
+                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                  />
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
 
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Location</label>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                      <input 
-                        type="text" 
-                        placeholder="City, Country"
-                        value={user?.location || ''}
-                        onChange={(e) => setUser({...user, location: e.target.value})}
-                        className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                      />
-                    </div>
-                  </div>
+                          <div className="space-y-2 pt-2">
+                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Node Location</label>
+                            <div className="relative">
+                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                              <input 
+                                type="text" 
+                                placeholder="Global / City, Country"
+                                value={user?.location || ''}
+                                onChange={(e) => setUser({...user, location: e.target.value})}
+                                className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </motion.div>
+                  )}
 
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Bio / Mission Statement</label>
-                    <div className="relative">
-                      <FileText className="absolute left-4 top-6 w-4 h-4 text-zinc-300" />
-                      <textarea 
-                        rows={4}
-                        placeholder="Tell us about your core mission..."
-                        value={user?.bio || ''}
-                        onChange={(e) => setUser({...user, bio: e.target.value})}
-                        className="w-full pl-11 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all resize-none"
-                      />
-                    </div>
-                  </div>
+                  {activeSection === 'identity' && (
+                    <motion.div
+                      key="identity"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      className="space-y-6"
+                    >
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
+                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
+                          <ShieldCheck className="w-5 h-5 text-trust-green" />
+                          Network Identity
+                        </h3>
+
+                        <div className="space-y-8">
+                          <div className="space-y-4">
+                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Configuration Node Type</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {[
+                                { 
+                                  id: 'Individual', 
+                                  label: 'Personal ID', 
+                                  desc: 'Individual notarization access.',
+                                  icon: User
+                                },
+                                { 
+                                  id: 'Company', 
+                                  label: 'Corporate', 
+                                  desc: 'Multi-signature operations.',
+                                  icon: Building2
+                                },
+                                { 
+                                  id: 'Enterprise', 
+                                  label: 'Strategic', 
+                                  desc: 'High-throughput nodes.',
+                                  icon: Network
+                                }
+                              ].map((type) => (
+                                <button
+                                  key={type.id}
+                                  type="button"
+                                  onClick={() => setUser({...user, entityType: type.id})}
+                                  className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden group ${
+                                    user?.entityType === type.id 
+                                      ? 'bg-zinc-950 border-zinc-950 text-white shadow-xl' 
+                                      : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200'
+                                  }`}
+                                >
+                                  <type.icon className={`w-5 h-5 mb-2 transition-colors ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
+                                  <p className={`font-display font-bold text-[11px] mb-1 leading-none ${user?.entityType === type.id ? 'text-white' : 'text-zinc-900'}`}>{type.label}</p>
+                                  <p className={`font-sans text-[9px] leading-tight ${user?.entityType === type.id ? 'text-zinc-400' : 'text-zinc-500'}`}>{type.desc}</p>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-zinc-50" />
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">PAN Identifier</label>
+                              <input 
+                                type="text" 
+                                placeholder="ABCDE1234F"
+                                value={user?.pan || ''}
+                                onChange={(e) => setUser({...user, pan: e.target.value.toUpperCase()})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all uppercase"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Aadhaar Protocol</label>
+                              <input 
+                                type="text" 
+                                placeholder="1234 5678 9012"
+                                value={user?.aadhaar || ''}
+                                onChange={(e) => setUser({...user, aadhaar: e.target.value.replace(/\D/g, '').slice(0, 12)})}
+                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {message && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className={`flex items-center gap-3 p-4 rounded-xl ${
+                    className={`flex items-center gap-3 p-4 rounded-2xl ${
                       message.type === 'success' ? 'bg-trust-green/10 text-trust-green border border-trust-green/20' : 'bg-red-50 text-red-500 border border-red-100'
                     }`}
                   >
@@ -331,68 +436,49 @@ export default function ProfilePage() {
                   </motion.div>
                 )}
 
-                <button 
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full h-14 bg-trust-green text-white rounded-2xl font-display font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/10 disabled:opacity-50"
-                >
-                  {isSaving ? 'Updating...' : 'Save Profile Changes'}
-                  <Save className="w-5 h-5 text-white" />
-                </button>
-              </div>
-            </motion.form>
-          </div>
-
-          {/* Right Column: Security Stats */}
-          <div className="space-y-8">
-            <motion.section 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-              className="glass rounded-[2rem] p-8 border border-zinc-100 shadow-sm"
-            >
-              <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-trust-green" />
-                Security Status
-              </h3>
-              <div className="space-y-6">
-                {[
-                  { label: "Identity Verification", status: isVerified ? "Verified" : isPending ? "Under Review" : "Pending", icon: ShieldCheck, color: isVerified ? "text-trust-green" : isPending ? "text-zinc-400" : "text-amber-500" },
-                  { label: "Encryption", status: "AES-256", icon: HardDrive },
-                  { label: "Trust Score", status: isVerified ? "High" : "Calculated", icon: ShieldCheck },
-                  { label: "Node Sync", status: "Synchronized", icon: Network }
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <item.icon className={`w-4 h-4 ${i === 0 ? item.color : "text-zinc-300"}`} />
-                      <span className="font-sans text-xs text-zinc-500">{item.label}</span>
-                    </div>
-                    <span className={`font-mono text-[10px] font-bold uppercase ${i === 0 ? item.color : "text-zinc-900"}`}>{item.status}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
-
-            <motion.section 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="glass rounded-[2rem] p-8 border border-zinc-100 bg-gradient-to-br from-trust-green/[0.02] to-transparent overflow-hidden relative shadow-sm"
-            >
-              <div className="relative z-10">
-                <h3 className="font-display font-bold text-lg text-zinc-900 mb-2">Technical Core</h3>
-                <p className="font-sans text-xs text-zinc-500 mb-6 leading-relaxed">Your account is connected to the primary verification relay.</p>
-                
-                <div className="p-4 bg-white rounded-xl border border-zinc-100 shadow-sm">
-                  <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest mb-1">Public Key Hash</p>
-                  <p className="font-mono text-[10px] text-trust-green truncate font-bold">TC_X84_92K_L0P_0091_X902_V1</p>
+                <div className="flex justify-end pt-4">
+                  <button 
+                    type="submit"
+                    disabled={isSaving}
+                    className="h-14 px-12 bg-zinc-950 text-white rounded-2xl font-display font-bold flex items-center justify-center gap-3 hover:bg-zinc-900 transition-all shadow-2xl shadow-zinc-950/20 disabled:opacity-50"
+                  >
+                    {isSaving ? 'Syncing...' : 'Sync Profile Changes'}
+                    <Save className="w-5 h-5 text-trust-green" />
+                  </button>
                 </div>
+              </motion.form>
+
+              {/* Stats & Metadata Footer */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 pb-12">
+                <section className="glass rounded-3xl p-6 border border-zinc-100">
+                   <h4 className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-4">Security Baseline</h4>
+                   <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isVerified ? 'bg-trust-green/10 text-trust-green' : 'bg-amber-100 text-amber-600'}`}>
+                            <ShieldCheck className="w-4 h-4" />
+                         </div>
+                         <p className="font-display font-bold text-xs text-zinc-900">{isVerified ? 'Verified Account' : isPending ? 'Review Pending' : 'Unverified'}</p>
+                      </div>
+                      <span className="font-mono text-[9px] font-bold text-zinc-400">SCORE: {isVerified ? '98' : '40'}</span>
+                   </div>
+                </section>
+                <section className="glass rounded-3xl p-6 border border-zinc-100">
+                   <h4 className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-4">Protocol Metadata</h4>
+                   <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className="w-8 h-8 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-400">
+                            <Fingerprint className="w-4 h-4" />
+                         </div>
+                         <p className="font-display font-bold text-xs text-zinc-900">TC-HASH-NODE</p>
+                      </div>
+                      <span className="font-mono text-[9px] font-bold text-trust-green">ALPHA_REV_2</span>
+                   </div>
+                </section>
               </div>
-            </motion.section>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  </main>
-);
+        )}
+      </div>
+    </main>
+  );
 }
