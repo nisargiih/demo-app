@@ -31,33 +31,10 @@ export default function DashboardPage() {
   const [hash, setHash] = useState<string | null>(null);
   const [expiryDate, setExpiryDate] = useState<string | null>(null);
   const [isEditingExpiry, setIsEditingExpiry] = useState(false);
-  const [history, setHistory] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [verificationResult, setVerificationResult] = useState<{ status: 'authentic' | 'tampered' | 'unindexed', record?: any } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
  
-  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
- 
-  const fetchHistory = React.useCallback(async () => {
-    const email = localStorage.getItem('authenticated_user_email');
-    if (!email) return [];
-
-    try {
-      const res = await fetch(`/api/hashes?email=${encodeURIComponent(email)}`);
-      if (res.ok) {
-        const body = await res.json();
-        const data = SecurityService.processFromTransit(body);
-        setHistory(data);
-        return data;
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsHistoryLoading(false);
-    }
-    return [];
-  }, []);
-
   const fetchUser = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) return;
@@ -82,11 +59,11 @@ export default function DashboardPage() {
     }
     
     const init = async () => {
-      await Promise.all([fetchHistory(), fetchUser()]);
+      await fetchUser();
       setIsAuthLoading(false);
     };
     init();
-  }, [fetchHistory, fetchUser, router]);
+  }, [fetchUser, router]);
 
   if (isAuthLoading) {
     return (
@@ -120,59 +97,22 @@ export default function DashboardPage() {
         setHash(generatedHash);
         setIsUploading(false);
 
-        // Perform instant verification check
-        const currentHistory = await fetchHistory();
-        const match = currentHistory.find((item: any) => item.hash === generatedHash);
-        
-        if (match) {
-          setVerificationResult({ status: 'authentic', record: match });
-        } else {
-          // Check if file name exists but hash is different
-          const nameMatch = currentHistory.find((item: any) => item.fileName === selectedFile.name);
-          if (nameMatch) {
-            setVerificationResult({ status: 'tampered', record: nameMatch });
-          } else {
-            setVerificationResult({ status: 'unindexed' });
+        // Perform instant verification check against ledger
+        try {
+          const res = await fetch(`/api/hashes?hash=${generatedHash}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data) {
+              setVerificationResult({ status: 'authentic', record: data });
+            } else {
+              setVerificationResult({ status: 'unindexed' });
+            }
           }
+        } catch (err) {
+          console.error(err);
+          setVerificationResult({ status: 'unindexed' });
         }
       }, 1500);
-    }
-  };
-
-  const handleStoreHash = async () => {
-    if (!file || !hash) return;
-    const email = localStorage.getItem('authenticated_user_email');
-    
-    try {
-      // 1. Prepare data for transit (Encrypt)
-      const payload = SecurityService.prepareForTransit({
-        userEmail: email,
-        fileName: file.name,
-        fileSize: file.size,
-        hash,
-        expiryDate
-      });
-
-      const res = await fetch('/api/hashes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const body = await res.json();
-      const data = SecurityService.processFromTransit(body);
-
-      if (res.ok) {
-        if (data.alreadyExists) {
-          notify('Note: This document fingerprint is already indexed in your secure archive.', 'info');
-        } else {
-          notify('Document successfully notarized on-chain.', 'success');
-        }
-        fetchHistory();
-        resetUpload();
-      }
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -420,14 +360,6 @@ export default function DashboardPage() {
                               </div>
                             )}
                           </div>
-
-                          <button 
-                            onClick={handleStoreHash}
-                            className="px-8 bg-trust-green text-white rounded-3xl font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 transition-all font-display shadow-lg shadow-trust-green/20"
-                          >
-                            Store on Chain
-                            <CheckCircle2 className="w-5 h-5 shadow-[0_4px_12px_rgba(255,255,255,0.4)]" />
-                          </button>
                         </div>
                       </motion.div>
                     )}
@@ -456,36 +388,6 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-            </section>
-
-            <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 bg-gradient-to-br from-trust-green/5 to-transparent">
-              <div className="flex items-center gap-3 mb-6">
-                <Clock className="w-5 h-5 text-zinc-400" />
-                <h3 className="font-display font-bold text-lg text-zinc-900">Recent Hashes</h3>
-              </div>
-              <div className="space-y-4">
-                 {isHistoryLoading ? (
-                   [1, 2, 3].map(i => (
-                     <div key={i} className="h-20 bg-zinc-50 border border-zinc-100 rounded-2xl animate-pulse" />
-                   ))
-                 ) : history.length > 0 ? (
-                   history.slice(0, 3).map((record, i) => (
-                     <div key={i} className="p-4 bg-white/50 border border-zinc-100 rounded-2xl hover:border-trust-green/20 transition-all cursor-pointer group">
-                       <p className="font-mono text-[10px] text-trust-green font-bold mb-1 opacity-50">RECORD_{i + 1}</p>
-                       <p className="font-display font-bold text-sm text-zinc-900 mb-1 group-hover:text-trust-green transition-colors truncate">{record.fileName}</p>
-                       <p className="font-mono text-[9px] text-zinc-400 truncate">SHA256: {record.hash.slice(0, 16)}...</p>
-                     </div>
-                   ))
-                 ) : (
-                   <p className="font-sans text-xs text-zinc-400 text-center py-8">No records indexed yet.</p>
-                 )}
-              </div>
-              <button 
-                onClick={() => router.push('/archive')}
-                className="w-full mt-6 py-3 font-display font-bold text-xs text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-[0.2em]"
-              >
-                View Archive
-              </button>
             </section>
           </div>
         </div>

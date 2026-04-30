@@ -123,33 +123,6 @@ export default function VerificationPage() {
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-8"
                 >
-                  <div className="glass rounded-[2rem] p-8 border border-zinc-100 mb-8">
-                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-zinc-400" />
-                      Verification Dossier
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex items-center justify-between">
-                        <div>
-                          <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">PAN Status</p>
-                          <p className={`font-display font-bold text-sm ${user?.pan ? 'text-trust-green' : 'text-zinc-400'}`}>
-                            {user?.pan ? 'Verified' : 'Pending'}
-                          </p>
-                        </div>
-                        {user?.pan && <CheckCircle2 className="w-5 h-5 text-trust-green" />}
-                      </div>
-                      <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex items-center justify-between">
-                        <div>
-                          <p className="font-sans text-[10px] text-zinc-400 uppercase font-bold tracking-widest mb-1">Aadhaar Status</p>
-                          <p className={`font-display font-bold text-sm ${user?.aadhaar ? 'text-trust-green' : 'text-zinc-400'}`}>
-                            {user?.aadhaar ? 'Verified' : 'Pending'}
-                          </p>
-                        </div>
-                        {user?.aadhaar && <CheckCircle2 className="w-5 h-5 text-trust-green" />}
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="glass rounded-[2.5rem] p-8 border border-zinc-100">
                     <h2 className="font-display text-xl font-bold text-zinc-900 mb-4">Verification Status</h2>
                     {isComplete ? (
@@ -170,24 +143,49 @@ export default function VerificationPage() {
                       </div>
                     )}
 
-                    <div className="mt-8 space-y-4">
-                      <div className="flex items-center justify-between py-3 border-b border-zinc-50">
-                        <span className="font-sans text-sm text-zinc-500">Identity Mode</span>
-                        <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-900">
-                          {user?.entityType || 'Individual'} Node
-                        </span>
+                    <div className="mt-8 space-y-6">
+                      <div className="space-y-3">
+                        <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest">Active Identity Protocol</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['Individual', 'Company', 'Enterprise'].map((type) => {
+                            const isVerified = !!(user?.pan && user?.aadhaar);
+                            const isBusiness = type === 'Company' || type === 'Enterprise';
+                            // If verified as individual, cannot switch to business
+                            const isDisabled = isVerified && user?.entityType === 'Individual' && isBusiness;
+                            
+                            return (
+                              <button
+                                key={type}
+                                disabled={isDisabled}
+                                onClick={() => setUser({...user, entityType: type})}
+                                className={`h-10 rounded-xl font-display font-bold text-[9px] uppercase tracking-widest border transition-all ${
+                                  user?.entityType === type 
+                                    ? 'bg-zinc-950 border-zinc-950 text-white' 
+                                    : isDisabled
+                                      ? 'bg-zinc-50 border-zinc-100 text-zinc-200 cursor-not-allowed'
+                                      : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'
+                                }`}
+                              >
+                                {type}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between py-3 border-b border-zinc-50">
-                        <span className="font-sans text-sm text-zinc-500">PAN Verification</span>
-                        <span className={`font-mono text-[10px] font-bold uppercase tracking-widest ${user?.pan ? 'text-trust-green' : 'text-zinc-300'}`}>
-                          {user?.pan ? 'Synchronized' : 'Missing'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between py-3 border-b border-zinc-50">
-                        <span className="font-sans text-sm text-zinc-500">Aadhaar Link</span>
-                        <span className={`font-mono text-[10px] font-bold uppercase tracking-widest ${user?.aadhaar ? 'text-trust-green' : 'text-zinc-300'}`}>
-                          {user?.aadhaar ? 'Synchronized' : 'Missing'}
-                        </span>
+
+                      <div className="space-y-4 border-t border-zinc-50 pt-6">
+                        <div className="flex items-center justify-between py-1">
+                          <span className="font-sans text-sm text-zinc-500">PAN Verification</span>
+                          <span className={`font-mono text-[10px] font-bold uppercase tracking-widest ${user?.pan ? 'text-trust-green' : 'text-zinc-300'}`}>
+                            {user?.pan ? 'Synchronized' : 'Missing'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between py-1">
+                          <span className="font-sans text-sm text-zinc-500">Aadhaar Link</span>
+                          <span className={`font-mono text-[10px] font-bold uppercase tracking-widest ${user?.aadhaar ? 'text-trust-green' : 'text-zinc-300'}`}>
+                            {user?.aadhaar ? 'Synchronized' : 'Missing'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -198,55 +196,6 @@ export default function VerificationPage() {
                       {isComplete ? 'Update Identity Data' : 'Begin Verification'}
                       <ArrowRight className="w-5 h-5" />
                     </button>
-                  </div>
-
-                  <div className="glass rounded-[2rem] p-8 border border-zinc-100">
-                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
-                      <HardDrive className="w-5 h-5 text-zinc-400" />
-                      Protocol Specifications
-                    </h3>
-                    <div className="space-y-4">
-                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
-                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Hash Algorithm</p>
-                          <p className="font-mono text-sm text-zinc-900 font-bold">P-384 + SHA-256 CASCADE</p>
-                       </div>
-                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
-                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Storage Persistence</p>
-                          <p className="font-mono text-sm text-zinc-900 font-bold">Distributed Node Clusters (Global)</p>
-                       </div>
-                       <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-100">
-                          <p className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest mb-2">Immutable Index</p>
-                          <p className="font-mono text-sm text-zinc-900 font-bold uppercase">TechCore_{user?.firstName?.toUpperCase() || 'USER'}_v4.0</p>
-                       </div>
-                    </div>
-                  </div>
-
-                  <div className="glass rounded-[2rem] p-8 border border-zinc-100">
-                    <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
-                       <Clock className="w-5 h-5 text-zinc-400" />
-                       Audit Protocol Log
-                    </h3>
-                    <div className="space-y-6">
-                      {[
-                        { event: "Identity Initialized", time: "2m ago", detail: "Seed generated from auth provider" },
-                        { event: "Encryption Layer Active", time: "2m ago", detail: "P-384 key pair established" },
-                        { event: "Metadata Scanned", time: "Just now", detail: "Scanning for linked alphanumeric nodes" }
-                      ].map((log, i) => (
-                        <div key={i} className="flex gap-4 relative">
-                          {i !== 2 && <div className="absolute left-2.5 top-7 w-[1px] h-8 bg-zinc-100" />}
-                          <div className="w-5 h-5 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center shrink-0 mt-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-300" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-display font-bold text-sm text-zinc-900">{log.event}</p>
-                              <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{log.time}</span>
-                            </div>
-                            <p className="font-sans text-xs text-zinc-500">{log.detail}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </motion.div>
               )}
@@ -343,30 +292,6 @@ export default function VerificationPage() {
             </div>
 
             <div className="lg:col-span-2 space-y-8">
-              <section className="glass rounded-[2rem] p-8 border border-zinc-100">
-                <h3 className="font-display font-bold text-lg text-zinc-900 mb-6 flex items-center gap-2">
-                  <Fingerprint className="w-5 h-5 text-zinc-400" />
-                  Security Nodes
-                </h3>
-                <div className="space-y-6">
-                  {[
-                    { label: "Vault Sync", val: "Operational", icon: HardDrive, color: "text-trust-green" },
-                    { label: "Ledger Audit", val: "Success", icon: FileText, color: "text-trust-green" },
-                    { label: "Identity Node", val: user?.firstName?.toUpperCase() || 'ANONYMOUS', icon: User, color: "text-zinc-900" },
-                    { label: "Hash Protocol", val: "P-384 / SHA-256", icon: ShieldCheck, color: "text-zinc-400" },
-                    { label: "Trust Score", val: isComplete ? "99.8%" : "45.0%", icon: CheckCircle2, color: isComplete ? "text-trust-green" : "text-amber-500" }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-4 h-4 text-zinc-300" />
-                        <span className="font-sans text-xs text-zinc-500">{item.label}</span>
-                      </div>
-                      <span className={`font-mono text-[9px] font-bold uppercase tracking-wider ${item.color}`}>{item.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
               <section className="p-8 bg-zinc-950 rounded-[2rem] text-white">
                 <h3 className="font-display font-bold text-lg mb-4">Integrity Disclaimer</h3>
                 <p className="font-sans text-xs text-zinc-400 leading-relaxed">

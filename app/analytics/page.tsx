@@ -46,43 +46,15 @@ const networkData = [
 ];
 
 export default function AnalyticsPage() {
-  const [history, setHistory] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchHistory = async () => {
-      const email = localStorage.getItem('authenticated_user_email');
-      if (!email) return;
-
-      try {
-        const res = await fetch(`/api/hashes?email=${email}`);
-        if (res.ok) {
-          const data = await res.json();
-          setHistory(data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchHistory();
+    // Simulate loading
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Process data for charts
-  const processedData = history.reduce((acc: any[], curr: any) => {
-    const date = new Date(curr.createdAt).toLocaleDateString('en-US', { weekday: 'short' });
-    const existing = acc.find(d => d.name === date);
-    if (existing) {
-      existing.count += 1;
-    } else {
-      acc.push({ name: date, count: 1 });
-    }
-    return acc;
-  }, []).reverse();
-
-  const totalFiles = history.length;
-  const trustScore = totalFiles > 0 ? 99.98 : 0;
+  const trustScore = 99.98;
 
   return (
     <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
@@ -108,20 +80,6 @@ export default function AnalyticsPage() {
               Real-time monitoring of your cryptographic assets.
             </motion.p>
           </div>
-
-          <div className="flex gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-              <input 
-                type="text" 
-                placeholder="Search logs..." 
-                className="h-11 pl-10 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-xs w-64"
-              />
-            </div>
-            <button className="px-6 bg-zinc-50 border border-zinc-100 text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 hover:border-zinc-200 transition-all shadow-sm">
-              Export Ledger
-            </button>
-          </div>
         </header>
 
         {isLoading ? (
@@ -135,10 +93,10 @@ export default function AnalyticsPage() {
             {/* Top Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: "Verified Files", val: totalFiles.toLocaleString(), change: history.length > 0 ? "+100%" : "0%", icon: FileCheck },
             { label: "Active Nodes", val: "42", change: "+2", icon: Activity },
             { label: "Relay Latency", val: "14ms", change: "-4ms", icon: Database },
             { label: "Trust Score", val: trustScore.toString(), change: "Stable", icon: ShieldCheck },
+            { label: "Network Load", val: "Lo-Fi", change: "Optimal", icon: TrendingUp },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -167,14 +125,14 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="font-display text-xl font-bold text-zinc-900">Verification Volume</h3>
-                <p className="font-sans text-xs text-zinc-400">Total documents processed per cycle</p>
+                <p className="font-sans text-xs text-zinc-400">Total documents processed per cycle (Projected)</p>
               </div>
               <TrendingUp className="text-trust-green w-5 h-5" />
             </div>
             
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={processedData.length > 0 ? processedData : [{ name: 'None', count: 0 }]}>
+                <BarChart data={verificationData}>
                   <defs>
                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
@@ -249,43 +207,6 @@ export default function AnalyticsPage() {
             </div>
           </section>
         </div>
-
-        {/* Bottom Activity List */}
-        <section className="glass rounded-[2rem] p-8 border border-zinc-100 mb-12">
-          <h3 className="font-display text-xl font-bold text-zinc-900 mb-6">Security Event Log</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-zinc-50">
-                  <th className="pb-4 font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Event_ID</th>
-                  <th className="pb-4 font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Type</th>
-                  <th className="pb-4 font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Action</th>
-                  <th className="pb-4 font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Status</th>
-                  <th className="pb-4 font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-right">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-50">
-                {history.length > 0 ? (
-                  history.slice(0, 5).map((record, i) => (
-                    <tr key={i} className="group hover:bg-zinc-50/50 transition-colors">
-                      <td className="py-4 font-mono text-[11px] text-zinc-400">#LOG_{record._id?.slice(-4).toUpperCase() || 'SYS'}</td>
-                      <td className="py-4 font-display font-bold text-xs text-zinc-900">VERIFICATION</td>
-                      <td className="py-4 font-sans text-xs text-zinc-500">Hash Stored: {record.fileName}</td>
-                      <td className="py-4">
-                        <span className="px-2 py-1 bg-trust-green/10 text-trust-green rounded-lg font-mono text-[9px] font-bold uppercase">Success</span>
-                      </td>
-                      <td className="py-4 font-mono text-[11px] text-zinc-400 text-right">{new Date(record.createdAt).toLocaleString()}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center font-sans text-xs text-zinc-400">No activity logged.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
       </>
     )}
   </div>
