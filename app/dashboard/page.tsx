@@ -173,7 +173,8 @@ export default function DashboardPage() {
     );
   }
 
-  const isVerified = user?.pan && user?.aadhaar;
+  const isVerified = user?.verificationStatus === 'verified';
+  const isPending = user?.verificationStatus === 'pending';
 
   return (
     <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
@@ -195,6 +196,12 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
                     <ShieldCheck className="w-4 h-4 text-trust-green" />
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-trust-green">L2 Verified</span>
+                  </div>
+                )}
+                {isPending && (
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full">
+                    <Clock className="w-4 h-4 text-zinc-400" />
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-500">Under Review</span>
                   </div>
                 )}
               </div>

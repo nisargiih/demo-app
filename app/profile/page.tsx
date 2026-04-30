@@ -16,7 +16,8 @@ import {
   Briefcase,
   Phone,
   MapPin,
-  FileText
+  FileText,
+  Clock
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -94,6 +95,9 @@ export default function ProfilePage() {
     }
   };
 
+  const isVerified = user?.verificationStatus === 'verified';
+  const isPending = user?.verificationStatus === 'pending';
+
   return (
     <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <BackgroundAnimation />
@@ -111,7 +115,8 @@ export default function ProfilePage() {
             </div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 flex items-center gap-2">
               {user?.firstName || 'User Account'}
-              {user?.pan && user?.aadhaar && <ShieldCheck className="w-6 h-6 text-trust-green fill-trust-green/10" />}
+              {isVerified && <ShieldCheck className="w-6 h-6 text-trust-green fill-trust-green/10" />}
+              {isPending && <Clock className="w-6 h-6 text-zinc-400" />}
               {user?.entityType && (
                 <span className="px-2 py-0.5 bg-zinc-100 border border-zinc-200 rounded text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500">
                   {user.entityType}
@@ -334,17 +339,17 @@ export default function ProfilePage() {
               </h3>
               <div className="space-y-6">
                 {[
-                  { label: "2FA Status", status: "Active", icon: Fingerprint },
+                  { label: "Identity Verification", status: isVerified ? "Verified" : isPending ? "Under Review" : "Pending", icon: ShieldCheck, color: isVerified ? "text-trust-green" : isPending ? "text-zinc-400" : "text-amber-500" },
                   { label: "Encryption", status: "AES-256", icon: HardDrive },
-                  { label: "Trust Score", status: "High", icon: ShieldCheck },
+                  { label: "Trust Score", status: isVerified ? "High" : "Calculated", icon: ShieldCheck },
                   { label: "Node Sync", status: "Synchronized", icon: Network }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4 text-zinc-300" />
+                      <item.icon className={`w-4 h-4 ${i === 0 ? item.color : "text-zinc-300"}`} />
                       <span className="font-sans text-xs text-zinc-500">{item.label}</span>
                     </div>
-                    <span className="font-mono text-[10px] font-bold text-zinc-900 uppercase">{item.status}</span>
+                    <span className={`font-mono text-[10px] font-bold uppercase ${i === 0 ? item.color : "text-zinc-900"}`}>{item.status}</span>
                   </div>
                 ))}
               </div>

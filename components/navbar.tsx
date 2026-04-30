@@ -25,7 +25,7 @@ import { SecurityService } from '@/lib/security-service';
 export function Sidebar() {
   const [userName, setUserName] = useState('User Account');
   const [userEmail, setUserEmail] = useState('user@techcore.io');
-  const [isVerified, setIsVerified] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string | undefined>(undefined);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -42,8 +42,7 @@ export function Sidebar() {
           const data = SecurityService.processFromTransit(body);
           if (data.firstName) setUserName(data.firstName);
           if (data.email) setUserEmail(data.email);
-          // Check if PAN and Aadhaar are present
-          setIsVerified(!!(data.pan && data.aadhaar));
+          setVerificationStatus(data.verificationStatus);
         }
       } catch (err) {
         console.error(err);
@@ -51,6 +50,9 @@ export function Sidebar() {
     };
     fetchUser();
   }, [pathname]);
+
+  const isVerified = verificationStatus === 'verified';
+  const isPending = verificationStatus === 'pending';
 
   const handleLogout = () => {
     localStorage.clear();
@@ -174,6 +176,8 @@ export function Sidebar() {
                 <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
                 {isVerified ? (
                   <p className="font-mono text-[8px] text-trust-green font-bold uppercase tracking-widest mt-0.5">Identity Verified</p>
+                ) : isPending ? (
+                  <p className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Under Review</p>
                 ) : (
                   <p className="font-mono text-[8px] text-amber-500 font-bold uppercase tracking-widest mt-0.5">Unverified Phase</p>
                 )}

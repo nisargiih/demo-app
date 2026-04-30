@@ -70,7 +70,8 @@ export default function VerificationPage() {
     setIsSaving(true);
 
     try {
-      const payload = SecurityService.prepareForTransit(user);
+      const updatedUser = { ...user, verificationStatus: 'pending' };
+      const payload = SecurityService.prepareForTransit(updatedUser);
       const res = await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -78,7 +79,8 @@ export default function VerificationPage() {
       });
 
       if (res.ok) {
-        notify('Identity verification data submitted to ledger.', 'success');
+        setUser(updatedUser);
+        notify('Verification details submitted for review.', 'success');
         setStep(3); // Completion step
       } else {
         notify('Verification protocol failed. Please check inputs.', 'error');
@@ -90,7 +92,9 @@ export default function VerificationPage() {
     }
   };
 
-  const isComplete = !!(user?.pan && user?.aadhaar);
+  const isVerified = user?.verificationStatus === 'verified';
+  const isPending = user?.verificationStatus === 'pending';
+  const isComplete = isVerified || isPending || (!!(user?.pan && user?.aadhaar));
 
   return (
     <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
@@ -125,12 +129,20 @@ export default function VerificationPage() {
                 >
                   <div className="glass rounded-[2.5rem] p-8 border border-zinc-100">
                     <h2 className="font-display text-xl font-bold text-zinc-900 mb-4">Verification Status</h2>
-                    {isComplete ? (
+                    {isVerified ? (
                       <div className="flex items-center gap-4 p-6 bg-trust-green/5 border border-trust-green/20 rounded-2xl">
                         <CheckCircle2 className="w-8 h-8 text-trust-green" />
                         <div>
                           <p className="font-display font-bold text-zinc-900">Full Verification Active</p>
                           <p className="font-sans text-xs text-zinc-500 tracking-tight">Your identity is cryptographically linked to the network.</p>
+                        </div>
+                      </div>
+                    ) : isPending ? (
+                      <div className="flex items-center gap-4 p-6 bg-zinc-50 border border-zinc-200 rounded-2xl">
+                        <Clock className="w-8 h-8 text-zinc-400" />
+                        <div>
+                          <p className="font-display font-bold text-zinc-900">Under Review</p>
+                          <p className="font-sans text-xs text-zinc-500 tracking-tight">System is validating your identifiers. This typically takes 2-3 days.</p>
                         </div>
                       </div>
                     ) : (
@@ -273,13 +285,13 @@ export default function VerificationPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="glass rounded-[3rem] p-16 text-center border border-zinc-100 shadow-2xl shadow-trust-green/5"
                 >
-                  <div className="w-24 h-24 bg-trust-green/10 rounded-full flex items-center justify-center mx-auto mb-8 relative">
-                    <div className="absolute inset-0 bg-trust-green/20 rounded-full animate-ping opacity-20" />
-                    <ShieldCheck className="w-12 h-12 text-trust-green" />
+                  <div className="w-24 h-24 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-8 relative">
+                    <div className="absolute inset-0 bg-zinc-200 rounded-full animate-ping opacity-20" />
+                    <Clock className="w-12 h-12 text-zinc-400" />
                   </div>
-                  <h2 className="font-display text-3xl font-bold text-zinc-950 mb-4">Identity Synchronized</h2>
+                  <h2 className="font-display text-3xl font-bold text-zinc-950 mb-4">Under Review</h2>
                   <p className="font-sans text-zinc-500 mb-10 max-w-sm mx-auto leading-relaxed">
-                    Your verification data has been successfully processed and notarized. Your account now carries the <span className="font-bold text-trust-green">Verified Status</span> across the technical network.
+                    Your verification data has been submitted. It will take <span className="font-bold text-zinc-900">2-3 days</span> for our technical team to verify your identity details.
                   </p>
                   <button 
                     onClick={() => router.push('/dashboard')}
