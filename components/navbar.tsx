@@ -16,6 +16,7 @@ import {
   Hexagon,
   Menu,
   X,
+  FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -58,6 +59,7 @@ export function Sidebar() {
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+    { name: 'Index Docs', icon: FileText, path: '/notarize' },
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics' },
     { name: 'Settings', icon: Settings, path: '/settings' },

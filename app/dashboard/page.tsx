@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Upload, 
@@ -35,6 +35,9 @@ export default function DashboardPage() {
   const [verificationResult, setVerificationResult] = useState<{ status: 'authentic' | 'tampered' | 'unindexed', record?: any } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
  
+  const [allHashes, setAllHashes] = useState<any[]>([]);
+  const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month' | '3month'>('month');
+
   const fetchUser = React.useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) return;
@@ -51,6 +54,22 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const fetchHashes = React.useCallback(async () => {
+    const email = localStorage.getItem('authenticated_user_email');
+    if (!email) return;
+
+    try {
+      const res = await fetch(`/api/hashes?email=${encodeURIComponent(email)}`);
+      if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
+        setAllHashes(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   React.useEffect(() => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) {
@@ -59,11 +78,35 @@ export default function DashboardPage() {
     }
     
     const init = async () => {
-      await fetchUser();
+      await Promise.all([fetchUser(), fetchHashes()]);
       setIsAuthLoading(false);
     };
     init();
-  }, [fetchUser, router]);
+  }, [fetchUser, fetchHashes, router]);
+
+  const stats = useMemo(() => {
+    const now = new Date();
+    
+    // Filter hashes by period
+    const filtered = allHashes.filter(h => {
+      const date = new Date(h.createdAt);
+      const diff = now.getTime() - date.getTime();
+      const days = diff / (1000 * 60 * 60 * 24);
+      
+      if (statsPeriod === 'day') return days <= 1;
+      if (statsPeriod === 'week') return days <= 7;
+      if (statsPeriod === 'month') return days <= 30;
+      if (statsPeriod === '3month') return days <= 90;
+      return true;
+    });
+
+    const total = allHashes.length;
+    const expired = allHashes.filter(h => h.expiryDate && new Date(h.expiryDate) < now).length;
+    const active = total - expired;
+    const periodCount = filtered.length;
+
+    return { total, expired, active, periodCount };
+  }, [allHashes, statsPeriod]);
 
   if (isAuthLoading) {
     return (
@@ -161,6 +204,42 @@ export default function DashboardPage() {
             Welcome back, <span className="font-bold text-zinc-900">{user?.firstName || 'User'}</span>. Access military-grade document hashing and verification.
           </motion.p>
         </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            { label: 'Total Index', value: stats.total, color: 'text-zinc-900', bg: 'bg-zinc-50' },
+            { label: 'Active Hashes', value: stats.active, color: 'text-trust-green', bg: 'bg-trust-green/5' },
+            { label: 'Expired', value: stats.expired, color: 'text-red-500', bg: 'bg-red-50' },
+            { label: `${statsPeriod.toUpperCase()} Growth`, value: stats.periodCount, color: 'text-trust-green', bg: 'bg-zinc-900', invert: true },
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className={`${stat.invert ? 'bg-zinc-900 text-white' : `${stat.bg} ${stat.color}`} p-6 rounded-[2rem] border border-zinc-100 flex flex-col justify-between h-32 shadow-sm`}
+            >
+              <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest ${stat.invert ? 'text-zinc-400' : 'opacity-60'}`}>{stat.label}</h4>
+              <p className="font-display text-3xl font-bold">{stat.value}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="flex justify-center mb-12">
+          <div className="bg-zinc-50 p-1.5 rounded-2xl flex gap-1 border border-zinc-100">
+            {(['day', 'week', 'month', '3month'] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setStatsPeriod(p)}
+                className={`px-4 py-2 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${
+                  statsPeriod === p ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'
+                }`}
+              >
+                {p === '3month' ? '90 Days' : p}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Upload Section */}
