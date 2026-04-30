@@ -13,7 +13,9 @@ import {
   Fingerprint,
   HardDrive,
   FileText,
-  Clock
+  Clock,
+  Briefcase,
+  Network
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -157,28 +159,32 @@ export default function VerificationPage() {
 
                     <div className="mt-8 space-y-6">
                       <div className="space-y-3">
-                        <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest">Active Identity Protocol</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {['Individual', 'Company', 'Enterprise'].map((type) => {
+                        <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Configuration Node Type</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {[
+                            { id: 'Individual', label: 'Personal', icon: User },
+                            { id: 'Company', label: 'Corporate', icon: Briefcase },
+                            { id: 'Enterprise', label: 'Enterprise', icon: Network }
+                          ].map((type) => {
                             const isVerified = !!(user?.pan && user?.aadhaar);
-                            const isBusiness = type === 'Company' || type === 'Enterprise';
-                            // If verified as individual, cannot switch to business
+                            const isBusiness = type.id === 'Company' || type.id === 'Enterprise';
                             const isDisabled = isVerified && user?.entityType === 'Individual' && isBusiness;
                             
                             return (
                               <button
-                                key={type}
+                                key={type.id}
                                 disabled={isDisabled}
-                                onClick={() => setUser({...user, entityType: type})}
-                                className={`h-10 rounded-xl font-display font-bold text-[9px] uppercase tracking-widest border transition-all ${
-                                  user?.entityType === type 
-                                    ? 'bg-zinc-950 border-zinc-950 text-white' 
+                                onClick={() => setUser({...user, entityType: type.id})}
+                                className={`p-4 rounded-2xl border text-left transition-all ${
+                                  user?.entityType === type.id 
+                                    ? 'bg-zinc-950 border-zinc-950 text-white shadow-xl' 
                                     : isDisabled
-                                      ? 'bg-zinc-50 border-zinc-100 text-zinc-200 cursor-not-allowed'
-                                      : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'
+                                      ? 'bg-zinc-50 border-zinc-100 text-zinc-200 cursor-not-allowed opacity-50'
+                                      : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200'
                                 }`}
                               >
-                                {type}
+                                <type.icon className={`w-4 h-4 mb-2 ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
+                                <p className="font-display font-bold text-[10px] uppercase tracking-wider">{type.label}</p>
                               </button>
                             );
                           })}

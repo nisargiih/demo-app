@@ -143,35 +143,53 @@ export default function ProfilePage() {
               className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 md:p-10 border border-zinc-100 shadow-xl"
             >
               <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Entity Type</label>
-                    <div className="flex gap-2">
-                      {['Individual', 'Company', 'Enterprise'].map((type) => (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setUser({...user, entityType: type})}
-                          className={`flex-1 h-10 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest border transition-all ${
-                            user?.entityType === type 
-                              ? 'bg-zinc-900 border-zinc-900 text-white shadow-lg' 
-                              : 'bg-white border-zinc-100 text-zinc-400 hover:border-zinc-200'
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Identifier Group</label>
-                    <div className="h-10 px-4 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center">
-                      <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase">
-                        {user?.entityType === 'Company' ? 'Corporate Node' : 'Personal ID Link'}
-                      </span>
-                    </div>
+                <div className="space-y-4">
+                  <label className="font-display font-bold text-xs text-zinc-400 uppercase tracking-widest pl-1">Configuration Node Type</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[
+                      { 
+                        id: 'Individual', 
+                        label: 'Personal ID', 
+                        desc: 'For individual notarization and private ledger access.',
+                        icon: User
+                      },
+                      { 
+                        id: 'Company', 
+                        label: 'Corporate Entity', 
+                        desc: 'For business verification and multi-signature operations.',
+                        icon: Briefcase
+                      },
+                      { 
+                        id: 'Enterprise', 
+                        label: 'Strategic Tier', 
+                        desc: 'High-throughput nodes for massive scale notarization.',
+                        icon: Network
+                      }
+                    ].map((type) => (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => setUser({...user, entityType: type.id})}
+                        className={`p-5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
+                          user?.entityType === type.id 
+                            ? 'bg-zinc-950 border-zinc-950 text-white shadow-2xl shadow-zinc-900/20' 
+                            : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200 hover:shadow-lg'
+                        }`}
+                      >
+                        <type.icon className={`w-6 h-6 mb-3 transition-colors ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
+                        <p className={`font-display font-bold text-sm mb-1 ${user?.entityType === type.id ? 'text-white' : 'text-zinc-900'}`}>{type.label}</p>
+                        <p className={`font-sans text-[10px] leading-relaxed ${user?.entityType === type.id ? 'text-zinc-400' : 'text-zinc-500'}`}>{type.desc}</p>
+                        {user?.entityType === type.id && (
+                          <div className="absolute top-2 right-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-trust-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
+
+                <div className="h-px bg-zinc-50" />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-2">

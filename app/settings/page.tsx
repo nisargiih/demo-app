@@ -17,15 +17,20 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  User,
+  Briefcase,
+  Network
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
+import { SecurityService } from '@/lib/security-service';
 
 export default function SettingsPage() {
   const { notify, confirm } = useNotification();
   const [activeSection, setActiveSection] = useState<'security' | 'preferences' | 'account'>('security');
+  const [user, setUser] = useState<any>(null);
   
   // State: Security
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -44,8 +49,10 @@ export default function SettingsPage() {
       try {
         const res = await fetch(`/api/auth/me?email=${email}`);
         if (res.ok) {
-          const user = await res.json();
-          setIs2FAEnabled(!!user.is2FAEnabled);
+          const body = await res.json();
+          const data = SecurityService.processFromTransit(body);
+          setUser(data);
+          setIs2FAEnabled(!!data.is2FAEnabled);
         }
       } catch (err) {
         console.error(err);
@@ -359,9 +366,48 @@ export default function SettingsPage() {
                   className="space-y-6"
                 >
                   <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
-                    <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">Node Management</h3>
+                    <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">Node Configuration</h3>
                     
                     <div className="space-y-6">
+                      <div className="p-6 bg-zinc-50 border border-zinc-100 rounded-3xl">
+                        <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1 block mb-4">Active Node Tier</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                          { id: 'Individual', label: 'Personal', icon: User },
+                          { id: 'Company', label: 'Corporate', icon: Briefcase },
+                          { id: 'Enterprise', label: 'Enterprise', icon: Network }
+                        ].map((type) => (
+                          <button
+                            key={type.id}
+                            onClick={async () => {
+                              const email = localStorage.getItem('authenticated_user_email');
+                              try {
+                                await fetch('/api/auth/me', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ email, entityType: type.id }),
+                                });
+                                notify(`Node reconfigured to ${type.label} mode.`, 'success');
+                                window.location.reload(); // Quick way to sync across app
+                              } catch (err) {
+                                notify('Failed to sync node reconfiguration.', 'error');
+                              }
+                            }}
+                            className={`p-4 rounded-xl border text-left transition-all ${
+                              user?.entityType === type.id 
+                                ? 'bg-zinc-950 border-zinc-950 text-white shadow-xl' 
+                                : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200'
+                            }`}
+                          >
+                            <type.icon className={`w-4 h-4 mb-2 ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
+                            <p className="font-display font-bold text-[10px] uppercase tracking-wider">{type.label}</p>
+                          </button>
+                        ))}
+                        </div>
+                      </div>
+
+                      <div className="h-px bg-zinc-100" />
+
                       <div className="flex items-center justify-between group">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center">
