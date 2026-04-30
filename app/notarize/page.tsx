@@ -25,7 +25,7 @@ interface NotaryItem {
   id: string;
   file: File;
   hash: string | null;
-  status: 'pending' | 'computing' | 'ready' | 'storing' | 'success' | 'error';
+  status: 'pending' | 'computing' | 'ready' | 'storing' | 'success' | 'error' | 'exists_user' | 'exists_other';
   error?: string;
 }
 
@@ -123,7 +123,16 @@ export default function NotarizePage() {
         });
 
         if (res.ok) {
-          updateItemStatus(item.id, 'success');
+          const body = await res.json();
+          const data = SecurityService.processFromTransit(body);
+          
+          if (data.status === 'exists_user') {
+             updateItemStatus(item.id, 'exists_user', 'Already in your vault');
+          } else if (data.status === 'exists_other') {
+             updateItemStatus(item.id, 'exists_other', 'Indexed by another node');
+          } else {
+             updateItemStatus(item.id, 'success');
+          }
         } else {
           updateItemStatus(item.id, 'error', 'Store failed');
         }
@@ -140,7 +149,7 @@ export default function NotarizePage() {
     return {
       total: items.length,
       ready: items.filter(i => i.status === 'ready').length,
-      success: items.filter(i => i.status === 'success').length,
+      success: items.filter(i => i.status === 'success' || i.status === 'exists_user' || i.status === 'exists_other').length,
     };
   }, [items]);
 
@@ -262,12 +271,18 @@ export default function NotarizePage() {
                       <div className="text-right">
                         <span className={`font-mono text-[9px] font-bold uppercase tracking-wider ${
                           item.status === 'success' ? 'text-trust-green' :
+                          item.status === 'exists_user' ? 'text-zinc-500' :
+                          item.status === 'exists_other' ? 'text-amber-600' :
                           item.status === 'error' ? 'text-red-500' :
                           'text-zinc-400'
                         }`}>
-                          {item.status}
+                          {item.status.replace('_', ' ')}
                         </span>
-                        {item.error && <p className="text-[8px] text-red-500 font-bold uppercase">{item.error}</p>}
+                        {item.error && <p className={`text-[8px] font-bold uppercase ${
+                          item.status === 'exists_other' ? 'text-amber-600' : 
+                          item.status === 'exists_user' ? 'text-zinc-400' : 
+                          'text-red-500'
+                        }`}>{item.error}</p>}
                       </div>
                       
                       {item.status === 'storing' || item.status === 'computing' ? (

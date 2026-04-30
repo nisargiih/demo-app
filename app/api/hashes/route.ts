@@ -49,6 +49,26 @@ export async function POST(req: Request) {
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
+    // Check for existing hash
+    const existing = await hashes.findOne({ hash });
+    if (existing) {
+      if (existing.userEmail === userEmail.trim().toLowerCase()) {
+        const responseData = { 
+          message: 'Already Indexed', 
+          status: 'exists_user',
+          record: existing 
+        };
+        return NextResponse.json(SecurityService.prepareForTransit(responseData), { status: 200 });
+      } else {
+        const responseData = { 
+          message: 'Indexed by Another Node', 
+          status: 'exists_other',
+          createdAt: existing.createdAt
+        };
+        return NextResponse.json(SecurityService.prepareForTransit(responseData), { status: 200 });
+      }
+    }
+
     const newHash = {
       userEmail: userEmail.trim().toLowerCase(),
       fileName,
