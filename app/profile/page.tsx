@@ -141,24 +141,21 @@ export default function ProfilePage() {
             {/* Sidebar Nav */}
             <div className="lg:col-span-1 space-y-2">
               {[
-                { id: 'personal', label: 'Personal', icon: User, desc: 'Basic info' },
-                { id: 'professional', label: 'Professional', icon: Briefcase, desc: 'Work & Contact' },
-                { id: 'identity', label: 'Identity', icon: ShieldCheck, desc: 'Verification' }
+                { id: 'personal', label: 'Personal', icon: User },
+                { id: 'professional', label: 'Professional', icon: Briefcase },
+                { id: 'identity', label: 'Network Identity', icon: ShieldCheck }
               ].map((section) => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id as any)}
-                  className={`w-full p-4 rounded-2xl flex flex-col items-start gap-1 transition-all text-left ${
+                  className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left ${
                     activeSection === section.id 
                       ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
-                      : 'text-zinc-500 hover:bg-zinc-50 border border-transparent hover:border-zinc-100'
+                      : 'text-zinc-500 hover:bg-zinc-50'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <section.icon className={`w-4 h-4 ${activeSection === section.id ? 'text-trust-green' : 'text-zinc-400'}`} />
-                    <span className="font-display font-bold text-[10px] uppercase tracking-widest">{section.label}</span>
-                  </div>
-                  <p className={`font-sans text-[9px] ${activeSection === section.id ? 'text-zinc-400' : 'text-zinc-400'}`}>{section.desc}</p>
+                  <section.icon className={`w-4 h-4 ${activeSection === section.id ? 'text-trust-green' : 'text-zinc-400'}`} />
+                  <span className="font-display font-bold text-[10px] uppercase tracking-widest">{section.label}</span>
                 </button>
               ))}
             </div>
@@ -181,10 +178,12 @@ export default function ProfilePage() {
                       className="space-y-6"
                     >
                       <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
-                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
-                          <User className="w-5 h-5 text-trust-green" />
-                          Personal Profile
-                        </h3>
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="font-display font-bold text-xl text-zinc-900 flex items-center gap-2">
+                            <User className="w-5 h-5 text-trust-green" />
+                            Personal Profile
+                          </h3>
+                        </div>
                         
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -245,10 +244,12 @@ export default function ProfilePage() {
                       className="space-y-6"
                     >
                       <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
-                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
-                          <Briefcase className="w-5 h-5 text-trust-green" />
-                          Professional Status
-                        </h3>
+                        <div className="flex items-center justify-between mb-8">
+                          <h3 className="font-display font-bold text-xl text-zinc-900 flex items-center gap-2">
+                            <Briefcase className="w-5 h-5 text-trust-green" />
+                            {user?.entityType === 'Individual' ? 'Professional Status' : 'Organization Metrics'}
+                          </h3>
+                        </div>
 
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -263,7 +264,7 @@ export default function ProfilePage() {
                               />
                             </div>
                             <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Phone Protocol</label>
+                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Contact Protocol (Phone)</label>
                               <input 
                                 type="tel" 
                                 placeholder="+1 (555) 000-0000"
@@ -281,40 +282,79 @@ export default function ProfilePage() {
                               className="space-y-6 pt-2"
                             >
                               <div className="h-px bg-zinc-50" />
-                              <div className="space-y-2">
-                                <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Company / Organization Name</label>
-                                <div className="relative">
-                                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
-                                  <input 
-                                    type="text" 
-                                    placeholder="e.g. TechCore Labs Inc."
-                                    value={user?.companyName || ''}
-                                    onChange={(e) => setUser({...user, companyName: e.target.value})}
-                                    className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
-                                  />
-                                </div>
-                              </div>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Registration / Tax ID</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Organization Name</label>
+                                  <div className="relative">
+                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                                    <input 
+                                      type="text" 
+                                      placeholder="e.g. TechCore Labs Inc."
+                                      value={user?.companyName || ''}
+                                      onChange={(e) => setUser({...user, companyName: e.target.value})}
+                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Corporate Email</label>
+                                  <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                                    <input 
+                                      type="email" 
+                                      placeholder="contact@org.io"
+                                      value={user?.companyEmail || ''}
+                                      onChange={(e) => setUser({...user, companyEmail: e.target.value})}
+                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div className="space-y-2">
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Registration ID</label>
                                   <input 
                                     type="text" 
-                                    placeholder="e.g. TIN-90210-X"
+                                    placeholder="REG-001X"
                                     value={user?.companyRegistration || ''}
                                     onChange={(e) => setUser({...user, companyRegistration: e.target.value})}
                                     className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Corporate Website</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Industry</label>
                                   <input 
-                                    type="url" 
-                                    placeholder="https://techcore.io"
-                                    value={user?.companyWebsite || ''}
-                                    onChange={(e) => setUser({...user, companyWebsite: e.target.value})}
+                                    type="text" 
+                                    placeholder="Technology"
+                                    value={user?.companyIndustry || ''}
+                                    onChange={(e) => setUser({...user, companyIndustry: e.target.value})}
                                     className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
                                   />
                                 </div>
+                                <div className="space-y-2">
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Node Scale</label>
+                                  <select 
+                                    value={user?.companySize || ''}
+                                    onChange={(e) => setUser({...user, companySize: e.target.value})}
+                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all appearance-none"
+                                  >
+                                    <option value="">Select Scale</option>
+                                    <option value="1-10">1-10 (Boutique)</option>
+                                    <option value="11-50">11-50 (Emerging)</option>
+                                    <option value="51-200">51-200 (Scale)</option>
+                                    <option value="200+">200+ (Massive)</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Network Website</label>
+                                <input 
+                                  type="url" 
+                                  placeholder="https://techcore.io"
+                                  value={user?.companyWebsite || ''}
+                                  onChange={(e) => setUser({...user, companyWebsite: e.target.value})}
+                                  className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                />
                               </div>
                             </motion.div>
                           )}
@@ -358,11 +398,11 @@ export default function ProfilePage() {
                             }`}>
                               {isVerified ? (
                                 <CheckCircle2 className="w-10 h-10 text-trust-green" />
-                              ) : isPending ? (
+                             ) : isPending ? (
                                 <Clock className="w-10 h-10 text-amber-500 animate-pulse" />
-                              ) : (
+                             ) : (
                                 <AlertCircle className="w-10 h-10 text-red-400" />
-                              )}
+                             )}
                               {isVerified && (
                                 <div className="absolute inset-0 bg-trust-green/20 rounded-full animate-ping opacity-20" />
                               )}
