@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { FormError } from '@/components/form-error';
 import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -133,7 +134,7 @@ export default function LoginPage() {
                     className={`w-full h-13 pl-12 pr-4 bg-zinc-50 border ${errors.email ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
                   />
                 </div>
-                {errors.email && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.email.message}</p>}
+                <FormError message={errors.email?.message} />
               </div>
 
               <div className="space-y-2">
@@ -154,7 +155,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.password.message}</p>}
+                <FormError message={errors.password?.message} />
               </div>
 
               <div className="pt-2">

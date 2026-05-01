@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { BackgroundAnimation } from '@/components/background-animation';
+import { FormError } from '@/components/form-error';
 import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -157,7 +158,7 @@ export default function RegisterPage() {
                       className={`w-full h-13 pl-12 pr-4 bg-zinc-50 border ${errors.firstName ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
                     />
                   </div>
-                  {errors.firstName && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.firstName.message}</p>}
+                  <FormError message={errors.firstName?.message} />
                 </div>
                 <div className="space-y-2">
                   <label className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Last Name</label>
@@ -170,7 +171,7 @@ export default function RegisterPage() {
                       className={`w-full h-13 pl-12 pr-4 bg-zinc-50 border ${errors.lastName ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
                     />
                   </div>
-                  {errors.lastName && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.lastName.message}</p>}
+                  <FormError message={errors.lastName?.message} />
                 </div>
               </div>
 
@@ -185,7 +186,7 @@ export default function RegisterPage() {
                     className={`w-full h-13 pl-12 pr-4 bg-zinc-50 border ${errors.email ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
                   />
                 </div>
-                {errors.email && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.email.message}</p>}
+                <FormError message={errors.email?.message} />
               </div>
 
               <div className="space-y-2">
@@ -206,7 +207,7 @@ export default function RegisterPage() {
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.password.message}</p>}
+                <FormError message={errors.password?.message} />
               </div>
 
               <div className="space-y-2">
@@ -218,10 +219,10 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••••••"
                     className={`w-full h-13 pl-12 pr-12 bg-zinc-50 border ${errors.confirmPassword ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
-                  />
+                    />
+                  </div>
+                  <FormError message={errors.confirmPassword?.message} />
                 </div>
-                {errors.confirmPassword && <p className="text-[10px] text-red-500 ml-1 font-mono">{errors.confirmPassword.message}</p>}
-              </div>
 
               <div className="pt-2">
                 <button

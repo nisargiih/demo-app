@@ -23,6 +23,7 @@ import {
   Network
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
+import { FormError } from '@/components/form-error';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
@@ -267,6 +268,12 @@ export default function SettingsPage() {
                                     {showPasswords[p.id as keyof typeof showPasswords] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                   </button>
                                 </div>
+                                {p.id === 'new' && passwords.new && passwords.new.length < 8 && (
+                                  <FormError message="Password must be at least 8 characters" />
+                                )}
+                                {p.id === 'confirm' && passwords.confirm && passwords.new !== passwords.confirm && (
+                                  <FormError message="Passwords do not match" />
+                                )}
                               </div>
                             ))}
                           </div>
