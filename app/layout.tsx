@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css'; // Global styles
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -21,6 +22,10 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <NotificationProvider>
           <AuthGuard>
             {children}
+            <Script
+              id="razorpay-checkout-js"
+              src="https://checkout.razorpay.com/v1/checkout.js"
+            />
           </AuthGuard>
         </NotificationProvider>
       </body>

@@ -40,6 +40,8 @@ export async function POST(req: Request) {
       ...validatedData,
       email, // Indexable
       isVerified: false,
+      verificationStatus: 'unverified',
+      credits: 0,
       otp, 
       createdAt: new Date(),
     };
