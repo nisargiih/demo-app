@@ -144,6 +144,7 @@ export default function SubscriptionPage() {
         prefill: {
           name: `${user.firstName} ${user.lastName}`,
           email: user.email,
+          contact: '9999999999'
         },
         theme: {
           color: "#000000",
