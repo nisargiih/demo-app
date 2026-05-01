@@ -31,12 +31,19 @@ const COSTS = {
   VERIFY: 1
 };
 
+const PRICING_TIERS = [
+  { id: 'starter', amount: 250, credits: 300, label: 'Observer Node', desc: 'Ideal for light indexing.' },
+  { id: 'standard', amount: 750, credits: 950, label: 'Core Professional', desc: 'Optimal for regular notarization.', recommended: true },
+  { id: 'pro', amount: 1500, credits: 2000, label: 'Sovereign Authority', desc: 'Maximum throughput for archive audits.' },
+];
+
 export default function SubscriptionPage() {
   const { notify } = useNotification();
   const [user, setUser] = useState<any>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [amount, setAmount] = useState<number>(200);
+  const [amount, setAmount] = useState<number>(250);
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -108,6 +115,22 @@ export default function SubscriptionPage() {
         name: "TECHCORE INFRA",
         description: `Protocol Credits: ${totalCredits} Units`,
         order_id: orderData.id,
+        config: {
+          display: {
+            blocks: {
+              [paymentMethod]: {
+                name: paymentMethod === 'upi' ? 'UPI' : 'Card Payment',
+                instruments: [{
+                  method: paymentMethod
+                }],
+              },
+            },
+            sequence: ['block.' + paymentMethod],
+            preferences: {
+              show_default_blocks: false,
+            },
+          },
+        },
         handler: async function (response: any) {
           try {
             notify('Verifying transmission...', 'loading');
@@ -169,38 +192,68 @@ export default function SubscriptionPage() {
         <div className="max-w-6xl mx-auto p-8 lg:p-12 xl:p-16">
           
           <div className="flex flex-col lg:flex-row gap-16">
-            {/* Left Column: Input & Selector */}
+            {/* Left Column: Flow */}
             <div className="flex-1 space-y-12">
               <header>
                 <div className="px-3 py-1 bg-trust-green/10 rounded-full inline-block mb-6">
-                  <span className="font-mono text-[9px] text-trust-green font-bold uppercase tracking-widest">Financial Node v3.0</span>
+                  <span className="font-mono text-[9px] text-trust-green font-bold uppercase tracking-widest">Financial Interface v4.0</span>
                 </div>
                 <h1 className="font-display text-5xl lg:text-7xl font-black text-zinc-950 tracking-tight leading-none mb-6">
-                  Forge Your <br />
-                  <span className="text-trust-green">Energy Core</span>
+                   Forge Your <br />
+                   <span className="text-trust-green">Energy Core</span>
                 </h1>
                 <p className="font-sans text-lg text-zinc-500 leading-relaxed max-w-md">
-                  Scale your operations with immediate credit injection. Minimum protocol entry: ₹200.
+                   Initialize high-density credit injection. Select your protocol tier and verification method.
                 </p>
               </header>
 
-              <div className="p-10 bg-zinc-950 rounded-[3rem] text-white shadow-2xl shadow-zinc-950/40 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-trust-green/5 blur-[100px] -mr-32 -mt-32 rounded-full" />
+              {/* Step 1: Package Selection */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center font-display font-bold text-xs">01</div>
+                  <h3 className="font-display font-bold text-xl text-zinc-900">Select Energy Package</h3>
+                </div>
                 
-                <label className="font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] block mb-8">Set Transaction Volume (INR)</label>
-                
-                <div className="flex items-center gap-6 mb-12">
-                  <span className="font-display text-7xl font-black tabular-nums">₹</span>
-                  <input 
-                    type="number" 
-                    value={amount}
-                    onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full bg-transparent font-display text-7xl font-black focus:outline-none placeholder:text-zinc-800"
-                    placeholder="200"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {PRICING_TIERS.map((tier) => (
+                    <button
+                      key={tier.id}
+                      onClick={() => setAmount(tier.amount)}
+                      className={`p-6 rounded-[2rem] border-2 text-left transition-all relative overflow-hidden group ${
+                        amount === tier.amount 
+                          ? 'border-trust-green bg-trust-green/5' 
+                          : 'border-zinc-100 bg-white hover:border-zinc-200'
+                      }`}
+                    >
+                      <p className={`font-mono text-[9px] font-bold uppercase tracking-widest mb-1 ${amount === tier.amount ? 'text-trust-green' : 'text-zinc-400'}`}>
+                        {tier.label}
+                      </p>
+                      <p className="font-display font-black text-2xl text-zinc-950 mb-4">₹{tier.amount}</p>
+                      <p className="font-sans text-[10px] text-zinc-500 leading-tight">{tier.desc}</p>
+                      {tier.recommended && (
+                        <div className="absolute top-2 right-4">
+                          <Sparkles className="w-4 h-4 text-trust-green" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
 
-                <div className="space-y-6">
+                {/* Custom Amount Slider */}
+                <div className="p-8 bg-zinc-950 rounded-[2.5rem] text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-trust-green/5 blur-[80px] -mr-24 -mt-24 rounded-full" />
+                  <label className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-[0.3em] block mb-6">Custom Pulse Volume (INR)</label>
+                  
+                  <div className="flex items-center gap-4 mb-8">
+                    <span className="font-display text-4xl font-black text-white/40">₹</span>
+                    <input 
+                      type="number" 
+                      value={amount}
+                      onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="w-full bg-transparent font-display text-5xl font-black focus:outline-none"
+                    />
+                  </div>
+
                   <input 
                     type="range" 
                     min="200" 
@@ -208,97 +261,122 @@ export default function SubscriptionPage() {
                     step="50"
                     value={amount}
                     onChange={(e) => setAmount(parseInt(e.target.value))}
-                    className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-trust-green"
+                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-trust-green mb-2"
                   />
-                  <div className="flex justify-between font-mono text-[9px] text-zinc-600 font-bold uppercase">
-                    <span>Min Load: ₹200</span>
-                    <span>Max Load: ₹10,000</span>
+                  <div className="flex justify-between font-mono text-[8px] text-zinc-600 font-bold uppercase">
+                    <span>MIN: 200</span>
+                    <span>MAX: 10,000</span>
                   </div>
                 </div>
-
-                <button
-                  onClick={handlePurchase}
-                  disabled={isProcessing || amount < 200}
-                  className="mt-12 w-full h-20 bg-trust-green text-zinc-950 rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.25em] flex items-center justify-center gap-3 hover:bg-white transition-all disabled:opacity-30 disabled:cursor-not-allowed group"
-                >
-                  {isProcessing ? 'Synchronizing...' : 'Initialize Fusion'}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
               </div>
+
+              {/* Step 2: Payment Method */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center font-display font-bold text-xs">02</div>
+                  <h3 className="font-display font-bold text-xl text-zinc-900">Choose Verification Port</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod('upi')}
+                    className={`flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all text-left ${
+                      paymentMethod === 'upi' 
+                        ? 'border-trust-green bg-trust-green/5' 
+                        : 'border-zinc-100 bg-white hover:border-zinc-200'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${paymentMethod === 'upi' ? 'bg-trust-green text-white shadow-xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
+                      <Zap className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-display font-bold text-sm text-zinc-900">UPI Transmission</p>
+                      <p className="font-sans text-[10px] text-zinc-500">GPay, PhonePe, Any UPI App</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setPaymentMethod('card')}
+                    className={`flex items-center gap-5 p-6 rounded-[2rem] border-2 transition-all text-left ${
+                      paymentMethod === 'card' 
+                        ? 'border-trust-green bg-trust-green/5' 
+                        : 'border-zinc-100 bg-white hover:border-zinc-200'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${paymentMethod === 'card' ? 'bg-trust-green text-white shadow-xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
+                      <CreditCard className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="font-display font-bold text-sm text-zinc-900">Secure Credit Card</p>
+                      <p className="font-sans text-[10px] text-zinc-500">Visa, Mastercard, RuPay</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={handlePurchase}
+                disabled={isProcessing || amount < 200}
+                className="w-full h-24 bg-zinc-950 text-white rounded-[2.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all shadow-2xl shadow-zinc-950/20 group"
+              >
+                {isProcessing ? 'Synchronizing Archive...' : 'Execute Pulse Protocol'}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+              </button>
             </div>
 
-            {/* Right Column: Calculator & Preview */}
-            <div className="lg:w-[400px] space-y-8">
+            {/* Right Column: Calculator */}
+            <div className="lg:w-[380px] space-y-8">
               <div className="p-10 bg-zinc-50 border border-zinc-100 rounded-[3rem] sticky top-8">
                 <div className="flex items-center gap-3 mb-10">
-                  <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-zinc-100 flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-trust-green" />
-                  </div>
-                  <h3 className="font-display font-bold text-xl text-zinc-900">Yield Calculator</h3>
+                  <Sparkles className="w-6 h-6 text-trust-green" />
+                  <h3 className="font-display font-bold text-xl text-zinc-900">Yield Intel</h3>
                 </div>
 
-                <div className="mb-10 p-6 bg-white rounded-2xl border border-zinc-100 shadow-sm text-center">
-                  <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-2">Projected Output</p>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="font-display font-black text-5xl text-zinc-950">{totalCredits.toLocaleString()}</span>
+                <div className="mb-12 p-8 bg-white rounded-[2rem] border border-zinc-200 shadow-xl shadow-zinc-100/50 text-center relative">
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-zinc-950 rounded-full">
+                      <span className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-widest">Total Atomic Yield</span>
+                   </div>
+                   <div className="flex items-baseline justify-center gap-2 mb-2">
+                    <span className="font-display font-black text-6xl text-zinc-950">{totalCredits.toLocaleString()}</span>
                     <span className="font-mono text-sm text-trust-green font-bold uppercase">Units</span>
                   </div>
+                  <p className="font-sans text-[10px] text-zinc-400 font-bold">Applied strictly to {user?.email || 'Authenticated User'}</p>
                 </div>
 
-                <div className="space-y-6">
-                  <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Potential Operations</p>
-                  
-                  <div className="grid gap-4">
-                    <div className="p-5 bg-white border border-zinc-50 rounded-2xl flex items-center justify-between group hover:border-trust-green/20 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-trust-green/5 rounded-xl flex items-center justify-center text-trust-green">
-                          <Zap className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="font-display font-bold text-sm text-zinc-900">Hash Generation</p>
-                          <p className="font-sans text-[10px] text-zinc-400">7 Credits / Unit</p>
-                        </div>
-                      </div>
-                      <span className="font-display font-black text-lg text-zinc-950">{Math.floor(totalCredits / COSTS.HASH)}x</span>
-                    </div>
-
-                    <div className="p-5 bg-white border border-zinc-50 rounded-2xl flex items-center justify-between group hover:border-trust-green/20 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-trust-green">
-                          <ShieldCheck className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="font-display font-bold text-sm text-zinc-900">Official Registry</p>
-                          <p className="font-sans text-[10px] text-zinc-400">12 Credits / Doc</p>
-                        </div>
-                      </div>
-                      <span className="font-display font-black text-lg text-zinc-950">{Math.floor(totalCredits / COSTS.REGISTRY)}x</span>
-                    </div>
-
-                    <div className="p-5 bg-white border border-zinc-50 rounded-2xl flex items-center justify-between group hover:border-trust-green/20 transition-all">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-zinc-100 rounded-xl flex items-center justify-center text-zinc-400">
-                          <CheckCircle2 className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="font-display font-bold text-sm text-zinc-900">Verifications</p>
-                          <p className="font-sans text-[10px] text-zinc-400">1 Credit / Req</p>
-                        </div>
-                      </div>
-                      <span className="font-display font-black text-lg text-zinc-950">{Math.floor(totalCredits / COSTS.VERIFY)}x</span>
-                    </div>
+                <div className="space-y-5">
+                  <div className="flex justify-between items-center px-2">
+                    <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase">Compute Allocations</span>
                   </div>
+                  
+                  {[
+                    { label: 'Hash Pulses', cost: COSTS.HASH, icon: Zap },
+                    { label: 'Registry Vaults', cost: COSTS.REGISTRY, icon: ShieldCheck },
+                    { label: 'Verifications', cost: COSTS.VERIFY, icon: CheckCircle2 },
+                  ].map((item) => (
+                    <div key={item.label} className="p-5 bg-white border border-zinc-200/50 rounded-2xl flex items-center justify-between group">
+                      <div className="flex items-center gap-4">
+                        <item.icon className="w-5 h-5 text-zinc-300 group-hover:text-trust-green transition-colors" />
+                        <div>
+                          <p className="font-display font-bold text-sm text-zinc-900">{item.label}</p>
+                          <p className="font-sans text-[9px] text-zinc-400">{item.cost} Units Each</p>
+                        </div>
+                      </div>
+                      <span className="font-display font-black text-lg text-zinc-950">{Math.floor(totalCredits / item.cost)}x</span>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="mt-10 p-5 bg-amber-50/50 rounded-2xl border border-amber-100 flex gap-4">
-                   <Info className="w-4 h-4 text-amber-500 shrink-0" />
-                   <p className="font-sans text-[10px] text-amber-900 leading-relaxed">
-                     Credits have no expiration. Charges are deducted atomically upon protocol execution.
+                <div className="mt-12 pt-8 border-t border-zinc-200 flex gap-4">
+                   <ShieldAlert className="w-5 h-5 text-zinc-300 shrink-0" />
+                   <p className="font-sans text-[10px] text-zinc-500 leading-relaxed italic">
+                     "Credits represent finite compute energy. One-time acquisition. 
+                     No expiration on synchronized units."
                    </p>
                 </div>
               </div>
             </div>
           </div>
+
 
         </div>
       </div>
