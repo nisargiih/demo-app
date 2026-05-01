@@ -24,15 +24,16 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { SecurityService } from '@/lib/security-service';
+import { useNotification } from '@/hooks/use-notification';
 import { AnimatePresence } from 'motion/react';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [activeSection, setActiveSection] = useState<'personal' | 'professional' | 'identity'>('personal');
 
   useEffect(() => {
@@ -74,7 +75,6 @@ export default function ProfilePage() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setMessage(null);
 
     try {
       const payload = SecurityService.prepareForTransit(user);
@@ -87,13 +87,13 @@ export default function ProfilePage() {
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
-        setMessage({ type: 'success', text: 'Profile updated successfully' });
+        notify('Profile updated successfully', 'success');
         localStorage.setItem('user_first_name', user.firstName);
       } else {
-        setMessage({ type: 'error', text: 'Failed to update profile' });
+        notify('Failed to update profile', 'error');
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'An error occurred' });
+      notify('An error occurred during synchronization.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -457,19 +457,6 @@ export default function ProfilePage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {message && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className={`flex items-center gap-3 p-4 rounded-2xl ${
-                      message.type === 'success' ? 'bg-trust-green/10 text-trust-green border border-trust-green/20' : 'bg-red-50 text-red-500 border border-red-100'
-                    }`}
-                  >
-                    {message.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                    <p className="font-sans text-xs font-bold">{message.text}</p>
-                  </motion.div>
-                )}
 
                 <div className="flex justify-end pt-4">
                   <button 

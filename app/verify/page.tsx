@@ -404,7 +404,7 @@ export default function VerifyPage() {
                            {result.type === 'registry' && result.description && (
                              <div className="p-6 bg-white/40 border border-zinc-100 rounded-[2rem]">
                                 <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest block mb-1">Audit Notes</span>
-                                <p className="font-sans text-sm text-zinc-600 italic leading-relaxed">"{result.description}"</p>
+                                <p className="font-sans text-sm text-zinc-600 italic leading-relaxed">&quot;{result.description}&quot;</p>
                              </div>
                            )}
                         </div>
