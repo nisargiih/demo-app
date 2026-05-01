@@ -48,6 +48,16 @@ export async function POST(req: Request) {
     const client = await clientPromise;
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
+    const users = db.collection('users');
+
+    // 1. Check and Deduct Credits
+    const user = await users.findOne({ email: userEmail.trim().toLowerCase() });
+    if (!user || (user.credits || 0) < 7) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits for hash generation pulse. Required: 7 Energy Units.',
+        status: 'insufficient_credits'
+      }, { status: 402 });
+    }
 
     // Check for existing hash
     const existing = await hashes.findOne({ hash });
@@ -68,6 +78,12 @@ export async function POST(req: Request) {
         return NextResponse.json(SecurityService.prepareForTransit(responseData), { status: 200 });
       }
     }
+
+    // Deduct credits
+    await users.updateOne(
+      { email: userEmail.trim().toLowerCase() },
+      { $inc: { credits: -7 } }
+    );
 
     const newHash = {
       userEmail: userEmail.trim().toLowerCase(),

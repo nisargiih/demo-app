@@ -45,12 +45,28 @@ export async function POST(req: Request) {
     const client = await clientPromise;
     const db = client.db('tech-core');
     const registry = db.collection('registry');
+    const users = db.collection('users');
+
+    // 1. Check and Deduct Credits
+    const user = await users.findOne({ email: userEmail.toLowerCase().trim() });
+    if (!user || (user.credits || 0) < 12) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits for official registry upload. Required: 12 Energy Units.',
+        status: 'insufficient_credits'
+      }, { status: 402 });
+    }
 
     // Check for collision
     const existing = await registry.findOne({ registryId });
     if (existing) {
       return NextResponse.json({ error: 'Registry ID already exists' }, { status: 409 });
     }
+
+    // Deduct credits
+    await users.updateOne(
+      { email: userEmail.toLowerCase().trim() },
+      { $inc: { credits: -12 } }
+    );
 
     const result = await registry.insertOne({
       ...data,

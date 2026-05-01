@@ -133,6 +133,11 @@ export default function NotarizePage() {
           } else {
              updateItemStatus(item.id, 'success');
           }
+        } else if (res.status === 402) {
+          updateItemStatus(item.id, 'error', 'Insufficient Energy');
+          notify('Your Energy Core is depleted. Batch processing halted.', 'error');
+          setIsProcessing(false);
+          return; // Stop the batch if credits are gone
         } else {
           updateItemStatus(item.id, 'error', 'Store failed');
         }

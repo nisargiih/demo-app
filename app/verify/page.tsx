@@ -51,6 +51,24 @@ export default function VerifyPage() {
     setResult(null);
 
     try {
+      const email = localStorage.getItem('authenticated_user_email');
+      
+      // 1. Deduct verification credit
+      const deductRes = await fetch('/api/payment/deduct-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (!deductRes.ok) {
+        const errorData = await deductRes.json();
+        if (deductRes.status === 402) {
+          setError('Insufficient Energy Units. Please recharge your core to proceed with verification.');
+          return;
+        }
+        throw new Error(errorData.error || 'Deduction failed');
+      }
+
       const hash = await calculateHash(file);
       setCurrentHash(hash);
       
@@ -83,6 +101,24 @@ export default function VerifyPage() {
     setResult(null);
 
     try {
+      const email = localStorage.getItem('authenticated_user_email');
+
+      // 1. Deduct verification credit
+      const deductRes = await fetch('/api/payment/deduct-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (!deductRes.ok) {
+        const errorData = await deductRes.json();
+        if (deductRes.status === 402) {
+          setError('Insufficient Energy Units. Core recharge required.');
+          return;
+        }
+        throw new Error(errorData.error || 'Deduction failed');
+      }
+
       const res = await fetch(`/api/registry?registryId=${registryId}`);
       if (res.ok) {
         const body = await res.json();

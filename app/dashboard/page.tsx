@@ -10,7 +10,8 @@ import {
   Plus,
   TrendingUp,
   Activity,
-  History
+  History,
+  Zap
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -230,7 +231,7 @@ export default function DashboardPage() {
           {[
             { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900', bg: 'bg-zinc-50' },
             { label: 'Integrity Rating', value: stats.total > 0 ? 'AAA+' : 'N/A', icon: ShieldCheck, color: 'text-trust-green', bg: 'bg-trust-green/5' },
-            { label: 'Latency Node', value: `${stats.uptime}%`, icon: Clock, color: 'text-zinc-500', bg: 'bg-zinc-50' },
+            { label: 'Energy Core', value: user?.credits?.toLocaleString() || '0', icon: Zap, color: 'text-zinc-950', bg: 'bg-trust-green/10', action: () => router.push('/subscription') },
             { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-white', bg: 'bg-zinc-950', invert: true },
           ].map((stat, i) => (
             <motion.div
@@ -238,11 +239,17 @@ export default function DashboardPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.1 }}
-              className={`${stat.invert ? 'bg-zinc-950 text-white' : `${stat.bg} ${stat.color}`} p-7 rounded-[2.5rem] border border-zinc-100 flex flex-col justify-between h-44 shadow-sm transition-all hover:shadow-xl hover:shadow-zinc-200/40 group relative overflow-hidden`}
+              onClick={stat.action}
+              className={`${stat.invert ? 'bg-zinc-950 text-white' : `${stat.bg} ${stat.color}`} p-7 rounded-[2.5rem] border border-zinc-100 flex flex-col justify-between h-44 shadow-sm transition-all hover:shadow-xl hover:shadow-zinc-200/40 group relative overflow-hidden ${stat.action ? 'cursor-pointer' : ''}`}
             >
               <stat.icon className={`absolute -right-4 -bottom-4 w-24 h-24 opacity-5 transition-transform group-hover:scale-125 ${stat.invert ? 'text-white' : 'text-zinc-950'}`} />
               <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest relative z-10 ${stat.invert ? 'text-zinc-500' : 'opacity-60'}`}>{stat.label}</h4>
               <p className="font-display text-4xl font-bold relative z-10">{stat.value}</p>
+              {stat.label === 'Energy Core' && (
+                <div className="absolute top-7 right-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Plus className="w-4 h-4 text-trust-green" />
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
