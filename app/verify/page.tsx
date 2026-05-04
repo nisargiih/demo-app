@@ -2,22 +2,18 @@
 
 import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   ShieldCheck, 
   Upload, 
   Search, 
-  FileCheck, 
-  XCircle, 
   CheckCircle2,
   X,
   AlertTriangle,
   ArrowRight,
-  RefreshCw,
   FileText,
   Clock,
   User,
-  ExternalLink,
   Archive,
   Fingerprint
 } from 'lucide-react';
@@ -32,7 +28,7 @@ export default function VerifyPage() {
   const [registryId, setRegistryId] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'tampered' | 'unindexed' | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'unindexed' | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState<string | null>(null);
@@ -77,14 +73,9 @@ export default function VerifyPage() {
       if (res.ok) {
         const data = await res.json();
         if (data) {
-          if (data.isTampered) {
-            setResult({...data, type: data.type || 'hash'});
-            setVerificationStatus('tampered');
-          } else {
-            const resultType = data.type || (data.registryId ? 'registry' : 'hash');
-            setResult({...data, type: resultType});
-            setVerificationStatus('authentic');
-          }
+          const resultType = data.type || (data.registryId ? 'registry' : 'hash');
+          setResult({...data, type: resultType});
+          setVerificationStatus('authentic');
         } else {
           setResult('NOT_FOUND');
           setVerificationStatus('unindexed');
@@ -281,11 +272,8 @@ export default function VerifyPage() {
                       <Archive className="w-10 h-10 text-zinc-300" />
                     </div>
                     <h3 className="font-display font-bold text-3xl text-zinc-900 mb-3 tracking-tight">Identity Not Found</h3>
-                    <p className="font-sans text-zinc-500 mb-2 max-w-sm mx-auto leading-relaxed text-sm">
+                    <p className="font-sans text-zinc-500 mb-10 max-w-sm mx-auto leading-relaxed text-sm">
                       The document fingerprint or Registry ID could not be located across our decentralized cryptographic nodes.
-                    </p>
-                    <p className="font-sans text-[10px] text-zinc-400 mb-10 max-w-sm mx-auto leading-relaxed italic">
-                      Tip: If this is an edited version of a known document, ensure the filename remains similar to trigger tamper detection.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <button 
@@ -300,93 +288,6 @@ export default function VerifyPage() {
                       >
                         Initialize Notarization
                       </button>
-                    </div>
-                  </motion.div>
-                ) : verificationStatus === 'tampered' ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50/40 border border-red-200 rounded-[3.5rem] p-8 lg:p-14 relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 blur-[100px] rounded-full -mr-32 -mt-32" />
-                    
-                    <div className="relative z-10 flex flex-col lg:flex-row gap-12">
-                       <div className="shrink-0 flex flex-col items-center">
-                          <div className="w-32 h-32 bg-white rounded-[3rem] flex items-center justify-center shadow-xl shadow-red-500/10 ring-8 ring-red-500/5 transition-transform hover:rotate-3">
-                            <XCircle className="w-14 h-14 text-red-500" />
-                          </div>
-                          <div className="mt-8 px-4 py-2 bg-red-500 text-white rounded-full font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                             <AlertTriangle className="w-4 h-4" />
-                             Integrity_Void
-                          </div>
-                      </div>
- 
-                      <div className="flex-1 space-y-10">
-                        <div>
-                          <p className="font-sans text-red-500 font-bold uppercase text-[10px] tracking-[0.3em] mb-3">Cryptographic Trace Found • Payload Mismatch</p>
-                          <h3 className="font-display font-black text-4xl lg:text-5xl text-zinc-900 tracking-tight leading-[0.95] mb-4">
-                             Document Has Been Edited
-                          </h3>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div className="p-6 bg-white border border-red-100 rounded-3xl shadow-sm">
-                              <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Portion Edited Estimate</p>
-                              <div className="flex items-baseline gap-2">
-                                 <span className="font-display font-black text-4xl text-red-600">
-                                    {Math.abs(((file?.size || 0) - (result.originalSize || 0)) / (result.originalSize || 1) * 100).toFixed(1)}%
-                                 </span>
-                                 <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase">Delta</span>
-                              </div>
-                              <p className="font-sans text-[10px] text-zinc-400 mt-2 font-medium">Based on binary volume shift</p>
-                           </div>
-
-                           <div className="p-6 bg-white border border-red-100 rounded-3xl shadow-sm">
-                              <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Modification Status</p>
-                              <div className="flex items-center gap-3">
-                                 <div className="h-2 flex-1 bg-zinc-100 rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full bg-red-500" 
-                                      style={{ width: `${Math.min(100, Math.max(5, Math.abs(((file?.size || 0) - (result.originalSize || 0)) / (result.originalSize || 1) * 100) * 5))} %` }} 
-                                    />
-                                 </div>
-                                 <span className="font-mono text-[10px] text-red-500 font-black uppercase">Critical</span>
-                              </div>
-                              <p className="font-sans text-[10px] text-zinc-400 mt-2 font-medium italic">Unsynchronized payload fragments detected</p>
-                           </div>
-                        </div>
-
-                        <div className="space-y-4">
-                           <div className="p-6 bg-zinc-950 rounded-[2rem] text-white">
-                              <div className="flex items-center gap-2 mb-3">
-                                <RefreshCw className="w-4 h-4 text-red-500" />
-                                <span className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Mismatching Signatures</span>
-                              </div>
-                              <div className="grid grid-cols-1 gap-4 font-mono text-[11px]">
-                                 <div className="space-y-1">
-                                    <span className="text-[8px] text-zinc-600 uppercase font-bold">Stored Ledger Hash:</span>
-                                    <p className="break-all text-zinc-400 bg-zinc-900 p-2 rounded border border-zinc-800">{result.originalHash}</p>
-                                 </div>
-                                 <div className="space-y-1">
-                                    <span className="text-[8px] text-red-400 uppercase font-bold">Current Invalid Hash:</span>
-                                    <p className="break-all text-red-500 bg-red-950/20 p-2 rounded border border-red-900/30">{currentHash}</p>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
- 
-                        <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
-                          <button 
-                            onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); }}
-                            className="w-full sm:w-auto h-14 px-10 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
-                          >
-                             Terminate Protocol <X className="w-4 h-4" />
-                          </button>
-                          <p className="font-sans text-[10px] text-zinc-400 text-center sm:text-left leading-relaxed italic">
-                            This document matches the {result.type === 'registry' ? 'Registry Node' : 'Record'} &quot;{result.docName || result.fileName}&quot; indexed on {new Date(result.createdAt).toLocaleDateString()}, but the cryptographic signature is broken.
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </motion.div>
                 ) : (
@@ -482,73 +383,6 @@ export default function VerifyPage() {
                              <div className="p-6 bg-white/40 border border-zinc-100 rounded-[2rem]">
                                 <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest block mb-1">Audit Notes</span>
                                 <p className="font-sans text-sm text-zinc-600 italic leading-relaxed">&quot;{result.description}&quot;</p>
-                             </div>
-                           )}
-
-                           {result.type === 'registry' && (
-                             <div className="pt-4">
-                                <div className="p-6 bg-white border border-zinc-100 rounded-[2rem] space-y-4">
-                                   <div className="flex items-center gap-2">
-                                      <Upload className="w-4 h-4 text-trust-green" />
-                                      <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">Self-Integrity Check</span>
-                                   </div>
-                                   <div className="relative group">
-                                      <input 
-                                        type="file" 
-                                        onChange={async (e) => {
-                                          if (e.target.files && e.target.files[0]) {
-                                            const uploadedFile = e.target.files[0];
-                                            const hash = await calculateHash(uploadedFile);
-                                            const comparisonHash = result.fileHash || result.hash || result.originalHash;
-                                            
-                                            if (!comparisonHash) {
-                                              // Feature: LOCK fingerprint if missing
-                                              if (confirm("This record has no locked fingerprint. Would you like to lock this file's signature to this registry entry?")) {
-                                                try {
-                                                  const res = await fetch('/api/registry/update-hash', {
-                                                    method: 'PATCH',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ 
-                                                      id: result._id, 
-                                                      fileHash: hash,
-                                                      fileSize: uploadedFile.size
-                                                    })
-                                                  });
-                                                  if (res.ok) {
-                                                    alert("FINGERPRINT LOCKED: Future scans will now detect tampering.");
-                                                    setResult({ ...result, fileHash: hash, fileSize: uploadedFile.size });
-                                                    setVerificationStatus('authentic');
-                                                  }
-                                                } catch (err) {
-                                                  console.error(err);
-                                                }
-                                              }
-                                              return;
-                                            }
-
-                                            if (hash === comparisonHash) {
-                                              alert("INTEGRITY VERIFIED: This file matches the registry record perfectly.");
-                                              setVerificationStatus('authentic');
-                                            } else {
-                                              setFile(uploadedFile);
-                                              setCurrentHash(hash);
-                                              setVerificationStatus('tampered');
-                                              setResult({
-                                                 ...result,
-                                                 originalHash: comparisonHash,
-                                                 originalSize: result.fileSize || result.originalSize
-                                              });
-                                            }
-                                          }
-                                        }}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                                      />
-                                      <div className="h-16 border-2 border-dashed border-zinc-100 rounded-2xl flex flex-col items-center justify-center bg-zinc-50/30 group-hover:bg-zinc-50 transition-colors">
-                                         <span className="font-sans text-[11px] text-zinc-500 font-bold">Compare local file with this record</span>
-                                         <span className="font-sans text-[9px] text-zinc-300">Click or drop to verify binary sync</span>
-                                      </div>
-                                   </div>
-                                </div>
                              </div>
                            )}
                         </div>

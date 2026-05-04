@@ -23,71 +23,7 @@ export async function GET(req: Request) {
       const regRecord = await registry.findOne({ fileHash: hashValue });
       if (regRecord) return NextResponse.json({ ...regRecord, type: 'registry' });
 
-      // TAMPER DETECTION: If no exact hash match, check for filename/docname match to detect edits
-      const fileName = searchParams.get('fileName');
-    if (fileName) {
-        // Clean filename: remove extension, common suffixes, and normalize
-        const nameWithoutExt = fileName.split('.')[0];
-        const baseName = nameWithoutExt.replace(/\s*\(.*?\)\s*$/, '').replace(/[-_]/g, ' ').trim();
-        
-        // Define stop words to ignore during fuzzy matching
-        const stopWords = new Set(['document', 'doc', 'file', 'report', 'final', 'copy', 'v1', 'v2', 'scan', 'the', 'and', 'new', 'draft', 'version']);
-        
-        // Extract meaningful keywords
-        const keywords = baseName.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w.toLowerCase()));
-        
-        const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        
-        // 1. Broad search in notarized hashes
-        // Threshold: Match at least 2 keywords if available, OR a strong name overlap
-        const fuzzyQuery = keywords.length >= 2 
-          ? { $regex: new RegExp(keywords.slice(0, 2).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'), 'i') }
-          : { $regex: new RegExp(`^${escapedBase.split(' ')[0]}`, 'i') }; // Match start of name for single-word files
-
-        const similarHash = await hashes.findOne(
-          { 
-            $or: [
-              { fileName: { $regex: new RegExp(escapedBase, 'i') } },
-              { fileName: fuzzyQuery }
-            ]
-          },
-          { sort: { createdAt: -1 } }
-        );
-
-        if (similarHash) {
-          return NextResponse.json({
-            ...similarHash,
-            isTampered: true,
-            originalHash: similarHash.hash,
-            originalSize: similarHash.fileSize
-          });
-        }
-
-        // 2. Broad search in official registry
-        const similarReg = await registry.findOne(
-          { 
-            $or: [
-              { docName: { $regex: new RegExp(escapedBase, 'i') } },
-              { fileName: { $regex: new RegExp(escapedBase, 'i') } },
-              { docName: fuzzyQuery },
-              { fileName: fuzzyQuery }
-            ]
-          },
-          { sort: { createdAt: -1 } }
-        );
-
-        if (similarReg) {
-          return NextResponse.json({
-            ...similarReg,
-            type: 'registry',
-            isTamperDetected: true, // Marker for UI
-            isTampered: true,
-            originalHash: similarReg.fileHash || similarReg.hash,
-            originalSize: similarReg.fileSize || similarReg.originalSize
-          });
-        }
-      }
-
+      // REMOVED: Tamper detection fuzzy logic. Exact matches only.
       return NextResponse.json(null);
     }
 
