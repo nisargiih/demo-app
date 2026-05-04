@@ -354,7 +354,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
       const payload = SecurityService.prepareForTransit({ 
         ...formData,
         role: 'member',
-        permissions: [] 
+        permissions: ['dashboard'] 
       });
       const res = await fetch('/api/auth/register', {
         method: 'POST',

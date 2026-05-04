@@ -26,6 +26,14 @@ export async function GET(req: Request) {
 
     // Don't send password or internal data
     const { password, otp, ...safeUser } = user;
+
+    // Fallback for legacy users or those missing fields
+    if (!safeUser.role) safeUser.role = 'member';
+    if (!safeUser.permissions || safeUser.permissions.length === 0) {
+      safeUser.permissions = safeUser.role === 'admin' 
+        ? ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings']
+        : ['dashboard']; // Give members dashboard access by default
+    }
     
     // Encrypt for transit
     return NextResponse.json(SecurityService.prepareForTransit(safeUser));

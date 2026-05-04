@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       isVerified: false,
       verificationStatus: 'unverified',
       role,
-      permissions: role === 'member' ? [] : ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings'],
+      permissions: role === 'member' ? ['dashboard'] : ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings'],
       credits: 0,
       otp, 
       createdAt: new Date(),
