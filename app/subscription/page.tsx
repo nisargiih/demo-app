@@ -272,7 +272,7 @@ export default function SubscriptionPage() {
                           type="number" 
                           value={amount}
                           onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value) || 0))}
-                          className="w-48 bg-transparent font-display text-7xl font-black focus:outline-none text-center"
+                          className="w-48 bg-transparent font-display text-5xl md:text-7xl font-black focus:outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                       <input 
@@ -290,13 +290,15 @@ export default function SubscriptionPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => setStep(2)}
-                      className="w-full h-20 bg-zinc-950 text-white rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group shadow-xl shadow-zinc-900/10"
-                    >
-                      Connect Power Port
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                    </button>
+                    <div className="pt-8">
+                      <button
+                        onClick={() => setStep(2)}
+                        className="w-full h-24 bg-zinc-950 text-white rounded-[2rem] font-display font-black text-sm uppercase tracking-[0.4em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group shadow-2xl shadow-zinc-900/60 active:scale-[0.98] relative z-20"
+                      >
+                        Initialize Port Connection
+                        <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                      </button>
+                    </div>
                   </motion.div>
                 )}
 
@@ -308,55 +310,54 @@ export default function SubscriptionPage() {
                     exit={{ opacity: 0, x: 20 }}
                     className="space-y-8"
                   >
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <button
-                        onClick={() => setPaymentMethod('upi')}
-                        className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
-                          paymentMethod === 'upi' 
-                            ? 'border-trust-green bg-trust-green/5' 
-                            : 'border-zinc-100 bg-white hover:border-zinc-200'
-                        }`}
-                      >
-                        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'upi' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
-                          <Zap className="w-10 h-10" />
-                        </div>
-                        <div className="text-center">
-                          <p className="font-display font-black text-xl text-zinc-900 mb-1">UPI Transmit</p>
-                          <p className="font-sans text-xs text-zinc-500 font-bold">Standard Network</p>
-                        </div>
-                      </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <button
+                      onClick={() => {
+                        setPaymentMethod('upi');
+                        setStep(3);
+                      }}
+                      className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
+                        paymentMethod === 'upi' 
+                          ? 'border-trust-green bg-trust-green/5' 
+                          : 'border-zinc-100 bg-white hover:border-zinc-200 shadow-sm'
+                      }`}
+                    >
+                      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'upi' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
+                        <Zap className="w-10 h-10" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-display font-black text-xl text-zinc-900 mb-1">UPI Transmit</p>
+                        <p className="font-sans text-xs text-zinc-500 font-bold">Standard Network</p>
+                      </div>
+                    </button>
 
-                      <button
-                        onClick={() => setPaymentMethod('card')}
-                        className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
-                          paymentMethod === 'card' 
-                            ? 'border-trust-green bg-trust-green/5' 
-                            : 'border-zinc-100 bg-white hover:border-zinc-200'
-                        }`}
-                      >
-                        <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'card' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
-                          <CreditCard className="w-10 h-10" />
-                        </div>
-                        <div className="text-center">
-                          <p className="font-display font-black text-xl text-zinc-900 mb-1">Direct Card</p>
-                          <p className="font-sans text-xs text-zinc-500 font-bold">Encrypted Tunnel</p>
-                        </div>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setPaymentMethod('card');
+                        setStep(3);
+                      }}
+                      className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
+                        paymentMethod === 'card' 
+                          ? 'border-trust-green bg-trust-green/5' 
+                          : 'border-zinc-100 bg-white hover:border-zinc-200 shadow-sm'
+                      }`}
+                    >
+                      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'card' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
+                        <CreditCard className="w-10 h-10" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-display font-black text-xl text-zinc-900 mb-1">Direct Card</p>
+                        <p className="font-sans text-xs text-zinc-500 font-bold">Encrypted Tunnel</p>
+                      </div>
+                    </button>
+                  </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 pt-8">
                       <button 
                         onClick={() => setStep(1)} 
-                        className="h-20 px-8 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all sm:w-auto w-full"
+                        className="h-20 px-10 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600 transition-all sm:w-auto w-full shadow-sm"
                       >
-                        Back
-                      </button>
-                      <button
-                        onClick={() => setStep(3)}
-                        className="flex-1 h-20 bg-zinc-950 text-white rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group"
-                      >
-                        Proceed to Archive
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                        Change Volume
                       </button>
                     </div>
                   </motion.div>
@@ -386,7 +387,7 @@ export default function SubscriptionPage() {
                               value={vpa}
                               onChange={(e) => setVpa(e.target.value)}
                               placeholder="identity@vpa"
-                              className="w-full h-20 bg-white border border-zinc-200 rounded-2xl px-8 font-display text-2xl font-bold text-zinc-950 focus:border-trust-green focus:outline-none transition-all"
+                              className="w-full h-24 bg-white border-2 border-zinc-200 rounded-[2rem] px-10 font-display text-3xl font-black text-zinc-950 focus:border-trust-green focus:outline-none transition-all shadow-sm placeholder:text-zinc-200"
                             />
                             <div className="p-4 bg-zinc-100 rounded-xl flex gap-3">
                                <Info className="w-4 h-4 text-zinc-400 mt-0.5" />
@@ -416,20 +417,20 @@ export default function SubscriptionPage() {
                        )}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                    <div className="flex flex-col sm:flex-row gap-4 pt-10">
                       <button 
                         onClick={() => setStep(2)} 
-                        className="h-20 px-8 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all sm:w-auto w-full"
+                        className="h-20 px-10 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600 transition-all sm:w-auto w-full"
                       >
-                        Back
+                        Back to Port
                       </button>
                       <button
                         onClick={handlePurchase}
                         disabled={isProcessing}
-                        className="flex-1 h-20 bg-trust-green text-zinc-950 rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-2xl shadow-trust-green/20 disabled:opacity-50"
+                        className="flex-1 h-20 bg-trust-green text-zinc-950 rounded-[1.5rem] font-display font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-2xl shadow-trust-green/40 disabled:opacity-50 active:scale-[0.98]"
                       >
-                        {isProcessing ? 'Transmitting...' : 'Confirm Injection'}
-                        <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        {isProcessing ? 'Transmitting...' : 'Execute Pulse'}
+                        <ShieldCheck className="w-6 h-6 group-hover:scale-110 transition-transform" />
                       </button>
                     </div>
                   </motion.div>
