@@ -88,6 +88,13 @@ export default function RegistryPage() {
     return `${prefix}-${Date.now().toString().slice(-4)}-${rand}`;
   };
 
+  const calculateHash = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -108,6 +115,9 @@ export default function RegistryPage() {
     const email = localStorage.getItem('authenticated_user_email');
 
     try {
+      // 0. Calculate Hash for integrity
+      const fileHash = await calculateHash(selectedFile);
+
       // 1. Get Presigned URL
       const presignedRes = await fetch('/api/upload/presigned', {
         method: 'POST',
@@ -137,7 +147,9 @@ export default function RegistryPage() {
         description: formDesc,
         registryId: customRegistryId,
         fileKey: fileKey,
+        fileHash: fileHash,
         fileName: selectedFile.name,
+        fileSize: selectedFile.size,
         fileType: selectedFile.type,
         status: 'active',
         createdAt: new Date().toISOString()

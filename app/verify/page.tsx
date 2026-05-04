@@ -78,10 +78,11 @@ export default function VerifyPage() {
         const data = await res.json();
         if (data) {
           if (data.isTampered) {
-            setResult({...data, type: 'hash'});
+            setResult({...data, type: data.type || 'hash'});
             setVerificationStatus('tampered');
           } else {
-            setResult({...data, type: 'hash'});
+            const resultType = data.type || (data.registryId ? 'registry' : 'hash');
+            setResult({...data, type: resultType});
             setVerificationStatus('authentic');
           }
         } else {
@@ -495,7 +496,8 @@ export default function VerifyPage() {
                                           if (e.target.files && e.target.files[0]) {
                                             const uploadedFile = e.target.files[0];
                                             const hash = await calculateHash(uploadedFile);
-                                            if (hash === (result.fileKey || result.hash)) {
+                                            const comparisonHash = result.fileHash || result.hash || result.originalHash;
+                                            if (hash === comparisonHash) {
                                               alert("INTEGRITY VERIFIED: This file matches the registry record perfectly.");
                                               setVerificationStatus('authentic');
                                             } else {
@@ -504,8 +506,8 @@ export default function VerifyPage() {
                                               setVerificationStatus('tampered');
                                               setResult({
                                                  ...result,
-                                                 originalHash: result.fileKey || result.hash,
-                                                 originalSize: result.fileSize
+                                                 originalHash: comparisonHash,
+                                                 originalSize: result.fileSize || result.originalSize
                                               });
                                             }
                                           }

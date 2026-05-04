@@ -12,25 +12,40 @@ export async function GET(req: Request) {
     const client = await clientPromise;
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
+    const registry = db.collection('registry');
 
     if (hashValue) {
+      // 1. Check in Notarized Hashes
       const record = await hashes.findOne({ hash: hashValue });
-      
-      if (record) {
-        return NextResponse.json(record);
-      }
+      if (record) return NextResponse.json(record);
 
-      // TAMPER DETECTION: If hash didn't match, check if we have a file with the SAME NAME
+      // 2. Check in Official Registry
+      const regRecord = await registry.findOne({ fileHash: hashValue });
+      if (regRecord) return NextResponse.json({ ...regRecord, type: 'registry' });
+
+      // TAMPER DETECTION: If no exact hash match, check for filename match to detect edits
       const fileName = searchParams.get('fileName');
       if (fileName) {
-        // Find most recent match for this filename
-        const similar = await hashes.findOne({ fileName: fileName });
-        if (similar) {
+        // Search in hashes
+        const similarHash = await hashes.findOne({ fileName: fileName });
+        if (similarHash) {
           return NextResponse.json({
-            ...similar,
+            ...similarHash,
             isTampered: true,
-            originalHash: similar.hash,
-            originalSize: similar.fileSize
+            originalHash: similarHash.hash,
+            originalSize: similarHash.fileSize
+          });
+        }
+
+        // Search in registry
+        const similarReg = await registry.findOne({ fileName: fileName });
+        if (similarReg) {
+          return NextResponse.json({
+            ...similarReg,
+            type: 'registry',
+            isTampered: true,
+            originalHash: similarReg.fileHash,
+            originalSize: similarReg.fileSize
           });
         }
       }
