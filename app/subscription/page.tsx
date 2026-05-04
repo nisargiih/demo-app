@@ -200,16 +200,16 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white overflow-x-hidden">
       <BackgroundAnimation />
       <Sidebar />
       
-      <div className="lg:pl-72 min-h-screen">
-        <div className="max-w-6xl mx-auto p-8 lg:p-12 xl:p-16">
+      <div className="lg:pl-72 min-h-screen flex flex-col">
+        <div className="max-w-6xl mx-auto p-6 md:p-10 lg:p-12 xl:p-16 w-full flex-1">
           
-          <div className="flex flex-col lg:flex-row gap-16">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 pb-24">
             {/* Main Wizard Flow */}
-            <div className="flex-1 space-y-12">
+            <div className="flex-1 space-y-10">
               <header className="relative">
                 <div className="flex items-center gap-4 mb-6">
                   {[1, 2, 3].map((s) => (
@@ -292,7 +292,7 @@ export default function SubscriptionPage() {
 
                     <button
                       onClick={() => setStep(2)}
-                      className="w-full h-24 bg-zinc-950 text-white rounded-[2.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group"
+                      className="w-full h-20 bg-zinc-950 text-white rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group shadow-xl shadow-zinc-900/10"
                     >
                       Connect Power Port
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -344,11 +344,16 @@ export default function SubscriptionPage() {
                       </button>
                     </div>
 
-                    <div className="flex gap-4">
-                      <button onClick={() => setStep(1)} className="h-24 px-8 border-2 border-zinc-100 rounded-[2.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all">Back</button>
+                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                      <button 
+                        onClick={() => setStep(1)} 
+                        className="h-20 px-8 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all sm:w-auto w-full"
+                      >
+                        Back
+                      </button>
                       <button
                         onClick={() => setStep(3)}
-                        className="flex-1 h-24 bg-zinc-950 text-white rounded-[2.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group"
+                        className="flex-1 h-20 bg-zinc-950 text-white rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group"
                       >
                         Proceed to Archive
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
@@ -411,15 +416,20 @@ export default function SubscriptionPage() {
                        )}
                     </div>
 
-                    <div className="flex gap-4">
-                      <button onClick={() => setStep(2)} className="h-24 px-8 border-2 border-zinc-100 rounded-[2.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all">Back</button>
+                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                      <button 
+                        onClick={() => setStep(2)} 
+                        className="h-20 px-8 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-xs uppercase tracking-widest text-zinc-400 hover:bg-zinc-50 transition-all sm:w-auto w-full"
+                      >
+                        Back
+                      </button>
                       <button
                         onClick={handlePurchase}
                         disabled={isProcessing}
-                        className="flex-1 h-24 bg-trust-green text-zinc-950 rounded-[2.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-2xl shadow-trust-green/20"
+                        className="flex-1 h-20 bg-trust-green text-zinc-950 rounded-[1.5rem] font-display font-black text-xs uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-2xl shadow-trust-green/20 disabled:opacity-50"
                       >
                         {isProcessing ? 'Transmitting...' : 'Confirm Injection'}
-                        <ShieldCheck className="w-5 h-5 group-hover:scale-120 transition-transform" />
+                        <ShieldCheck className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       </button>
                     </div>
                   </motion.div>
