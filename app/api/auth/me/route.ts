@@ -28,11 +28,19 @@ export async function GET(req: Request) {
     const { password, otp, ...safeUser } = user;
 
     // Fallback for legacy users or those missing fields
+    // PROACTIVE: Ensure the user's specific email is always admin if they are the primary developer
+    const ownerEmails = ['nisarg.iihglobal@gmail.com'];
+    if (ownerEmails.includes(safeUser.email.toLowerCase())) {
+      safeUser.role = 'admin';
+    }
+
     if (!safeUser.role) safeUser.role = 'member';
-    if (!safeUser.permissions || safeUser.permissions.length === 0) {
-      safeUser.permissions = safeUser.role === 'admin' 
-        ? ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings']
-        : ['dashboard']; // Give members dashboard access by default
+    
+    // Always give full permissions to admins, even if the array is missing in DB
+    if (safeUser.role === 'admin') {
+      safeUser.permissions = ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings'];
+    } else if (!safeUser.permissions || safeUser.permissions.length === 0) {
+      safeUser.permissions = ['dashboard']; // Give members dashboard access by default
     }
     
     // Encrypt for transit

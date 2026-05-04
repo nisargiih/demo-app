@@ -19,7 +19,8 @@ import {
   Building2,
   Lock,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Share2
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -283,9 +284,21 @@ export default function RegistryPage() {
                       </div>
                    </div>
 
-                   <button className="w-full mt-6 h-12 flex items-center justify-center gap-2 font-display text-[11px] font-bold uppercase tracking-wider text-zinc-500 hover:text-zinc-950 transition-all border border-transparent hover:border-zinc-100 rounded-xl">
-                      View Documents <ExternalLink className="w-4 h-4" />
-                   </button>
+                   <div className="grid grid-cols-2 gap-3 mt-6">
+                     <button className="h-12 flex items-center justify-center gap-2 font-display text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-zinc-950 transition-all border border-zinc-100 rounded-xl bg-white shadow-sm">
+                        View <ExternalLink className="w-4 h-4" />
+                     </button>
+                     <button 
+                       onClick={() => {
+                         const shareUrl = `${window.location.origin}/verify?registryId=${item.registryId}`;
+                         navigator.clipboard.writeText(shareUrl);
+                         notify('Verification link copied to clipboard', 'success');
+                       }}
+                       className="h-12 flex items-center justify-center gap-2 font-display text-[10px] font-bold uppercase tracking-wider text-white bg-zinc-950 hover:bg-zinc-800 transition-all rounded-xl shadow-sm"
+                     >
+                        Share <Share2 className="w-4 h-4 text-trust-green" />
+                     </button>
+                   </div>
                 </motion.div>
              ))}
           </div>

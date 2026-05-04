@@ -55,8 +55,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     <UserContext.Provider value={{ 
       user, 
       loading, 
-      role: user?.role || 'member', 
-      permissions: user?.permissions || [],
+      role: user?.role || (loading ? null : 'member'), 
+      permissions: user?.permissions || (loading ? [] : ['dashboard']),
       refresh: fetchUser 
     }}>
       {children}

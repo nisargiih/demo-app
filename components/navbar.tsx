@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   FileText,
-  Archive
+  Archive,
+  Share2
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -49,6 +50,7 @@ export function Sidebar() {
     { name: 'Official Registry', icon: Archive, path: '/registry', module: 'registry' },
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify', module: 'verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
+    { name: 'Share Hub', icon: Share2, path: '/share', module: 'dashboard' },
     { name: 'Settings', icon: Settings, path: '/settings', module: 'settings' },
   ];
 
