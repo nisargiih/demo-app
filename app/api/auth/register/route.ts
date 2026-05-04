@@ -37,9 +37,11 @@ export async function POST(req: Request) {
     // 2. Prepare for Storage (Store in plain text as requested)
     const email = validatedData.email.trim().toLowerCase();
     
-    // Check if this is the first user
-    const userCount = await users.countDocuments();
-    const role = userCount === 0 ? 'admin' : 'member';
+    // Default to 'admin' for public signup, use provided role for invitations
+    const role = data.role || 'admin';
+    const permissions = data.permissions || (role === 'admin' 
+      ? ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings']
+      : ['dashboard']);
 
     const newUser = {
       ...validatedData,
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
       isVerified: false,
       verificationStatus: 'unverified',
       role,
-      permissions: role === 'member' ? ['dashboard'] : ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings'],
+      permissions,
       credits: 0,
       otp, 
       createdAt: new Date(),

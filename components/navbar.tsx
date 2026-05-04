@@ -18,7 +18,8 @@ import {
   X,
   FileText,
   Archive,
-  Share2
+  Share2,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -51,13 +52,15 @@ export function Sidebar() {
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify', module: 'verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
     { name: 'Share Hub', icon: Share2, path: '/share', module: 'dashboard' },
+    { name: 'Team Hub', icon: Users, path: '/settings/team', module: 'settings', adminOnly: true },
     { name: 'Settings', icon: Settings, path: '/settings', module: 'settings' },
   ];
 
   // Logic: Admin has all access. Members only mapped modules.
-  const filteredMenuItems = menuItems.filter(item => 
-    role === 'admin' || (permissions && permissions.includes(item.module))
-  );
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.adminOnly && role !== 'admin') return false;
+    return role === 'admin' || (permissions && permissions.includes(item.module));
+  });
 
   const profileOptions = [
     { name: 'Profile', icon: User, path: '/profile' },
