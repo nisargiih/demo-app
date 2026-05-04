@@ -200,31 +200,34 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white overflow-x-hidden">
+    <main className="min-h-screen bg-zinc-50 overflow-x-hidden selection:bg-trust-green/30">
       <BackgroundAnimation />
       <Sidebar />
       
-      <div className="lg:pl-72 min-h-screen flex flex-col">
-        <div className="max-w-6xl mx-auto p-6 md:p-10 lg:p-12 xl:p-16 w-full flex-1">
+      <div className="lg:pl-72 min-h-screen relative z-10">
+        <div className="max-w-5xl mx-auto p-4 md:p-10 lg:p-12 xl:p-16">
           
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 pb-24">
-            {/* Main Wizard Flow */}
-            <div className="flex-1 space-y-10">
-              <header className="relative">
-                <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-16">
+            {/* Main Processor */}
+            <div className="flex-1 w-full space-y-8">
+              <header className="space-y-4">
+                <div className="flex gap-2">
                   {[1, 2, 3].map((s) => (
                     <div 
                       key={s}
-                      className={`h-1 flex-1 rounded-full transition-all duration-500 ${step >= s ? 'bg-trust-green' : 'bg-zinc-100'}`}
+                      className={`h-1.5 rounded-full transition-all duration-700 ${
+                        step === s ? 'w-12 bg-trust-green' : 'w-4 bg-zinc-200'
+                      } ${step > s ? 'bg-zinc-900 w-4' : ''}`}
                     />
                   ))}
                 </div>
-                <div className="px-3 py-1 bg-trust-green/10 rounded-full inline-block mb-6">
-                  <span className="font-mono text-[9px] text-trust-green font-bold uppercase tracking-widest">Protocol Version 4.2</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-zinc-200 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-trust-green animate-pulse" />
+                  <span className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Live Node Connection</span>
                 </div>
-                <h1 className="font-display text-5xl lg:text-7xl font-black text-zinc-950 tracking-tight leading-none mb-6">
-                   {step === 1 && "Select Fuel"}
-                   {step === 2 && "Power Port"}
+                <h1 className="font-display text-4xl md:text-6xl font-black text-zinc-950 tracking-tight leading-[0.9]">
+                   {step === 1 && "Select Your Fuel"}
+                   {step === 2 && "Payment Method"}
                    {step === 3 && "Authorization"}
                 </h1>
               </header>
@@ -233,46 +236,45 @@ export default function SubscriptionPage() {
                 {step === 1 && (
                   <motion.div
                     key="step1"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                     className="space-y-8"
                   >
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {PRICING_TIERS.map((tier) => (
                         <button
                           key={tier.id}
                           onClick={() => setAmount(tier.amount)}
-                          className={`p-10 rounded-[2.5rem] border-2 text-left transition-all relative overflow-hidden group h-full flex flex-col ${
+                          className={`group p-6 rounded-3xl border-2 text-left transition-all relative overflow-hidden flex flex-col min-h-[160px] ${
                             amount === tier.amount 
-                              ? 'border-trust-green bg-trust-green/5' 
-                              : 'border-zinc-100 bg-white hover:border-zinc-200'
+                              ? 'border-zinc-950 bg-zinc-950 text-white shadow-xl scale-[1.02]' 
+                              : 'border-white bg-white/60 backdrop-blur-sm hover:border-zinc-200 text-zinc-950'
                           }`}
                         >
-                          <p className={`font-mono text-[10px] font-bold uppercase tracking-widest mb-2 ${amount === tier.amount ? 'text-trust-green' : 'text-zinc-400'}`}>
+                          <span className={`font-mono text-[10px] font-bold uppercase tracking-widest mb-1 ${amount === tier.amount ? 'text-trust-green' : 'text-zinc-400'}`}>
                             {tier.label}
+                          </span>
+                          <span className="font-display font-black text-3xl mb-auto">₹{tier.amount}</span>
+                          <p className={`font-sans text-[11px] leading-tight mt-4 ${amount === tier.amount ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                            {tier.desc}
                           </p>
-                          <p className="font-display font-black text-4xl text-zinc-950 mb-auto">₹{tier.amount}</p>
-                          <p className="font-sans text-[11px] text-zinc-500 leading-relaxed mt-4">{tier.desc}</p>
-                          {tier.recommended && (
-                            <div className="absolute top-4 right-6">
-                              <Sparkles className="w-5 h-5 text-trust-green" />
-                            </div>
+                          {tier.recommended && amount !== tier.amount && (
+                            <Sparkles className="absolute top-4 right-4 w-4 h-4 text-trust-green" />
                           )}
                         </button>
                       ))}
                     </div>
 
-                    <div className="p-10 bg-zinc-950 rounded-[3rem] text-white relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-64 h-64 bg-trust-green/5 blur-[100px] -mr-32 -mt-32 rounded-full" />
-                      <label className="font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-[0.3em] block mb-8 text-center">Calibrate Custom Load (INR)</label>
-                      <div className="flex items-center justify-center gap-4 mb-8">
-                        <span className="font-display text-5xl font-black text-white/20">₹</span>
+                    <div className="p-8 bg-white border-2 border-white rounded-[2.5rem] shadow-sm relative overflow-hidden group">
+                      <label className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em] block mb-6 text-center">Precise Calibration (INR)</label>
+                      <div className="flex items-center justify-center gap-2 mb-6">
+                        <span className="font-display text-4xl font-black text-zinc-200">₹</span>
                         <input 
                           type="number" 
                           value={amount}
                           onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value) || 0))}
-                          className="w-48 bg-transparent font-display text-5xl md:text-7xl font-black focus:outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className="w-40 bg-transparent font-display text-6xl font-black focus:outline-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-zinc-950"
                         />
                       </div>
                       <input 
@@ -282,21 +284,21 @@ export default function SubscriptionPage() {
                         step="100"
                         value={amount}
                         onChange={(e) => setAmount(parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-trust-green mb-4"
+                        className="w-full h-1.5 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-zinc-950 mb-4"
                       />
-                      <div className="flex justify-between font-mono text-[9px] text-zinc-600 font-bold uppercase">
-                        <span>Threshold: 200</span>
-                        <span>Max Node: 10,000</span>
+                      <div className="flex justify-between font-mono text-[9px] text-zinc-400 font-bold uppercase">
+                        <span>200 (Min)</span>
+                        <span>10,000 (Limit)</span>
                       </div>
                     </div>
 
-                    <div className="pt-8">
+                    <div className="pt-4">
                       <button
                         onClick={() => setStep(2)}
-                        className="w-full h-24 bg-zinc-950 text-white rounded-[2rem] font-display font-black text-sm uppercase tracking-[0.4em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all group shadow-2xl shadow-zinc-900/60 active:scale-[0.98] relative z-20"
+                        className="w-full h-20 bg-zinc-950 text-white rounded-2xl font-display font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-trust-green hover:text-zinc-950 transition-all active:scale-[0.98] shadow-lg shadow-zinc-900/20"
                       >
-                        Initialize Port Connection
-                        <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                        Interface Connection
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </button>
                     </div>
                   </motion.div>
@@ -305,132 +307,144 @@ export default function SubscriptionPage() {
                 {step === 2 && (
                   <motion.div
                     key="step2"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="space-y-8"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-6"
                   >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <button
-                      onClick={() => {
-                        setPaymentMethod('upi');
-                        setStep(3);
-                      }}
-                      className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
-                        paymentMethod === 'upi' 
-                          ? 'border-trust-green bg-trust-green/5' 
-                          : 'border-zinc-100 bg-white hover:border-zinc-200 shadow-sm'
-                      }`}
-                    >
-                      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'upi' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
-                        <Zap className="w-10 h-10" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-display font-black text-xl text-zinc-900 mb-1">UPI Transmit</p>
-                        <p className="font-sans text-xs text-zinc-500 font-bold">Standard Network</p>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setPaymentMethod('card');
-                        setStep(3);
-                      }}
-                      className={`flex flex-col items-center justify-center gap-6 p-12 rounded-[3.5rem] border-2 transition-all group relative overflow-hidden ${
-                        paymentMethod === 'card' 
-                          ? 'border-trust-green bg-trust-green/5' 
-                          : 'border-zinc-100 bg-white hover:border-zinc-200 shadow-sm'
-                      }`}
-                    >
-                      <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center transition-all ${paymentMethod === 'card' ? 'bg-trust-green text-zinc-950 shadow-2xl shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400'}`}>
-                        <CreditCard className="w-10 h-10" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-display font-black text-xl text-zinc-900 mb-1">Direct Card</p>
-                        <p className="font-sans text-xs text-zinc-500 font-bold">Encrypted Tunnel</p>
-                      </div>
-                    </button>
-                  </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4 pt-8">
-                      <button 
-                        onClick={() => setStep(1)} 
-                        className="h-20 px-10 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600 transition-all sm:w-auto w-full shadow-sm"
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <button
+                        onClick={() => { setPaymentMethod('upi'); setStep(3); }}
+                        className="flex items-center gap-6 p-8 rounded-3xl bg-white border-2 border-white hover:border-zinc-200 transition-all text-left shadow-sm group active:scale-[0.98]"
                       >
-                        Change Volume
+                        <div className="w-16 h-16 rounded-2xl bg-zinc-50 flex items-center justify-center group-hover:bg-trust-green/10 transition-colors">
+                          <Zap className="w-8 h-8 text-zinc-400 group-hover:text-trust-green" />
+                        </div>
+                        <div>
+                          <p className="font-display font-black text-lg text-zinc-950">UPI Transmission</p>
+                          <p className="font-sans text-xs text-zinc-500 font-bold">VPA / Google Pay / PhonePe</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => { setPaymentMethod('card'); setStep(3); }}
+                        className="flex items-center gap-6 p-8 rounded-3xl bg-white border-2 border-white hover:border-zinc-200 transition-all text-left shadow-sm group active:scale-[0.98]"
+                      >
+                        <div className="w-16 h-16 rounded-2xl bg-zinc-50 flex items-center justify-center group-hover:bg-trust-green/10 transition-colors">
+                          <CreditCard className="w-8 h-8 text-zinc-400 group-hover:text-trust-green" />
+                        </div>
+                        <div>
+                          <p className="font-display font-black text-lg text-zinc-950">Secure Card</p>
+                          <p className="font-sans text-xs text-zinc-500 font-bold">Visa / Master / RuPay</p>
+                        </div>
                       </button>
                     </div>
+
+                    <button 
+                      onClick={() => setStep(1)} 
+                      className="w-full py-4 font-display font-bold text-[10px] uppercase tracking-widest text-zinc-400 hover:text-zinc-600 transition-colors"
+                    >
+                      &larr; Switch Magnitude
+                    </button>
                   </motion.div>
                 )}
 
                 {step === 3 && (
                   <motion.div
                     key="step3"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="space-y-8"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-6"
                   >
-                    <div className="p-12 bg-zinc-50 rounded-[3.5rem] border border-zinc-100 relative overflow-hidden">
+                    <div className="p-8 md:p-12 bg-white rounded-[2.5rem] border border-zinc-100 shadow-xl shadow-zinc-200/40 relative overflow-hidden">
                        <div className="flex items-center gap-4 mb-10">
                           <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center text-trust-green">
                              <ShieldCheck className="w-5 h-5" />
                           </div>
-                          <h3 className="font-display font-bold text-xl text-zinc-900">Final Secure Signature</h3>
+                          <h3 className="font-display font-bold text-xl text-zinc-900">Atomic Encryption</h3>
                        </div>
 
                        {paymentMethod === 'upi' ? (
                          <div className="space-y-6">
-                            <label className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest block">Virtual Private Address (UPI ID)</label>
-                            <input 
-                              type="text"
-                              value={vpa}
-                              onChange={(e) => setVpa(e.target.value)}
-                              placeholder="identity@vpa"
-                              className="w-full h-24 bg-white border-2 border-zinc-200 rounded-[2rem] px-10 font-display text-3xl font-black text-zinc-950 focus:border-trust-green focus:outline-none transition-all shadow-sm placeholder:text-zinc-200"
-                            />
-                            <div className="p-4 bg-zinc-100 rounded-xl flex gap-3">
-                               <Info className="w-4 h-4 text-zinc-400 mt-0.5" />
-                               <p className="font-sans text-[10px] text-zinc-500 leading-relaxed font-bold">
-                                  Your UPI application will receive a collect request verified by TechCore Protocols.
+                            <div className="space-y-2">
+                              <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest ml-2">Verification ID</label>
+                              <input 
+                                type="text"
+                                value={vpa}
+                                onChange={(e) => setVpa(e.target.value)}
+                                placeholder="identity@vpa"
+                                className="w-full h-20 bg-zinc-50 border-2 border-transparent rounded-2xl px-8 font-display text-2xl font-black text-zinc-950 focus:bg-white focus:border-trust-green outline-none transition-all placeholder:text-zinc-200"
+                              />
+                            </div>
+                            <div className="p-5 bg-zinc-50 rounded-2xl border border-zinc-100 flex gap-4">
+                               <Info className="w-5 h-5 text-zinc-300 shrink-0 mt-0.5" />
+                               <p className="font-sans text-[11px] text-zinc-500 leading-relaxed font-bold">
+                                  Submit VPA to initialize parallel verification. Ensure your node matches the authenticated signature.
                                </p>
                             </div>
                          </div>
                        ) : (
                          <div className="space-y-6">
                             <div className="space-y-2">
-                               <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase">Card Number</label>
-                               <input type="text" placeholder="•••• •••• •••• ••••" className="w-full h-16 bg-white border border-zinc-200 rounded-xl px-6 font-mono text-lg focus:border-trust-green outline-none" />
+                               <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase ml-2">Protocol Key (Card Number)</label>
+                               <input 
+                                  type="text" 
+                                  placeholder="4242 4242 4242 4242"
+                                  maxLength={19}
+                                  onChange={(e) => {
+                                    const value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                                    const formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                                    e.target.value = formattedValue;
+                                  }}
+                                  className="w-full h-16 bg-zinc-50 border-transparent border-2 rounded-2xl px-6 font-mono text-lg focus:bg-white focus:border-trust-green outline-none transition-all placeholder:text-zinc-200" 
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                <div className="space-y-2">
-                                  <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase">Expiry</label>
-                                  <input type="text" placeholder="MM / YY" className="w-full h-16 bg-white border border-zinc-200 rounded-xl px-6 font-mono text-lg focus:border-trust-green outline-none" />
+                                  <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase ml-2">Temporal Limit</label>
+                                  <input 
+                                    type="text" 
+                                    placeholder="MM / YY" 
+                                    maxLength={5}
+                                    onChange={(e) => {
+                                      const value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                                      if (value.length >= 3) {
+                                        e.target.value = value.slice(0, 2) + ' / ' + value.slice(2, 4);
+                                      }
+                                    }}
+                                    className="w-full h-16 bg-zinc-50 border-transparent border-2 rounded-2xl px-6 font-mono text-lg focus:bg-white focus:border-trust-green outline-none transition-all placeholder:text-zinc-200" 
+                                  />
                                </div>
                                <div className="space-y-2">
-                                  <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase">CVV</label>
-                                  <input type="password" placeholder="•••" className="w-full h-16 bg-white border border-zinc-200 rounded-xl px-6 font-mono text-lg focus:border-trust-green outline-none" />
+                                  <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase ml-2">Ciphers</label>
+                                  <input 
+                                    type="password" 
+                                    placeholder="•••" 
+                                    maxLength={4}
+                                    className="w-full h-16 bg-zinc-50 border-transparent border-2 rounded-2xl px-6 font-mono text-lg focus:bg-white focus:border-trust-green outline-none transition-all placeholder:text-zinc-200" 
+                                  />
                                </div>
                             </div>
-                            <p className="font-sans text-[10px] text-zinc-400 italic">Note: Card data is processed via secure frame injection. TechCore never persists sensitive strings.</p>
+                            <p className="font-sans text-[10px] text-zinc-400 italic text-center">TechCore protocols never persist sensitive strings directly into the primary vault.</p>
                          </div>
                        )}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4 pt-10">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       <button 
                         onClick={() => setStep(2)} 
-                        className="h-20 px-10 border-2 border-zinc-100 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600 transition-all sm:w-auto w-full"
+                        className="h-20 px-8 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-400 hover:bg-white hover:text-zinc-600 transition-all border border-transparent hover:border-zinc-200"
                       >
                         Back to Port
                       </button>
                       <button
                         onClick={handlePurchase}
                         disabled={isProcessing}
-                        className="flex-1 h-20 bg-trust-green text-zinc-950 rounded-[1.5rem] font-display font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-2xl shadow-trust-green/40 disabled:opacity-50 active:scale-[0.98]"
+                        className="flex-1 h-20 bg-trust-green text-zinc-950 rounded-2xl font-display font-black text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-4 hover:bg-zinc-950 hover:text-white transition-all group shadow-xl shadow-trust-green/20 disabled:opacity-50 active:scale-[0.98]"
                       >
-                        {isProcessing ? 'Transmitting...' : 'Execute Pulse'}
-                        <ShieldCheck className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                        {isProcessing ? 'Synchronizing...' : 'Authorize Injection'}
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </button>
                     </div>
                   </motion.div>
@@ -438,63 +452,61 @@ export default function SubscriptionPage() {
               </AnimatePresence>
             </div>
 
-            {/* Side Intel Panel */}
-            <div className="lg:w-[380px] space-y-8">
-              <div className="p-10 bg-zinc-950 rounded-[3.5rem] sticky top-8 text-white relative overflow-hidden border border-zinc-800">
-                <div className="absolute top-0 left-0 w-full h-1 bg-trust-green/30" />
+            {/* Side Info - Sticky on Desktop, Static below flow on Mobile */}
+            <div className="w-full lg:w-[360px] flex flex-col gap-6">
+              <div className="p-10 bg-zinc-950 rounded-[2.5rem] lg:sticky lg:top-8 text-white relative overflow-hidden border border-zinc-800 shadow-2xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-trust-green/10 blur-[60px] rounded-full -mr-16 -mt-16" />
                 
-                <div className="flex items-center gap-3 mb-12">
-                  <Sparkles className="w-6 h-6 text-trust-green" />
-                  <h3 className="font-display font-bold text-xl">Core Manifest</h3>
+                <div className="flex items-center gap-3 mb-10">
+                  <Sparkles className="w-5 h-5 text-trust-green" />
+                  <h3 className="font-display font-bold text-lg uppercase tracking-tight">Node Summary</h3>
                 </div>
 
-                <div className="mb-12 space-y-6">
-                   <div className="p-8 bg-zinc-900/50 rounded-[2rem] border border-zinc-800/50 text-center">
-                      <p className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest mb-4">Projected Energy Yield</p>
-                      <div className="flex items-baseline justify-center gap-2">
-                        <span className="font-display font-black text-6xl">{totalCredits.toLocaleString()}</span>
-                        <span className="font-mono text-xs text-trust-green font-bold uppercase tracking-widest">Units</span>
+                <div className="space-y-8">
+                   <div className="space-y-2">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <span className="font-display font-black text-4xl leading-none">{totalCredits.toLocaleString()}</span>
+                        <span className="font-mono text-[10px] text-trust-green font-bold uppercase tracking-widest">Units</span>
                       </div>
+                      <p className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Projected Energy Yield</p>
                    </div>
 
-                   <div className="space-y-4">
-                      <div className="flex justify-between items-center py-3 border-b border-zinc-800/50">
-                        <span className="font-sans text-xs text-zinc-400 font-bold">Recharge Volume</span>
+                   <div className="space-y-4 pt-6 border-t border-zinc-800/50">
+                      <div className="flex justify-between items-center group">
+                        <span className="font-sans text-xs text-zinc-500 font-bold group-hover:text-zinc-400 transition-colors">Recharge Volume</span>
                         <span className="font-display font-bold text-lg text-white">₹{amount}</span>
                       </div>
-                      <div className="flex justify-between items-center py-3 border-b border-zinc-800/50">
-                        <span className="font-sans text-xs text-zinc-400 font-bold">Transfer Gateway</span>
-                        <span className="font-mono text-[10px] text-trust-green font-bold uppercase tracking-widest">{paymentMethod}</span>
+                      <div className="flex justify-between items-center group">
+                        <span className="font-sans text-xs text-zinc-500 font-bold group-hover:text-zinc-400 transition-colors">Network Route</span>
+                        <span className="font-mono text-[10px] text-trust-green font-bold uppercase tracking-widest px-2 py-0.5 bg-trust-green/5 rounded">{paymentMethod}</span>
                       </div>
-                      <div className="flex justify-between items-center py-3">
-                        <span className="font-sans text-xs text-zinc-400 font-bold">Protocol Tax</span>
-                        <span className="font-mono text-[10px] text-zinc-500 font-bold uppercase tracking-widest">0.00 INCL.</span>
+                      <div className="flex justify-between items-center opacity-40">
+                        <span className="font-sans text-xs text-zinc-500 font-bold">Audit Tax</span>
+                        <span className="font-mono text-[10px] text-white font-bold uppercase tracking-widest">0.00</span>
+                      </div>
+                   </div>
+
+                   <div className="pt-6 border-t border-zinc-800/50 space-y-4">
+                      <p className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Capacity Metrics</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { icon: Zap, val: Math.floor(totalCredits / COSTS.HASH) },
+                          { icon: ShieldCheck, val: Math.floor(totalCredits / COSTS.REGISTRY) },
+                          { icon: CheckCircle2, val: Math.floor(totalCredits / COSTS.VERIFY) },
+                        ].map((m, i) => (
+                          <div key={i} className="bg-zinc-900 border border-zinc-800/50 p-3 rounded-xl flex flex-col items-center gap-1">
+                            <m.icon className="w-3 h-3 text-zinc-500" />
+                            <span className="font-display font-bold text-xs">{m.val}x</span>
+                          </div>
+                        ))}
                       </div>
                    </div>
                 </div>
 
-                <div className="space-y-5">
-                  <span className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Computational Capacity</span>
-                  {[
-                    { label: 'Hashes', cost: COSTS.HASH, icon: Zap },
-                    { label: 'Uploads', cost: COSTS.REGISTRY, icon: ShieldCheck },
-                    { label: 'Verifies', cost: COSTS.VERIFY, icon: CheckCircle2 },
-                  ].map((item) => (
-                    <div key={item.label} className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-2xl group hover:border-trust-green/30 transition-all">
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-4 h-4 text-zinc-500 group-hover:text-trust-green transition-colors" />
-                        <span className="font-display font-bold text-sm text-zinc-200">{item.label}</span>
-                      </div>
-                      <span className="font-display font-black text-lg text-white">{Math.floor(totalCredits / item.cost)}x</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-12 pt-8 border-t border-zinc-800 flex gap-4">
-                   <ShieldAlert className="w-5 h-5 text-zinc-600 shrink-0" />
-                   <p className="font-sans text-[10px] text-zinc-500 leading-relaxed italic">
-                     Stored energy remains active across all TechCore nodes. 
-                     No expiration. Instant atomic delivery.
+                <div className="mt-8 pt-6 border-t border-zinc-800 flex gap-3">
+                   <Info className="w-4 h-4 text-zinc-600 shrink-0" />
+                   <p className="font-sans text-[10px] text-zinc-600 leading-relaxed italic">
+                     Syncing with {user?.email || 'Anonymous'}
                    </p>
                 </div>
               </div>
@@ -503,5 +515,6 @@ export default function SubscriptionPage() {
         </div>
       </div>
     </main>
+
   );
 }
