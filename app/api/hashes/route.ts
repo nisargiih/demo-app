@@ -25,26 +25,29 @@ export async function GET(req: Request) {
 
       // TAMPER DETECTION: If no exact hash match, check for filename/docname match to detect edits
       const fileName = searchParams.get('fileName');
-      if (fileName) {
-        // Clean filename (remove extension and common suffixes for fuzzy matching)
+    if (fileName) {
+        // Clean filename: remove extension, common suffixes, and normalize
         const nameWithoutExt = fileName.split('.')[0];
         const baseName = nameWithoutExt.replace(/\s*\(.*?\)\s*$/, '').replace(/[-_]/g, ' ').trim();
         
-        // Split into keywords to be more aggressive (only if words are meaningful)
-        const keywords = baseName.split(/\s+/).filter(w => w.length > 2);
-        const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const searchRegex = new RegExp(`${escapedBase}`, 'i');
+        // Define stop words to ignore during fuzzy matching
+        const stopWords = new Set(['document', 'doc', 'file', 'report', 'final', 'copy', 'v1', 'v2', 'scan', 'the', 'and', 'new', 'draft', 'version']);
         
-        // Build an OR query for keywords if we have them
-        const fuzzyQuery = keywords.length > 0 
-          ? { $regex: new RegExp(keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'i') }
-          : { $regex: searchRegex };
-
+        // Extract meaningful keywords
+        const keywords = baseName.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w.toLowerCase()));
+        
+        const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
         // 1. Broad search in notarized hashes
+        // Threshold: Match at least 2 keywords if available, OR a strong name overlap
+        const fuzzyQuery = keywords.length >= 2 
+          ? { $regex: new RegExp(keywords.slice(0, 2).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'), 'i') }
+          : { $regex: new RegExp(`^${escapedBase.split(' ')[0]}`, 'i') }; // Match start of name for single-word files
+
         const similarHash = await hashes.findOne(
           { 
             $or: [
-              { fileName: { $regex: searchRegex } },
+              { fileName: { $regex: new RegExp(escapedBase, 'i') } },
               { fileName: fuzzyQuery }
             ]
           },
@@ -60,14 +63,14 @@ export async function GET(req: Request) {
           });
         }
 
-        // 2. Broad search in official registry (checking both fileName and docName)
+        // 2. Broad search in official registry
         const similarReg = await registry.findOne(
           { 
             $or: [
-              { fileName: { $regex: searchRegex } },
-              { docName: { $regex: searchRegex } },
-              { fileName: fuzzyQuery },
-              { docName: fuzzyQuery }
+              { docName: { $regex: new RegExp(escapedBase, 'i') } },
+              { fileName: { $regex: new RegExp(escapedBase, 'i') } },
+              { docName: fuzzyQuery },
+              { fileName: fuzzyQuery }
             ]
           },
           { sort: { createdAt: -1 } }
