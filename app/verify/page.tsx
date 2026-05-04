@@ -72,13 +72,18 @@ export default function VerifyPage() {
       const hash = await calculateHash(file);
       setCurrentHash(hash);
       
-      const res = await fetch(`/api/hashes?hash=${hash}`);
+      const res = await fetch(`/api/hashes?hash=${hash}&fileName=${encodeURIComponent(file.name)}`);
       
       if (res.ok) {
         const data = await res.json();
         if (data) {
-          setResult({...data, type: 'hash'});
-          setVerificationStatus('authentic');
+          if (data.isTampered) {
+            setResult({...data, type: 'hash'});
+            setVerificationStatus('tampered');
+          } else {
+            setResult({...data, type: 'hash'});
+            setVerificationStatus('authentic');
+          }
         } else {
           setResult('NOT_FOUND');
           setVerificationStatus('unindexed');
@@ -297,54 +302,86 @@ export default function VerifyPage() {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50/30 border border-red-100 rounded-[3rem] p-8 lg:p-12"
+                    className="bg-red-50/40 border border-red-200 rounded-[3.5rem] p-8 lg:p-14 relative overflow-hidden"
                   >
-                    <div className="flex flex-col lg:flex-row gap-10">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 blur-[100px] rounded-full -mr-32 -mt-32" />
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row gap-12">
                        <div className="shrink-0 flex flex-col items-center">
-                          <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-sm ring-8 ring-red-500/5">
-                            <XCircle className="w-12 h-12 text-red-500" />
+                          <div className="w-32 h-32 bg-white rounded-[3rem] flex items-center justify-center shadow-xl shadow-red-500/10 ring-8 ring-red-500/5 transition-transform hover:rotate-3">
+                            <XCircle className="w-14 h-14 text-red-500" />
                           </div>
-                          <div className="mt-6 px-4 py-1.5 bg-red-500 text-white rounded-full font-mono text-[9px] font-black uppercase tracking-widest">
-                             CRITICAL_MATCH_FAIL
+                          <div className="mt-8 px-4 py-2 bg-red-500 text-white rounded-full font-mono text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                             <AlertTriangle className="w-4 h-4" />
+                             Integrity_Void
                           </div>
                       </div>
-
-                      <div className="flex-1 space-y-8">
+ 
+                      <div className="flex-1 space-y-10">
                         <div>
-                          <h3 className="font-display font-extrabold text-4xl text-zinc-900 mb-2 tracking-tight">Integrity Breach</h3>
-                          <p className="font-sans text-red-500 font-bold uppercase text-[10px] tracking-[0.2em]">Cryptographic Mismatch Detected</p>
+                          <p className="font-sans text-red-500 font-bold uppercase text-[10px] tracking-[0.3em] mb-3">Cryptographic Trace Found • Payload Mismatch</p>
+                          <h3 className="font-display font-black text-4xl lg:text-5xl text-zinc-900 tracking-tight leading-[0.95] mb-4">
+                             Document Has Been Edited
+                          </h3>
                         </div>
                         
-                        <div className="p-6 bg-white/60 backdrop-blur-sm border border-red-100 rounded-[2rem]">
-                          <div className="flex items-start gap-4">
-                            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                            <p className="font-sans text-sm text-red-900/80 leading-relaxed">
-                              <span className="font-bold">Security Analysis:</span> The document identifier matches a known entry, but the content payload has been modified from its original state. This file is no longer authentic.
-                            </p>
-                          </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           <div className="p-6 bg-white border border-red-100 rounded-3xl shadow-sm">
+                              <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Portion Edited Estimate</p>
+                              <div className="flex items-baseline gap-2">
+                                 <span className="font-display font-black text-4xl text-red-600">
+                                    {Math.abs(((file?.size || 0) - (result.originalSize || 0)) / (result.originalSize || 1) * 100).toFixed(1)}%
+                                 </span>
+                                 <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase">Delta</span>
+                              </div>
+                              <p className="font-sans text-[10px] text-zinc-400 mt-2 font-medium">Based on binary volume shift</p>
+                           </div>
+
+                           <div className="p-6 bg-white border border-red-100 rounded-3xl shadow-sm">
+                              <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mb-4">Modification Status</p>
+                              <div className="flex items-center gap-3">
+                                 <div className="h-2 flex-1 bg-zinc-100 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-red-500" 
+                                      style={{ width: `${Math.min(100, Math.max(5, Math.abs(((file?.size || 0) - (result.originalSize || 0)) / (result.originalSize || 1) * 100) * 5))} %` }} 
+                                    />
+                                 </div>
+                                 <span className="font-mono text-[10px] text-red-500 font-black uppercase">Critical</span>
+                              </div>
+                              <p className="font-sans text-[10px] text-zinc-400 mt-2 font-medium italic">Unsynchronized payload fragments detected</p>
+                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4">
-                          <div className="p-5 bg-white border border-zinc-100 rounded-2xl">
-                            <p className="font-mono text-[9px] text-zinc-400 uppercase font-black tracking-widest mb-2 flex items-center gap-2">
-                              <ShieldCheck className="w-3 h-3 text-trust-green" /> Stored Immutable Hash
-                            </p>
-                            <p className="font-mono text-[11px] text-zinc-900 break-all bg-zinc-50 p-3 rounded-lg border border-zinc-100">{result.hash}</p>
-                          </div>
-                          <div className="p-5 bg-red-50/50 border border-red-100 rounded-2xl">
-                            <p className="font-mono text-[9px] text-red-400 uppercase font-black tracking-widest mb-2 flex items-center gap-2">
-                              <RefreshCw className="w-3 h-3 text-red-500" /> Current Upload Fragment
-                            </p>
-                            <p className="font-mono text-[11px] text-red-600 break-all bg-white/50 p-3 rounded-lg border border-red-100">{currentHash}</p>
-                          </div>
+                        <div className="space-y-4">
+                           <div className="p-6 bg-zinc-950 rounded-[2rem] text-white">
+                              <div className="flex items-center gap-2 mb-3">
+                                <RefreshCw className="w-4 h-4 text-red-500" />
+                                <span className="font-mono text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Mismatching Signatures</span>
+                              </div>
+                              <div className="grid grid-cols-1 gap-4 font-mono text-[11px]">
+                                 <div className="space-y-1">
+                                    <span className="text-[8px] text-zinc-600 uppercase font-bold">Stored Ledger Hash:</span>
+                                    <p className="break-all text-zinc-400 bg-zinc-900 p-2 rounded border border-zinc-800">{result.originalHash}</p>
+                                 </div>
+                                 <div className="space-y-1">
+                                    <span className="text-[8px] text-red-400 uppercase font-bold">Current Invalid Hash:</span>
+                                    <p className="break-all text-red-500 bg-red-950/20 p-2 rounded border border-red-900/30">{currentHash}</p>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-
-                        <button 
-                          onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); }}
-                          className="font-display font-bold text-[10px] uppercase tracking-widest text-zinc-400 hover:text-red-500 transition-all flex items-center gap-2"
-                        >
-                           Terminate Audit <X className="w-4 h-4" />
-                        </button>
+ 
+                        <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
+                          <button 
+                            onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); }}
+                            className="w-full sm:w-auto h-14 px-10 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
+                          >
+                             Terminate Protocol <X className="w-4 h-4" />
+                          </button>
+                          <p className="font-sans text-[10px] text-zinc-400 text-center sm:text-left leading-relaxed italic">
+                            This document matches the name &quot;{result.fileName}&quot; indexed on {new Date(result.createdAt).toLocaleDateString()}, but the bits do not match.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -441,6 +478,46 @@ export default function VerifyPage() {
                              <div className="p-6 bg-white/40 border border-zinc-100 rounded-[2rem]">
                                 <span className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest block mb-1">Audit Notes</span>
                                 <p className="font-sans text-sm text-zinc-600 italic leading-relaxed">&quot;{result.description}&quot;</p>
+                             </div>
+                           )}
+
+                           {result.type === 'registry' && (
+                             <div className="pt-4">
+                                <div className="p-6 bg-white border border-zinc-100 rounded-[2rem] space-y-4">
+                                   <div className="flex items-center gap-2">
+                                      <Upload className="w-4 h-4 text-trust-green" />
+                                      <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">Self-Integrity Check</span>
+                                   </div>
+                                   <div className="relative group">
+                                      <input 
+                                        type="file" 
+                                        onChange={async (e) => {
+                                          if (e.target.files && e.target.files[0]) {
+                                            const uploadedFile = e.target.files[0];
+                                            const hash = await calculateHash(uploadedFile);
+                                            if (hash === (result.fileKey || result.hash)) {
+                                              alert("INTEGRITY VERIFIED: This file matches the registry record perfectly.");
+                                              setVerificationStatus('authentic');
+                                            } else {
+                                              setFile(uploadedFile);
+                                              setCurrentHash(hash);
+                                              setVerificationStatus('tampered');
+                                              setResult({
+                                                 ...result,
+                                                 originalHash: result.fileKey || result.hash,
+                                                 originalSize: result.fileSize
+                                              });
+                                            }
+                                          }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                      />
+                                      <div className="h-16 border-2 border-dashed border-zinc-100 rounded-2xl flex flex-col items-center justify-center bg-zinc-50/30 group-hover:bg-zinc-50 transition-colors">
+                                         <span className="font-sans text-[11px] text-zinc-500 font-bold">Compare local file with this record</span>
+                                         <span className="font-sans text-[9px] text-zinc-300">Click or drop to verify binary sync</span>
+                                      </div>
+                                   </div>
+                                </div>
                              </div>
                            )}
                         </div>

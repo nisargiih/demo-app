@@ -15,7 +15,27 @@ export async function GET(req: Request) {
 
     if (hashValue) {
       const record = await hashes.findOne({ hash: hashValue });
-      return NextResponse.json(record);
+      
+      if (record) {
+        return NextResponse.json(record);
+      }
+
+      // TAMPER DETECTION: If hash didn't match, check if we have a file with the SAME NAME
+      const fileName = searchParams.get('fileName');
+      if (fileName) {
+        // Find most recent match for this filename
+        const similar = await hashes.findOne({ fileName: fileName });
+        if (similar) {
+          return NextResponse.json({
+            ...similar,
+            isTampered: true,
+            originalHash: similar.hash,
+            originalSize: similar.fileSize
+          });
+        }
+      }
+
+      return NextResponse.json(null);
     }
 
     if (!rawEmail) {
