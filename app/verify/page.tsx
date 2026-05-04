@@ -281,8 +281,11 @@ export default function VerifyPage() {
                       <Archive className="w-10 h-10 text-zinc-300" />
                     </div>
                     <h3 className="font-display font-bold text-3xl text-zinc-900 mb-3 tracking-tight">Identity Not Found</h3>
-                    <p className="font-sans text-zinc-500 mb-10 max-w-sm mx-auto leading-relaxed text-sm">
+                    <p className="font-sans text-zinc-500 mb-2 max-w-sm mx-auto leading-relaxed text-sm">
                       The document fingerprint or Registry ID could not be located across our decentralized cryptographic nodes.
+                    </p>
+                    <p className="font-sans text-[10px] text-zinc-400 mb-10 max-w-sm mx-auto leading-relaxed italic">
+                      Tip: If this is an edited version of a known document, ensure the filename remains similar to trigger tamper detection.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <button 
@@ -380,7 +383,7 @@ export default function VerifyPage() {
                              Terminate Protocol <X className="w-4 h-4" />
                           </button>
                           <p className="font-sans text-[10px] text-zinc-400 text-center sm:text-left leading-relaxed italic">
-                            This document matches the name &quot;{result.fileName}&quot; indexed on {new Date(result.createdAt).toLocaleDateString()}, but the bits do not match.
+                            This document matches the {result.type === 'registry' ? 'Registry Node' : 'Record'} &quot;{result.docName || result.fileName}&quot; indexed on {new Date(result.createdAt).toLocaleDateString()}, but the cryptographic signature is broken.
                           </p>
                         </div>
                       </div>

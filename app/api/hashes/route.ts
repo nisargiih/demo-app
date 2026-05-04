@@ -26,11 +26,31 @@ export async function GET(req: Request) {
       // TAMPER DETECTION: If no exact hash match, check for filename/docname match to detect edits
       const fileName = searchParams.get('fileName');
       if (fileName) {
-        // Broad search in hashes
+        // Clean filename (remove extension and common suffixes for fuzzy matching)
+        const nameWithoutExt = fileName.split('.')[0];
+        const baseName = nameWithoutExt.replace(/\s*\(.*?\)\s*$/, '').replace(/[-_]/g, ' ').trim();
+        
+        // Split into keywords to be more aggressive (only if words are meaningful)
+        const keywords = baseName.split(/\s+/).filter(w => w.length > 2);
+        const escapedBase = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const searchRegex = new RegExp(`${escapedBase}`, 'i');
+        
+        // Build an OR query for keywords if we have them
+        const fuzzyQuery = keywords.length > 0 
+          ? { $regex: new RegExp(keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'i') }
+          : { $regex: searchRegex };
+
+        // 1. Broad search in notarized hashes
         const similarHash = await hashes.findOne(
-          { fileName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+          { 
+            $or: [
+              { fileName: { $regex: searchRegex } },
+              { fileName: fuzzyQuery }
+            ]
+          },
           { sort: { createdAt: -1 } }
         );
+
         if (similarHash) {
           return NextResponse.json({
             ...similarHash,
@@ -40,22 +60,26 @@ export async function GET(req: Request) {
           });
         }
 
-        // Broad search in registry (checking both fileName and docName)
+        // 2. Broad search in official registry (checking both fileName and docName)
         const similarReg = await registry.findOne(
           { 
             $or: [
-              { fileName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
-              { docName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
+              { fileName: { $regex: searchRegex } },
+              { docName: { $regex: searchRegex } },
+              { fileName: fuzzyQuery },
+              { docName: fuzzyQuery }
             ]
           },
           { sort: { createdAt: -1 } }
         );
+
         if (similarReg) {
           return NextResponse.json({
             ...similarReg,
             type: 'registry',
+            isTamperDetected: true, // Marker for UI
             isTampered: true,
-            originalHash: similarReg.fileHash || similarReg.hash, // Fallback to hash if fileHash missing
+            originalHash: similarReg.fileHash || similarReg.hash,
             originalSize: similarReg.fileSize || similarReg.originalSize
           });
         }
