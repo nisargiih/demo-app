@@ -423,7 +423,7 @@ export default function VerifyPage() {
                           {[
                             { 
                               label: 'Document Alias', 
-                              value: result.name || result.fileName, 
+                              value: result.docName || result.name || result.fileName || 'Untitled Node', 
                               icon: FileText,
                               type: 'text'
                             },
@@ -497,6 +497,32 @@ export default function VerifyPage() {
                                             const uploadedFile = e.target.files[0];
                                             const hash = await calculateHash(uploadedFile);
                                             const comparisonHash = result.fileHash || result.hash || result.originalHash;
+                                            
+                                            if (!comparisonHash) {
+                                              // Feature: LOCK fingerprint if missing
+                                              if (confirm("This record has no locked fingerprint. Would you like to lock this file's signature to this registry entry?")) {
+                                                try {
+                                                  const res = await fetch('/api/registry/update-hash', {
+                                                    method: 'PATCH',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ 
+                                                      id: result._id, 
+                                                      fileHash: hash,
+                                                      fileSize: uploadedFile.size
+                                                    })
+                                                  });
+                                                  if (res.ok) {
+                                                    alert("FINGERPRINT LOCKED: Future scans will now detect tampering.");
+                                                    setResult({ ...result, fileHash: hash, fileSize: uploadedFile.size });
+                                                    setVerificationStatus('authentic');
+                                                  }
+                                                } catch (err) {
+                                                  console.error(err);
+                                                }
+                                              }
+                                              return;
+                                            }
+
                                             if (hash === comparisonHash) {
                                               alert("INTEGRITY VERIFIED: This file matches the registry record perfectly.");
                                               setVerificationStatus('authentic');

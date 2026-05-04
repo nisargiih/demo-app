@@ -23,11 +23,14 @@ export async function GET(req: Request) {
       const regRecord = await registry.findOne({ fileHash: hashValue });
       if (regRecord) return NextResponse.json({ ...regRecord, type: 'registry' });
 
-      // TAMPER DETECTION: If no exact hash match, check for filename match to detect edits
+      // TAMPER DETECTION: If no exact hash match, check for filename/docname match to detect edits
       const fileName = searchParams.get('fileName');
       if (fileName) {
-        // Search in hashes
-        const similarHash = await hashes.findOne({ fileName: fileName });
+        // Broad search in hashes
+        const similarHash = await hashes.findOne(
+          { fileName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+          { sort: { createdAt: -1 } }
+        );
         if (similarHash) {
           return NextResponse.json({
             ...similarHash,
@@ -37,15 +40,23 @@ export async function GET(req: Request) {
           });
         }
 
-        // Search in registry
-        const similarReg = await registry.findOne({ fileName: fileName });
+        // Broad search in registry (checking both fileName and docName)
+        const similarReg = await registry.findOne(
+          { 
+            $or: [
+              { fileName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+              { docName: { $regex: new RegExp(`^${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } }
+            ]
+          },
+          { sort: { createdAt: -1 } }
+        );
         if (similarReg) {
           return NextResponse.json({
             ...similarReg,
             type: 'registry',
             isTampered: true,
-            originalHash: similarReg.fileHash,
-            originalSize: similarReg.fileSize
+            originalHash: similarReg.fileHash || similarReg.hash, // Fallback to hash if fileHash missing
+            originalSize: similarReg.fileSize || similarReg.originalSize
           });
         }
       }
