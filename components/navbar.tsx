@@ -22,37 +22,18 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { SecurityService } from '@/lib/security-service';
+import { useUser } from '@/hooks/use-user';
 
 export function Sidebar() {
-  const [userName, setUserName] = useState('User Account');
-  const [userEmail, setUserEmail] = useState('user@techcore.io');
-  const [credits, setCredits] = useState<number>(0);
-  const [verificationStatus, setVerificationStatus] = useState<string | undefined>(undefined);
+  const { user, loading, role, permissions } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const email = localStorage.getItem('authenticated_user_email');
-      if (!email) return;
-
-      try {
-        const res = await fetch(`/api/auth/me?email=${email}`);
-        if (res.ok) {
-          const body = await res.json();
-          const data = SecurityService.processFromTransit(body);
-          if (data.firstName) setUserName(data.firstName);
-          if (data.email) setUserEmail(data.email);
-          if (data.credits !== undefined) setCredits(data.credits);
-          setVerificationStatus(data.verificationStatus);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchUser();
-  }, [pathname]);
+  const userName = user?.firstName || 'User Account';
+  const userEmail = user?.email || 'user@techcore.io';
+  const credits = user?.credits || 0;
+  const verificationStatus = user?.verificationStatus;
 
   const isVerified = verificationStatus === 'verified';
   const isPending = verificationStatus === 'pending';
@@ -63,18 +44,25 @@ export function Sidebar() {
   };
 
   const menuItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'Index Docs', icon: FileText, path: '/notarize' },
-    { name: 'Official Registry', icon: Archive, path: '/registry' },
-    { name: 'Verify Doc', icon: ShieldCheck, path: '/verify' },
-    { name: 'Analytics', icon: BarChart3, path: '/analytics' },
-    { name: 'Settings', icon: Settings, path: '/settings' },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', module: 'dashboard' },
+    { name: 'Index Docs', icon: FileText, path: '/notarize', module: 'notarize' },
+    { name: 'Official Registry', icon: Archive, path: '/registry', module: 'registry' },
+    { name: 'Verify Doc', icon: ShieldCheck, path: '/verify', module: 'verify' },
+    { name: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
+    { name: 'Settings', icon: Settings, path: '/settings', module: 'settings' },
   ];
+
+  // Logic: Admin has all access. Members only mapped modules.
+  const filteredMenuItems = menuItems.filter(item => 
+    role === 'admin' || (permissions && permissions.includes(item.module))
+  );
 
   const profileOptions = [
     { name: 'Profile', icon: User, path: '/profile' },
     { name: 'Verification', icon: ShieldCheck, path: '/verification' },
     { name: 'Wallet & Credits', icon: CreditCard, path: '/subscription' },
+    // Team Management only for admins
+    ...(role === 'admin' ? [{ name: 'Team Hub', icon: User, path: '/settings/team' }] : []),
   ];
 
   return (
@@ -129,7 +117,7 @@ export function Sidebar() {
             <div>
               <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest px-4 mb-4">Main Interface</p>
               <nav className="space-y-1">
-                {menuItems.map((item) => {
+                {filteredMenuItems.map((item) => {
                   const isActive = pathname === item.path;
                   return (
                     <Link 

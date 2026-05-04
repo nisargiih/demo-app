@@ -36,11 +36,18 @@ export async function POST(req: Request) {
 
     // 2. Prepare for Storage (Store in plain text as requested)
     const email = validatedData.email.trim().toLowerCase();
+    
+    // Check if this is the first user
+    const userCount = await users.countDocuments();
+    const role = userCount === 0 ? 'admin' : 'member';
+
     const newUser = {
       ...validatedData,
       email, // Indexable
       isVerified: false,
       verificationStatus: 'unverified',
+      role,
+      permissions: role === 'member' ? [] : ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings'],
       credits: 0,
       otp, 
       createdAt: new Date(),
