@@ -344,8 +344,17 @@ export default function TeamPage() {
 
 function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose: () => void, onSuccess: () => void }) {
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [role, setRole] = useState<'admin' | 'member'>('member');
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['dashboard']);
   const { notify } = useNotification();
   const [loading, setLoading] = useState(false);
+
+  const togglePermission = (id: string) => {
+    if (role === 'admin') return;
+    setSelectedPermissions(prev => 
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -353,8 +362,8 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
     try {
       const payload = SecurityService.prepareForTransit({ 
         ...formData,
-        role: 'member',
-        permissions: ['dashboard'] 
+        role: role,
+        permissions: role === 'admin' ? MODULES.map(m => m.id) : selectedPermissions 
       });
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -367,6 +376,8 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
         onSuccess();
         onClose();
         setFormData({ firstName: '', lastName: '', email: '', password: '' });
+        setRole('member');
+        setSelectedPermissions(['dashboard']);
       } else {
         const err = await res.json();
         notify(err.error || 'Invite protocol failed', 'error');
@@ -393,9 +404,9 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="relative w-full max-w-xl bg-white rounded-[3rem] overflow-hidden"
+            className="relative w-full max-w-xl bg-white rounded-[3rem] overflow-hidden shadow-2xl"
           >
-             <div className="p-8 lg:p-12">
+             <div className="p-8 lg:p-12 max-h-[90vh] overflow-y-auto scrollbar-none">
                 <div className="flex items-center justify-between mb-8">
                    <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -459,10 +470,53 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
                       />
                    </div>
 
+                   <div className="space-y-4">
+                      <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest ml-4">Access Level</label>
+                      <div className="grid grid-cols-2 gap-3">
+                         <button 
+                           type="button"
+                           onClick={() => setRole('member')}
+                           className={`p-3 rounded-xl border text-left transition-all ${role === 'member' ? 'border-trust-green bg-trust-green/5' : 'border-zinc-100'}`}
+                         >
+                            <p className="font-display font-bold text-xs">Standard Member</p>
+                         </button>
+                         <button 
+                           type="button"
+                           onClick={() => setRole('admin')}
+                           className={`p-3 rounded-xl border text-left transition-all ${role === 'admin' ? 'border-trust-green bg-trust-green/5' : 'border-zinc-100'}`}
+                         >
+                            <p className="font-display font-bold text-xs">System Admin</p>
+                         </button>
+                      </div>
+                   </div>
+
+                   <div className="space-y-3">
+                      <label className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest ml-4">Module Provisioning</label>
+                      <div className="grid grid-cols-2 gap-2">
+                         {MODULES.map(module => {
+                           const isActive = role === 'admin' || selectedPermissions.includes(module.id);
+                           return (
+                             <button
+                               type="button"
+                               key={module.id}
+                               disabled={role === 'admin'}
+                               onClick={() => togglePermission(module.id)}
+                               className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                                 isActive ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-50 border-zinc-100'
+                               } ${role === 'admin' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                             >
+                                <span className={`font-display font-bold text-[10px] ${isActive ? 'text-trust-green' : 'text-zinc-500'}`}>{module.name.split(' ')[0]}</span>
+                                {isActive && <CheckCircle2 className="w-3 h-3 text-trust-green" />}
+                             </button>
+                           );
+                         })}
+                      </div>
+                   </div>
+
                    <div className="pt-6">
                       <button 
                         disabled={loading}
-                        className="w-full h-16 bg-zinc-950 text-white rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        className="w-full h-16 bg-zinc-950 text-white rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-zinc-200"
                       >
                          {loading ? 'Initializing Protocol...' : 'Authorize Member Access'}
                          <ChevronRight className="w-5 h-5" />

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Mail, Lock, User, Eye, EyeOff, Hash, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Mail, Lock, User, Eye, EyeOff, Hash, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -141,8 +141,11 @@ export default function RegisterPage() {
             </AnimatePresence>
 
             <div className="mb-10 text-center lg:text-left relative z-10">
-              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Create Account</h2>
-              <p className="font-sans text-zinc-500 text-sm">Join the network to start verifying documents.</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-zinc-950 text-trust-green font-mono text-[9px] font-black uppercase tracking-widest mb-4">
+                <ShieldCheck className="w-3 h-3" /> System Admin Hub
+              </div>
+              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Register as Administrator</h2>
+              <p className="font-sans text-zinc-500 text-sm italic">You will have full control over nodes, permissions, and member onboarding.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10" noValidate>

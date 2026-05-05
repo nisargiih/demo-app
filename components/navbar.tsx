@@ -189,7 +189,12 @@ export function Sidebar() {
                   <p className="font-display font-bold text-sm text-zinc-900 truncate">{userName}</p>
                   {isVerified && <ShieldCheck className="w-3 h-3 text-trust-green fill-trust-green/10 shrink-0" />}
                 </div>
-                <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                   <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
+                   {role === 'admin' && (
+                     <span className="px-1.5 py-0.5 bg-zinc-950 text-trust-green font-mono text-[7px] font-black uppercase tracking-tighter rounded-md">Admin</span>
+                   )}
+                </div>
                 {isVerified ? (
                   <p className="font-mono text-[8px] text-trust-green font-bold uppercase tracking-widest mt-0.5">Identity Verified</p>
                 ) : isPending ? (
