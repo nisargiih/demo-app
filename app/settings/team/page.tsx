@@ -126,10 +126,10 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <main className="relative min-h-screen w-full bg-white lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
       <Sidebar />
-      <main className="flex-1 lg:ml-72 p-8 lg:p-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 w-full max-w-7xl mx-auto py-8 sm:py-12 lg:py-20">
+        <div>
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
             <div>
@@ -230,7 +230,7 @@ export default function TeamPage() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Profile Detail Slide-over / Modal */}
       <AnimatePresence>
@@ -338,7 +338,7 @@ export default function TeamPage() {
         onClose={() => setIsInviteModalOpen(false)} 
         onSuccess={fetchMembers}
       />
-    </div>
+    </main>
   );
 }
 

@@ -99,7 +99,7 @@ export function Sidebar() {
           </Link>
 
           {/* Nav Section */}
-          <div className="flex-1 space-y-8">
+          <div className="flex-1 space-y-8 overflow-y-auto pr-2 -mr-2 scrollbar-none">
             <div className="px-4">
                <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 group">
                   <div className="flex items-center justify-between mb-2">
