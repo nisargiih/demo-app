@@ -232,70 +232,62 @@ export default function VerifyPage() {
             {nodeInfo ? <Globe className="w-12 h-12 relative z-10" /> : <ShieldCheck className="w-12 h-12 relative z-10" />}
           </motion.div>
           
-          {nodeInfo && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-3 px-6 py-2 bg-trust-green/10 border border-trust-green/20 text-trust-green rounded-full mb-8 font-mono text-[10px] font-black uppercase tracking-[0.3em] shadow-lg shadow-trust-green/5"
-            >
-              <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
-              Verified Authority Instance
-            </motion.div>
+          {nodeInfo ? (
+            <div className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-3 px-6 py-2 bg-trust-green/10 border border-trust-green/20 text-trust-green rounded-full font-mono text-[10px] font-black uppercase tracking-[0.3em] shadow-lg shadow-trust-green/5"
+              >
+                <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
+                Active Node Authority
+              </motion.div>
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-display text-7xl lg:text-9xl font-black text-white tracking-tighter leading-[0.8] uppercase max-w-4xl mx-auto"
+              >
+                {nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`}
+              </motion.h1>
+              <p className="font-sans text-zinc-500 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+                Authorized gateway for <span className="text-zinc-300">{nodeParam}</span>. Validating cryptographic artifacts and identity records on the TechCore substrate.
+              </p>
+            </div>
+          ) : (
+            <>
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-display text-6xl lg:text-8xl font-black text-white mb-6 tracking-tighter leading-[0.85] uppercase"
+              >
+                Protocol Verification
+              </motion.h1>
+              <p className="font-sans text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+                 Public entry point for decentralized ledger authentication and identity verification.
+              </p>
+            </>
           )}
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-display text-6xl lg:text-8xl font-black text-white mb-6 tracking-tighter leading-[0.85] uppercase"
-          >
-            {nodeInfo 
-              ? (nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`)
-              : 'Protocol Verification'}
-          </motion.h1>
-          
-          <p className="font-sans text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            {nodeInfo 
-              ? `Authorized gateway for ${nodeInfo.companyName || nodeInfo.firstName}. Validating cryptographic artifacts on the TechCore substrate.`
-              : 'Public entry point for decentralized ledger authentication and identity verification.'}
-          </p>
         </header>
 
         <div className="max-w-4xl mx-auto space-y-12">
-          {/* Node Identity Card - Premium Showcase */}
+          {/* Node Stats - Condensed version of the card */}
           {nodeInfo && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 lg:p-12 relative overflow-hidden group shadow-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-1"
             >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-trust-green/10 blur-[100px] rounded-full -mr-48 -mt-48 group-hover:bg-trust-green/20 transition-colors duration-1000" />
-              
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                <div className="w-32 h-32 bg-white rounded-[2.5rem] flex items-center justify-center shrink-0 shadow-2xl ring-8 ring-white/5">
-                   {nodeInfo.entityType === 'Company' ? <Building2 className="w-16 h-16 text-zinc-950" /> : <User className="w-16 h-16 text-zinc-950" />}
+              {[
+                { label: 'Authority', value: 'Level 2 Node', icon: ShieldCheck },
+                { label: 'Status', value: 'Live 100%', icon: Globe },
+                { label: 'Identity', value: nodeInfo.entityType || 'Registrar', icon: User },
+              ].map((stat, i) => (
+                <div key={i} className="p-8 bg-white/[0.02] border border-white/5 flex flex-col items-center justify-center text-center first:rounded-l-[2rem] last:rounded-r-[2rem] group hover:bg-white/[0.04] transition-colors">
+                  <stat.icon className="w-6 h-6 text-zinc-600 mb-3 group-hover:text-trust-green transition-colors" />
+                  <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest mb-1">{stat.label}</p>
+                  <p className="font-display font-bold text-white text-sm uppercase tracking-wider">{stat.value}</p>
                 </div>
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
-                    <span className="font-mono text-[10px] font-black text-trust-green uppercase tracking-[0.3em]">Registrar Identity</span>
-                    <div className="h-[1px] flex-1 bg-white/10 hidden md:block" />
-                  </div>
-                  <h2 className="font-display text-4xl font-extrabold text-white mb-3 tracking-tight">
-                    {nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`}
-                  </h2>
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                    <div className="flex items-center gap-2 text-zinc-400 font-sans text-sm font-medium">
-                      <Globe className="w-4 h-4" />
-                      Global Node: {nodeParam}
-                    </div>
-                    {nodeInfo.verificationStatus === 'verified' && (
-                      <div className="px-3 py-1 bg-trust-green text-zinc-950 rounded-lg flex items-center gap-2 font-mono text-[9px] font-black uppercase tracking-wider">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        L2 Authority Verified
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              ))}
             </motion.div>
           )}
 
@@ -482,54 +474,56 @@ export default function VerifyPage() {
                         </div>
                       </div>
 
-                      <div className="flex-1 space-y-12">
-                        <div>
-                          <div className="flex items-center gap-4 mb-4">
-                            <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] px-4 py-1.5 bg-trust-green text-zinc-950 rounded-xl">Protocol.Alpha</span>
-                          </div>
-                          <h3 className="font-display font-black text-6xl lg:text-7xl text-white tracking-tighter leading-[0.85] uppercase">
-                            Authentic Artifact
-                          </h3>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {[
-                            { 
-                              label: 'Artifact Class', 
-                              value: result.docName || result.name || result.fileName || 'General Asset', 
-                              icon: FileText,
-                              type: 'text'
-                            },
-                            { 
-                              label: result.type === 'registry' ? 'Protocol ID' : 'Persistence', 
-                              value: result.type === 'registry' ? result.registryId : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent'), 
-                              icon: result.type === 'registry' ? Fingerprint : Clock,
-                              type: 'mono'
-                            },
-                            { 
-                              label: 'Genesis Timestamp', 
-                              value: new Date(result.createdAt).toLocaleString(), 
-                              icon: Clock,
-                              type: 'text'
-                            },
-                            { 
-                              label: 'Genesis Registrar', 
-                              value: result.registrar?.companyName || result.userEmail, 
-                              icon: User,
-                              type: 'text'
-                            },
-                          ].map((card, i) => (
-                            <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-[2.5rem] shadow-2xl group hover:bg-white/[0.08] transition-colors">
-                              <div className="flex items-center gap-3 mb-4 text-zinc-500 group-hover:text-trust-green transition-colors">
-                                <card.icon className="w-5 h-5" />
-                                <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em]">{card.label}</span>
-                              </div>
-                              <p className={`font-display font-bold ${card.type === 'mono' ? 'font-mono text-sm' : 'text-xl'} text-white truncate tracking-tight`}>
-                                {card.value}
-                              </p>
+                        <div className="flex-1 space-y-10">
+                          <div>
+                            <div className="flex items-center gap-4 mb-6">
+                              <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] px-4 py-1.5 bg-trust-green text-zinc-950 rounded-xl">Protocol.Alpha</span>
+                              <div className="h-[1px] flex-1 bg-trust-green/10" />
                             </div>
-                          ))}
-                        </div>
+                            <h3 className="font-display font-black text-6xl lg:text-7xl text-white tracking-tighter leading-[0.8] uppercase mb-4">
+                              Authentic<br />Artifact
+                            </h3>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                              { 
+                                label: 'Artifact Class', 
+                                value: result.docName || result.name || result.fileName || 'General Asset', 
+                                icon: FileText,
+                                type: 'text'
+                              },
+                              { 
+                                label: result.type === 'registry' ? 'Protocol ID' : 'Persistence', 
+                                value: result.type === 'registry' ? result.registryId : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent'), 
+                                icon: result.type === 'registry' ? Fingerprint : Clock,
+                                type: 'mono'
+                              },
+                              { 
+                                label: 'Genesis Timestamp', 
+                                value: new Date(result.createdAt).toLocaleString(), 
+                                icon: Clock,
+                                type: 'text'
+                              },
+                              // Only show registrar if it's NOT the current node info we are already showing
+                              ...((!nodeInfo || (result.userEmail && nodeInfo.email && result.userEmail.toLowerCase() !== nodeInfo.email.toLowerCase())) ? [{ 
+                                label: 'Genesis Registrar', 
+                                value: result.registrar?.companyName || result.userEmail, 
+                                icon: User,
+                                type: 'text'
+                              }] : [])
+                            ].map((card, i) => (
+                              <div key={i} className="p-6 bg-white/[0.03] border border-white/10 rounded-[2rem] shadow-2xl group hover:bg-white/[0.06] transition-colors">
+                                <div className="flex items-center gap-2 mb-3 text-zinc-500 group-hover:text-trust-green transition-colors">
+                                  <card.icon className="w-4 h-4" />
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-[0.3em]">{card.label}</span>
+                                </div>
+                                <p className={`font-display font-bold ${card.type === 'mono' ? 'font-mono text-xs' : 'text-base'} text-white truncate tracking-tight`}>
+                                  {card.value}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
 
                         <div className="space-y-6">
                            <div className="p-8 bg-zinc-950 rounded-[3rem] text-white overflow-hidden relative group">
@@ -548,12 +542,15 @@ export default function VerifyPage() {
                            </div>
 
                            {result.type === 'registry' && result.description && (
-                             <div className="p-10 bg-white border border-zinc-100 rounded-[3rem] shadow-sm italic">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Quote className="w-4 h-4 text-zinc-200" />
-                                  <span className="font-mono text-[9px] text-zinc-300 uppercase tracking-[0.2em] font-black">Registrar Statement</span>
+                             <div className="p-10 bg-white/5 border border-white/10 rounded-[3rem] shadow-2xl italic relative overflow-hidden group/quote">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-trust-green/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover/quote:bg-trust-green/10 transition-colors" />
+                                <div className="flex items-center gap-3 mb-6 relative z-10">
+                                  <Quote className="w-6 h-6 text-trust-green" />
+                                  <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-black">Attestation Statement</span>
                                 </div>
-                                <p className="font-sans text-lg text-zinc-600 leading-relaxed">&quot;{result.description}&quot;</p>
+                                <p className="font-sans text-xl text-zinc-300 leading-relaxed relative z-10 font-medium">
+                                  &quot;{result.description}&quot;
+                                </p>
                              </div>
                            )}
                         </div>
@@ -583,15 +580,23 @@ export default function VerifyPage() {
 
           </section>
 
-          <section className="bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 group transition-all hover:bg-white/10">
-            <div className="w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center shrink-0 shadow-2xl ring-[16px] ring-white/5 group-hover:scale-110 transition-transform duration-700">
-              <AlertTriangle className="w-14 h-14 text-zinc-950" />
-            </div>
-            <div>
-              <h4 className="font-display font-black text-3xl text-white mb-4 uppercase tracking-tight">Technical Assurance Layer</h4>
-              <p className="font-sans text-lg text-zinc-500 leading-relaxed max-w-2xl font-medium">
-                Our verification substrate utilizes 256-bit cryptographic hashing. Any alteration to the artifact's digital DNA, however minute, will result in immediate authentication failure and gateway lockdown.
-              </p>
+          <section className="bg-zinc-950 border border-white/5 overflow-hidden rounded-[3rem] shadow-2xl relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-transparent opacity-20" />
+            <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-stretch">
+              <div className="p-12 lg:p-16 flex items-center justify-center bg-white/[0.01] border-b lg:border-b-0 lg:border-r border-white/5">
+                <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center shadow-2xl ring-8 ring-white/5 group-hover:scale-110 transition-transform duration-500">
+                  <AlertTriangle className="w-12 h-12 text-zinc-950" />
+                </div>
+              </div>
+              <div className="p-12 lg:p-16 flex-1">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="font-mono text-[10px] font-black text-red-500 uppercase tracking-[0.4em]">Global Assurance Protocol</span>
+                </div>
+                <h4 className="font-display font-black text-4xl text-white mb-6 uppercase tracking-tighter leading-none">Security Inflow Control</h4>
+                <p className="font-sans text-lg text-zinc-500 leading-relaxed max-w-3xl font-medium">
+                  This gateway enforces strict <span className="text-white">256-bit SHA-2</span> cryptographic analysis. Any modification to the artifactsubstrate records, however minute, will result in immediate <span className="text-red-500">Authority Lockdown</span> and revocation of verification metadata.
+                </p>
+              </div>
             </div>
           </section>
         </div>
