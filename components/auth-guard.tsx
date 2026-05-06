@@ -53,8 +53,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Special check for Team Management
-      if (pathname.startsWith('/settings/team') && role !== 'admin') {
+      // Special check for Team Management & Subscription
+      if ((pathname.startsWith('/settings/team') || pathname.startsWith('/subscription')) && role !== 'admin') {
         hasPermissionError = true;
       }
     }

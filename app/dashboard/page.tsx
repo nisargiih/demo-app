@@ -231,7 +231,9 @@ export default function DashboardPage() {
           {[
             { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900', bg: 'bg-zinc-50' },
             { label: 'Integrity Rating', value: stats.total > 0 ? 'AAA+' : 'N/A', icon: ShieldCheck, color: 'text-trust-green', bg: 'bg-trust-green/5' },
-            { label: 'Energy Core', value: user?.credits?.toLocaleString() || '0', icon: Zap, color: 'text-zinc-950', bg: 'bg-trust-green/10', action: () => router.push('/subscription') },
+            ...(user?.role === 'admin' ? [
+              { label: 'Energy Core', value: user?.credits?.toLocaleString() || '0', icon: Zap, color: 'text-zinc-950', bg: 'bg-trust-green/10', action: () => router.push('/subscription') }
+            ] : []),
             { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-white', bg: 'bg-zinc-950', invert: true },
           ].map((stat, i) => (
             <motion.div
