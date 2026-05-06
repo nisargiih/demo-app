@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'motion/react';
 import { 
   ShieldCheck, 
@@ -17,7 +17,8 @@ import {
   Archive,
   Fingerprint,
   Building2,
-  Quote
+  Quote,
+  Globe
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -26,6 +27,9 @@ import { useUser } from '@/hooks/use-user';
 
 export default function VerifyPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nodeParam = searchParams.get('node');
+  
   const { user, loading } = useUser();
   const [activeTab, setActiveTab] = useState<'file' | 'id'>('file');
   const [file, setFile] = useState<File | null>(null);
@@ -36,6 +40,18 @@ export default function VerifyPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState<string | null>(null);
+  const [nodeInfo, setNodeInfo] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (nodeParam) {
+      fetch(`/api/node?email=${nodeParam}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data.error) setNodeInfo(data);
+        })
+        .catch(err => console.error('Failed to fetch node info:', err));
+    }
+  }, [nodeParam]);
 
   const calculateHash = async (file: File) => {
     const buffer = await file.arrayBuffer();
@@ -193,17 +209,31 @@ export default function VerifyPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-20 h-20 bg-trust-green/10 rounded-3xl flex items-center justify-center text-trust-green mx-auto mb-8 shadow-inner"
           >
-            <ShieldCheck className="w-10 h-10" />
+            {nodeInfo ? <Globe className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
           </motion.div>
+          
+          {nodeInfo && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-950 text-white rounded-full mb-6 font-mono text-[9px] font-bold uppercase tracking-[0.2em]"
+            >
+              <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />
+              Connected Node: {nodeInfo.companyName || `${nodeInfo.firstName || ''} ${nodeInfo.lastName || ''}`.trim() || nodeParam}
+            </motion.div>
+          )}
+
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="font-display text-5xl font-extrabold text-zinc-900 mb-4 tracking-tight"
           >
-            Public Verification Hub
+            {nodeInfo ? 'Consensus Verification' : 'Public Verification Hub'}
           </motion.h1>
           <p className="font-sans text-zinc-500 text-lg max-w-2xl mx-auto">
-            Authenticate digital assets and identity records against the immutable TechCore ledger.
+            {nodeInfo 
+              ? `Authenticate any artifact against the authoritative ledger of ${nodeInfo.companyName || nodeInfo.firstName}.`
+              : 'Authenticate digital assets and identity records against the immutable TechCore ledger.'}
           </p>
         </header>
 
