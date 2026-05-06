@@ -134,10 +134,10 @@ export default function NotarizePage() {
              updateItemStatus(item.id, 'success');
           }
         } else if (res.status === 402) {
-          updateItemStatus(item.id, 'error', 'Insufficient Energy');
-          notify('Your Energy Core is depleted. Batch processing halted.', 'error');
+          updateItemStatus(item.id, 'error', 'Quota Exhausted');
+          notify('Monthly free quota reached and Energy Core is depleted. Recharge required for additional indexing.', 'error');
           setIsProcessing(false);
-          return; // Stop the batch if credits are gone
+          return; // Stop the batch if credits and quota are gone
         } else {
           updateItemStatus(item.id, 'error', 'Store failed');
         }

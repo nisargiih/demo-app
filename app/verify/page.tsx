@@ -80,7 +80,7 @@ export default function VerifyPage() {
         if (!deductRes.ok) {
           const errorData = await deductRes.json();
           if (deductRes.status === 402) {
-            setError('Insufficient Energy Units. Please recharge your core to proceed with verification.');
+            setError('Monthly free verification quota reached. Insufficient Energy Units for additional analysis.');
             setIsVerifying(false); // Stop here
             return;
           }
@@ -142,7 +142,7 @@ export default function VerifyPage() {
         if (!deductRes.ok) {
           const errorData = await deductRes.json();
           if (deductRes.status === 402) {
-            setError('Insufficient Energy Units. Core recharge required.');
+            setError('Monthly free verification quota reached. Registry lookup requires Energy Units.');
             setIsVerifying(false);
             return;
           }

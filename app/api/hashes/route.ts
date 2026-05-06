@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { SecurityService } from '@/lib/security-service';
+import { UsageService } from '@/lib/usage-service';
 
 export async function GET(req: Request) {
   try {
@@ -49,7 +50,18 @@ export async function GET(req: Request) {
 
     const history = await hashes.find({ userEmail: email }).sort({ createdAt: -1 }).toArray();
     
-    return NextResponse.json(SecurityService.prepareForTransit(history));
+    // Also include usage stats
+    const usage = await UsageService.getMonthlyUsage(email);
+    
+    return NextResponse.json(SecurityService.prepareForTransit({
+      history,
+      usage: {
+        hashCount: usage.hashCount || 0,
+        verifyCount: usage.verifyCount || 0,
+        hashLimit: 10,
+        verifyLimit: 15
+      }
+    }));
   } catch (error) {
     console.error('API GET Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -73,8 +85,10 @@ export async function POST(req: Request) {
     const hashes = db.collection('hashes');
     const users = db.collection('users');
 
+    const email = userEmail.trim().toLowerCase();
+
     // 1. Check Credentials and Permissions
-    const user = await users.findOne({ email: userEmail.trim().toLowerCase() });
+    const user = await users.findOne({ email });
     if (!user) {
       return NextResponse.json({ error: 'Identity mismatch' }, { status: 403 });
     }
@@ -83,17 +97,10 @@ export async function POST(req: Request) {
        return NextResponse.json({ error: 'Index protocol access denied' }, { status: 403 });
     }
 
-    if ((user.credits || 0) < 7) {
-      return NextResponse.json({ 
-        error: 'Insufficient credits for hash generation pulse. Required: 7 Energy Units.',
-        status: 'insufficient_credits'
-      }, { status: 402 });
-    }
-
     // Check for existing hash
     const existing = await hashes.findOne({ hash });
     if (existing) {
-      if (existing.userEmail === userEmail.trim().toLowerCase()) {
+      if (existing.userEmail === email) {
         const responseData = { 
           message: 'Already Indexed', 
           status: 'exists_user',
@@ -110,14 +117,29 @@ export async function POST(req: Request) {
       }
     }
 
-    // Deduct credits
-    await users.updateOne(
-      { email: userEmail.trim().toLowerCase() },
-      { $inc: { credits: -7 } }
-    );
+    // NEW: Usage Logic - 10 Free hashes per month
+    const canUseFree = await UsageService.canUseFree(email, 'hash');
+    
+    if (canUseFree) {
+      // Use free quota
+      await UsageService.incrementUsage(email, 'hash');
+    } else {
+      // Deduct credits
+      if ((user.credits || 0) < 7) {
+        return NextResponse.json({ 
+          error: 'Monthly free quota reached. Insufficient credits for additional hash generation. Required: 7 Energy Units.',
+          status: 'insufficient_credits'
+        }, { status: 402 });
+      }
+
+      await users.updateOne(
+        { email },
+        { $inc: { credits: -7 } }
+      );
+    }
 
     const newHash = {
-      userEmail: userEmail.trim().toLowerCase(),
+      userEmail: email,
       fileName,
       fileSize,
       hash,
