@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       
       // Fetch registrar info
       const registrar = await db.collection('users').findOne(
-        { email: record.userEmail },
+        { email: { $regex: new RegExp(`^${record.userEmail}$`, 'i') } },
         { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
       );
       

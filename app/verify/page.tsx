@@ -388,11 +388,15 @@ export default function VerifyPage() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <h4 className="font-display font-extrabold text-2xl text-zinc-900 truncate tracking-tight">
-                                    {result.registrar?.companyName || `${result.registrar?.firstName} ${result.registrar?.lastName}`}
+                                    {(result.registrar?.companyName || (result.registrar?.firstName || result.registrar?.lastName)) ? (
+                                      result.registrar?.companyName || `${result.registrar?.firstName || ''} ${result.registrar?.lastName || ''}`.trim()
+                                    ) : (
+                                      result.userEmail?.split('@')[0] || 'Unknown Registrar'
+                                    )}
                                   </h4>
                                   <div className="flex items-center gap-2 mt-1">
                                     <p className="font-sans text-sm text-zinc-500 font-medium">
-                                      {result.registrar?.entityType || 'Individual'} Node
+                                      {result.registrar?.entityType || 'Trust'} Node
                                     </p>
                                     <span className="w-1 h-1 bg-zinc-300 rounded-full" />
                                     <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase truncate">

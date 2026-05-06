@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       if (record) {
         // Fetch registrar info
         const registrar = await db.collection('users').findOne(
-          { email: record.userEmail },
+          { email: { $regex: new RegExp(`^${record.userEmail}$`, 'i') } },
           { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
         );
         return NextResponse.json({ ...record, registrar });
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
       if (regRecord) {
         // Fetch registrar info
         const registrar = await db.collection('users').findOne(
-          { email: regRecord.userEmail },
+          { email: { $regex: new RegExp(`^${regRecord.userEmail}$`, 'i') } },
           { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
         );
         return NextResponse.json({ ...regRecord, type: 'registry', registrar });
