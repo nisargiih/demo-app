@@ -58,6 +58,7 @@ export function Sidebar() {
 
   // Logic: Admin has all access. Members only mapped modules.
   const filteredMenuItems = menuItems.filter(item => {
+    if (item.module === 'dashboard') return true; // Always show dashboard related items
     if (item.adminOnly && role !== 'admin') return false;
     return role === 'admin' || (permissions && permissions.includes(item.module));
   });
@@ -183,37 +184,47 @@ export function Sidebar() {
 
           {/* Footer / User Profile */}
           <div className="pt-6 border-t border-zinc-100">
-            <div className="flex items-center gap-4 p-2 rounded-2xl hover:bg-zinc-50 transition-all group relative">
-              <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center text-trust-green font-display font-black text-xs ring-4 ring-zinc-50">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <p className="font-display font-bold text-sm text-zinc-900 truncate">{userName}</p>
-                  {isVerified && <ShieldCheck className="w-3 h-3 text-trust-green fill-trust-green/10 shrink-0" />}
+            {loading && !user ? (
+              <div className="flex items-center gap-4 p-2 animate-pulse">
+                <div className="w-10 h-10 rounded-xl bg-zinc-100 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 bg-zinc-100 rounded w-24" />
+                  <div className="h-2 bg-zinc-50 rounded w-32" />
                 </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                   <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
-                   {role === 'admin' && (
-                     <span className="px-1.5 py-0.5 bg-zinc-950 text-trust-green font-mono text-[7px] font-black uppercase tracking-tighter rounded-md">Admin</span>
-                   )}
-                </div>
-                {isVerified ? (
-                  <p className="font-mono text-[8px] text-trust-green font-bold uppercase tracking-widest mt-0.5">Identity Verified</p>
-                ) : isPending ? (
-                  <p className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Under Review</p>
-                ) : (
-                  <p className="font-mono text-[8px] text-amber-500 font-bold uppercase tracking-widest mt-0.5">Unverified Phase</p>
-                )}
               </div>
-              <button 
-                onClick={handleLogout}
-                className="w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors"
-                title="Logout Session"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
+            ) : (
+              <div className="flex items-center gap-4 p-2 rounded-2xl hover:bg-zinc-50 transition-all group relative">
+                <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center text-trust-green font-display font-black text-xs ring-4 ring-zinc-50">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <p className="font-display font-bold text-sm text-zinc-900 truncate">{userName}</p>
+                    {isVerified && <ShieldCheck className="w-3 h-3 text-trust-green fill-trust-green/10 shrink-0" />}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                     <p className="font-sans text-[10px] text-zinc-400 truncate">{userEmail}</p>
+                     {role === 'admin' && (
+                       <span className="px-1.5 py-0.5 bg-zinc-950 text-trust-green font-mono text-[7px] font-black uppercase tracking-tighter rounded-md">Admin</span>
+                     )}
+                  </div>
+                  {isVerified ? (
+                    <p className="font-mono text-[8px] text-trust-green font-bold uppercase tracking-widest mt-0.5">Identity Verified</p>
+                  ) : isPending ? (
+                    <p className="font-mono text-[8px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">Under Review</p>
+                  ) : (
+                    <p className="font-mono text-[8px] text-amber-500 font-bold uppercase tracking-widest mt-0.5">Unverified Phase</p>
+                  )}
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors"
+                  title="Logout Session"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>

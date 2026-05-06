@@ -32,35 +32,16 @@ import { SecurityService } from '@/lib/security-service';
 export default function DashboardPage() {
   const router = useRouter();
   const { notify } = useNotification();
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const { user, loading, role, permissions } = useUser();
   const [allHashes, setAllHashes] = useState<any[]>([]);
   const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month' | '3month'>('month');
-
   const [isMounted, setIsMounted] = useState(false);
 
-  const fetchUser = React.useCallback(async () => {
-    const email = localStorage.getItem('authenticated_user_email');
-    if (!email) return;
-
-    try {
-      const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
-      if (res.ok) {
-        const body = await res.json();
-        const data = SecurityService.processFromTransit(body);
-        setUser(data);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
-
   const fetchHashes = React.useCallback(async () => {
-    const email = localStorage.getItem('authenticated_user_email');
-    if (!email) return;
+    if (!user?.email) return;
 
     try {
-      const res = await fetch(`/api/hashes?email=${encodeURIComponent(email)}`);
+      const res = await fetch(`/api/hashes?email=${encodeURIComponent(user.email)}`);
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
@@ -69,22 +50,28 @@ export default function DashboardPage() {
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [user?.email]);
 
   React.useEffect(() => {
-    const email = localStorage.getItem('authenticated_user_email');
-    if (!email) {
+    if (loading) return;
+    if (!user) {
       router.push('/login');
       return;
     }
     
+    // Check for unauthorized access error
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'unauthorized') {
+      notify('You do not have clearance for that protocol module.', 'error');
+      router.replace('/dashboard');
+    }
+
     const init = async () => {
-      await Promise.all([fetchUser(), fetchHashes()]);
+      await fetchHashes();
       setIsMounted(true);
-      setIsAuthLoading(false);
     };
     init();
-  }, [fetchUser, fetchHashes, router]);
+  }, [loading, user, fetchHashes, router]);
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -163,7 +150,7 @@ export default function DashboardPage() {
     return { total, expired, active, periodCount, chartData: buckets, uptime };
   }, [allHashes, statsPeriod, user]);
 
-  if (isAuthLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="relative w-12 h-12">
