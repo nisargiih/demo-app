@@ -63,6 +63,9 @@ export default function LoginPage() {
         }, 2000);
       } else {
         if (result.redirect) {
+          if (result.redirect === '/verify-otp') {
+            localStorage.setItem('pending_verification_email', data.email);
+          }
           router.push(result.redirect);
         } else {
           notify(result.error || 'Authentication mismatch', 'error');
