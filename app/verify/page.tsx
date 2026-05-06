@@ -212,9 +212,9 @@ export default function VerifyPage() {
           <div className="absolute top-8 right-8 z-50">
             <button 
               onClick={() => router.push('/login')}
-              className="px-6 py-2 bg-zinc-950 text-white rounded-full font-display font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl"
+              className="px-6 py-2 bg-trust-green text-zinc-950 rounded-full font-display font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-trust-green/90 transition-all shadow-lg shadow-trust-green/20"
             >
-              Access Member Node
+              Access Member Portal
             </button>
           </div>
         )}
@@ -249,7 +249,7 @@ export default function VerifyPage() {
               >
                 {nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`}
               </motion.h1>
-              <p className="font-sans text-zinc-500 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+              <p className="font-sans text-zinc-600 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
                 Authorized gateway for <span className="text-zinc-900 font-bold">{nodeParam}</span>. Validating cryptographic artifacts and identity records on the TechCore substrate.
               </p>
             </div>
@@ -262,7 +262,7 @@ export default function VerifyPage() {
               >
                 Protocol Verification
               </motion.h1>
-              <p className="font-sans text-zinc-500 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+              <p className="font-sans text-zinc-600 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
                  Public entry point for decentralized ledger authentication and identity verification.
               </p>
             </>
@@ -283,8 +283,8 @@ export default function VerifyPage() {
                 { label: 'Identity', value: nodeInfo.entityType || 'Registrar', icon: User },
               ].map((stat, i) => (
                 <div key={i} className="p-8 bg-zinc-50 border-r border-zinc-200 last:border-r-0 flex flex-col items-center justify-center text-center group hover:bg-white transition-colors">
-                  <stat.icon className="w-6 h-6 text-zinc-400 mb-3 group-hover:text-trust-green transition-colors" />
-                  <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-widest mb-1 font-bold">{stat.label}</p>
+                  <stat.icon className="w-6 h-6 text-zinc-500 mb-3 group-hover:text-trust-green transition-colors" />
+                  <p className="font-mono text-[9px] text-zinc-600 uppercase tracking-widest mb-1 font-bold">{stat.label}</p>
                   <p className="font-display font-black text-zinc-900 text-sm uppercase tracking-wider">{stat.value}</p>
                 </div>
               ))}
@@ -296,7 +296,7 @@ export default function VerifyPage() {
               <button 
                 onClick={() => { setActiveTab('file'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'file' ? 'bg-white text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-400 hover:text-zinc-600'
+                  activeTab === 'file' ? 'bg-zinc-950 text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900'
                 }`}
               >
                 Artifact Analysis
@@ -304,7 +304,7 @@ export default function VerifyPage() {
               <button 
                 onClick={() => { setActiveTab('id'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'id' ? 'bg-white text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-400 hover:text-zinc-600'
+                  activeTab === 'id' ? 'bg-zinc-950 text-white shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900'
                 }`}
               >
                 Record Retrieval
@@ -339,14 +339,14 @@ export default function VerifyPage() {
                       onChange={onFileChange}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="border-2 border-dashed border-zinc-100 group-hover/upload:border-trust-green/50 rounded-[3.5rem] py-24 px-10 transition-all duration-500 bg-zinc-50 flex flex-col items-center justify-center group-hover/upload:bg-trust-green/[0.03]">
-                      <div className="w-24 h-24 bg-white border border-zinc-100 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl group-hover/upload:scale-110 transition-transform duration-500">
-                        <Upload className="w-10 h-10 text-zinc-300 group-hover/upload:text-trust-green transition-colors" />
+                    <div className="border-2 border-dashed border-zinc-200 group-hover/upload:border-trust-green/50 rounded-[3.5rem] py-24 px-10 transition-all duration-500 bg-zinc-50/50 flex flex-col items-center justify-center group-hover/upload:bg-trust-green/[0.03]">
+                      <div className="w-24 h-24 bg-white border border-zinc-200 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl group-hover/upload:scale-110 transition-transform duration-500">
+                        <Upload className="w-10 h-10 text-zinc-400 group-hover/upload:text-trust-green transition-colors" />
                       </div>
                       <p className="font-display font-bold text-3xl text-zinc-900 mb-3">
                         {file ? file.name : 'Ingest Artifact'}
                       </p>
-                      <p className="font-sans text-base text-zinc-400 max-w-xs text-center leading-relaxed">
+                      <p className="font-sans text-base text-zinc-600 max-w-xs text-center leading-relaxed">
                         {file ? `${(file.size / 1024).toFixed(1)} KB identified. Awaiting consensus.` : 'Drop cryptographic asset to verify its immutable signature.'}
                       </p>
                     </div>
@@ -359,7 +359,7 @@ export default function VerifyPage() {
                        </div>
                        <h3 className="font-display font-bold text-3xl text-zinc-900 mb-6 uppercase tracking-tight">Access Identifier</h3>
                        <div className="w-full max-w-md relative group/input">
-                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-7 h-7 text-zinc-300 group-focus-within/input:text-trust-green transition-colors" />
+                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-7 h-7 text-zinc-400 group-focus-within/input:text-trust-green transition-colors" />
                           <input 
                             type="text" 
                             placeholder="TC-PROTOCOL-0000"
@@ -394,7 +394,7 @@ export default function VerifyPage() {
                   <h3 className="font-display font-black text-4xl text-zinc-950 tracking-widest uppercase">Validating Protocol</h3>
                   <div className="flex items-center justify-center gap-3 mt-6">
                     <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-ping" />
-                    <p className="font-mono text-xs text-zinc-400 tracking-[0.4em] font-black uppercase">Consensus Synchronization In Progress</p>
+                    <p className="font-mono text-xs text-zinc-500 tracking-[0.4em] font-black uppercase">Consensus Synchronization In Progress</p>
                   </div>
                 </div>
               </div>
@@ -414,7 +414,7 @@ export default function VerifyPage() {
                       <Archive className="w-14 h-14 text-zinc-300" />
                     </div>
                     <h3 className="font-display font-black text-5xl text-zinc-900 mb-6 uppercase tracking-tighter">Null Index</h3>
-                    <p className="font-sans text-zinc-500 mb-12 max-w-md mx-auto leading-relaxed text-xl font-medium">
+                    <p className="font-sans text-zinc-600 mb-12 max-w-md mx-auto leading-relaxed text-xl font-medium">
                       The cryptographic fingerprint requested is not recognized by this node instance. No substrate record found.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -486,7 +486,7 @@ export default function VerifyPage() {
                             </h3>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                             {[
                               { 
                                 label: 'Artifact Class', 
@@ -505,17 +505,10 @@ export default function VerifyPage() {
                                 value: new Date(result.createdAt).toLocaleString(), 
                                 icon: Clock,
                                 type: 'text'
-                              },
-                              // Only show registrar if it's NOT the current node info we are already showing
-                              ...((!nodeInfo || (result.userEmail && nodeInfo.email && result.userEmail.toLowerCase() !== nodeInfo.email.toLowerCase())) ? [{ 
-                                label: 'Genesis Registrar', 
-                                value: result.registrar?.companyName || result.userEmail, 
-                                icon: User,
-                                type: 'text'
-                              }] : [])
+                              }
                             ].map((card, i) => (
-                              <div key={i} className="p-6 bg-white border border-zinc-100 rounded-[2rem] shadow-sm group hover:bg-zinc-50 transition-colors">
-                                <div className="flex items-center gap-2 mb-3 text-zinc-400 group-hover:text-trust-green transition-colors">
+                              <div key={i} className="p-6 bg-white border border-zinc-200 rounded-[2rem] shadow-sm group hover:bg-zinc-50 transition-colors">
+                                <div className="flex items-center gap-2 mb-3 text-zinc-600 group-hover:text-trust-green transition-colors">
                                   <card.icon className="w-4 h-4" />
                                   <span className="font-mono text-[9px] font-black uppercase tracking-[0.3em]">{card.label}</span>
                                 </div>
@@ -533,11 +526,11 @@ export default function VerifyPage() {
                               <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-3">
                                   <Fingerprint className="w-5 h-5 text-trust-green" />
-                                  <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Ledger_Signature_SHA256</span>
+                                  <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">Ledger_Signature_SHA256</span>
                                 </div>
                                 <span className="font-mono text-[10px] font-black text-trust-green py-1 px-3 border border-trust-green/30 rounded-lg uppercase bg-trust-green/5">Immune</span>
                               </div>
-                              <p className="font-mono text-sm text-zinc-500 break-all leading-loose relative z-10 font-bold tracking-wider">
+                              <p className="font-mono text-sm text-zinc-600 break-all leading-loose relative z-10 font-bold tracking-wider">
                                 {result.type === 'registry' ? result.fileKey : result.hash}
                               </p>
                            </div>
@@ -547,7 +540,7 @@ export default function VerifyPage() {
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-trust-green/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover/quote:bg-trust-green/10 transition-colors" />
                                 <div className="flex items-center gap-3 mb-6 relative z-10">
                                   <Quote className="w-6 h-6 text-trust-green" />
-                                  <span className="font-mono text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-black">Attestation Statement</span>
+                                  <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-black">Attestation Statement</span>
                                 </div>
                                 <p className="font-sans text-xl text-zinc-600 leading-relaxed relative z-10 font-medium">
                                   &quot;{result.description}&quot;
@@ -561,7 +554,7 @@ export default function VerifyPage() {
                             <div className="w-12 h-12 bg-trust-green/10 rounded-full flex items-center justify-center border border-trust-green/20">
                               <ShieldCheck className="w-6 h-6 text-trust-green" />
                             </div>
-                            <p className="font-sans text-xs text-zinc-400 font-black uppercase tracking-[0.3em]">
+                            <p className="font-sans text-xs text-zinc-500 font-black uppercase tracking-[0.3em]">
                               Audit Complete
                             </p>
                           </div>
@@ -595,7 +588,7 @@ export default function VerifyPage() {
                   <span className="font-mono text-[10px] font-black text-red-500 uppercase tracking-[0.4em]">Global Assurance Protocol</span>
                 </div>
                 <h4 className="font-display font-black text-4xl text-zinc-900 mb-6 uppercase tracking-tighter leading-none">Security Inflow Control</h4>
-                <p className="font-sans text-lg text-zinc-500 leading-relaxed max-w-3xl font-medium">
+                <p className="font-sans text-lg text-zinc-600 leading-relaxed max-w-3xl font-medium">
                   This gateway enforces strict <span className="text-zinc-950 font-bold">256-bit SHA-2</span> cryptographic analysis. Any modification to the substrate records, however minute, will result in immediate <span className="text-red-600 font-bold">Authority Lockdown</span> and revocation of verification metadata.
                 </p>
               </div>

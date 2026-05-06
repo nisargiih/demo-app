@@ -13,21 +13,23 @@ import {
   Link as LinkIcon,
   MessageSquare,
   Share,
-  Mail
+  Mail,
+  X as CloseIcon
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useUser } from '@/hooks/use-user';
 import { useNotification } from '@/hooks/use-notification';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function SharePage() {
   const { user } = useUser();
   const { notify } = useNotification();
   const [copiedType, setCopiedType] = useState<string | null>(null);
+  const [showQR, setShowQR] = useState<{ url: string; title: string } | null>(null);
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const nodeUrl = `${baseUrl}/verify?node=${user?.email || ''}`;
-  const registryUrl = `${baseUrl}/registry`;
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -44,14 +46,6 @@ export default function SharePage() {
       icon: Globe,
       color: 'text-trust-green',
       bg: 'bg-trust-green/5'
-    },
-    {
-      title: 'Official Team Registry',
-      desc: 'Access point for your official registered certificates.',
-      url: registryUrl,
-      icon: Shield,
-      color: 'text-zinc-950',
-      bg: 'bg-zinc-50'
     }
   ];
 
@@ -108,7 +102,10 @@ export default function SharePage() {
                 </div>
 
                 <div className="flex gap-2">
-                   <button className="flex-1 h-12 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2">
+                   <button 
+                    onClick={() => setShowQR({ url: option.url, title: option.title })}
+                    className="flex-1 h-12 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
+                   >
                       <QrCode className="w-4 h-4" /> Generate QR
                    </button>
                    <a 
@@ -124,6 +121,51 @@ export default function SharePage() {
             </motion.div>
           ))}
         </div>
+
+        {/* QR Code Modal */}
+        {showQR && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => setShowQR(null)}
+              className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="relative bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-2xl text-center"
+            >
+              <button 
+                onClick={() => setShowQR(null)}
+                className="absolute top-6 right-6 p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
+              >
+                <CloseIcon className="w-6 h-6" />
+              </button>
+              
+              <div className="mb-6">
+                 <h3 className="font-display text-2xl font-bold text-zinc-900 mb-2">{showQR.title}</h3>
+                 <p className="font-sans text-sm text-zinc-500 lowercase">Scan to authenticate artifacts</p>
+              </div>
+
+              <div className="p-6 bg-zinc-50 rounded-[2rem] border border-zinc-100 mb-8 inline-block mx-auto">
+                 <QRCodeSVG 
+                    value={showQR.url} 
+                    size={200} 
+                    includeMargin={true}
+                    className="mx-auto"
+                 />
+              </div>
+
+              <button 
+                onClick={() => copyToClipboard(showQR.url, 'Link')}
+                className="w-full h-12 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all flex items-center justify-center gap-2"
+              >
+                <Copy className="w-4 h-4" /> Copy Verification Link
+              </button>
+            </motion.div>
+          </div>
+        )}
 
         <section className="glass rounded-[3rem] p-10 border border-zinc-100 shadow-sm relative overflow-hidden">
            <div className="max-w-xl relative z-10">

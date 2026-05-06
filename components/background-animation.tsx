@@ -97,7 +97,7 @@ export function BackgroundAnimation() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute font-mono text-[10px] text-zinc-300 font-bold tracking-widest whitespace-nowrap"
+          className="absolute font-mono text-[10px] text-zinc-400 font-bold tracking-widest whitespace-nowrap"
         >
           {p.id.toString(16).padStart(8, '0').toUpperCase()}
         </motion.div>
