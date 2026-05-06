@@ -17,6 +17,7 @@ import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { SecurityService } from '@/lib/security-service';
 import { useNotification } from '@/hooks/use-notification';
+import { AccessDenied } from '@/components/access-denied';
 
 declare global {
   interface Window {
@@ -82,6 +83,18 @@ export default function SubscriptionPage() {
           <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
         </div>
       </div>
+    );
+  }
+
+  if (user?.role !== 'admin') {
+    return (
+      <main className="min-h-screen bg-zinc-50 overflow-x-hidden">
+        <BackgroundAnimation />
+        <Sidebar />
+        <div className="lg:pl-72 min-h-screen relative z-10 flex items-center justify-center">
+          <AccessDenied />
+        </div>
+      </main>
     );
   }
 

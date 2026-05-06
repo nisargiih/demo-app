@@ -52,14 +52,12 @@ export function Sidebar() {
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify', module: 'verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
     { name: 'Share Hub', icon: Share2, path: '/share', module: 'dashboard' },
-    { name: 'Team Hub', icon: Users, path: '/settings/team', module: 'settings', adminOnly: true },
     { name: 'Settings', icon: Settings, path: '/settings', module: 'settings' },
   ];
 
-  // Logic: Admin has all access. Members only mapped modules.
+  // Members should not see Team Hub or Subscription (Wallet) in main menu or profile
   const filteredMenuItems = menuItems.filter(item => {
-    if (item.module === 'dashboard') return true; // Always show dashboard related items
-    if (item.adminOnly && role !== 'admin') return false;
+    if (item.module === 'dashboard') return true;
     return role === 'admin' || (permissions && permissions.includes(item.module));
   });
 
@@ -68,7 +66,7 @@ export function Sidebar() {
     { name: 'Verification', icon: ShieldCheck, path: '/verification' },
     ...(role === 'admin' ? [
       { name: 'Wallet & Credits', icon: CreditCard, path: '/subscription' },
-      { name: 'Team Hub', icon: User, path: '/settings/team' }
+      { name: 'Team Hub', icon: Users, path: '/settings/team' }
     ] : []),
   ];
 

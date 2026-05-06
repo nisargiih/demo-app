@@ -38,30 +38,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     // Permission Check
-    let hasPermissionError = false;
-    if (email && !isPublicRoute && role) {
-      const requiredModule = Object.keys(PERMISSION_MAP).find(path => pathname.startsWith(path));
-      
-      if (requiredModule) {
-        const moduleKey = PERMISSION_MAP[requiredModule];
-        const hasPermission = role === 'admin' || permissions.includes(moduleKey);
-        
-        if (!hasPermission) {
-          hasPermissionError = true;
-        }
-      }
-
-      // Special check for Team Management & Subscription
-      if ((pathname.startsWith('/settings/team') || pathname.startsWith('/subscription')) && role !== 'admin') {
-        hasPermissionError = true;
-      }
-    }
-
-    if (hasPermissionError) {
-      router.push('/dashboard?error=unauthorized');
-      return;
-    }
-
+    // We no longer redirect to /dashboard?error=unauthorized here
+    // because the user wants content to be displayed based on permission
+    // rather than a hard redirect.
+    
     setIsAuthorized(true);
   }, [pathname, router, loading, role, permissions]);
 

@@ -20,6 +20,8 @@ import {
 import { Sidebar } from '@/components/navbar';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
+import { useUser } from '@/hooks/use-user';
+import { AccessDenied } from '@/components/access-denied';
 
 interface TeamMember {
   _id: string;
@@ -47,6 +49,7 @@ export default function TeamPage() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const { notify } = useNotification();
+  const { role, loading: userLoading } = useUser();
 
   const fetchMembers = useCallback(async () => {
     const adminEmail = localStorage.getItem('authenticated_user_email');
@@ -124,6 +127,28 @@ export default function TeamPage() {
        notify('Permission update failed', 'error');
     }
   };
+
+  if (loading || userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
+          <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (role !== 'admin') {
+    return (
+      <main className="relative min-h-screen w-full bg-white lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
+        <Sidebar />
+        <div className="relative z-10 w-full max-w-7xl mx-auto py-8 sm:py-12 lg:py-20 flex items-center justify-center">
+          <AccessDenied />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="relative min-h-screen w-full bg-white lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">

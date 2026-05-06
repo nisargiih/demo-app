@@ -28,6 +28,7 @@ import { useNotification } from '@/hooks/use-notification';
 
 import { useRouter } from 'next/navigation';
 import { SecurityService } from '@/lib/security-service';
+import { useUser } from '@/hooks/use-user';
 
 export default function DashboardPage() {
   const router = useRouter();
