@@ -47,9 +47,17 @@ export async function POST(req: Request) {
     const registry = db.collection('registry');
     const users = db.collection('users');
 
-    // 1. Check and Deduct Credits
+    // 1. Check Credentials and Permissions
     const user = await users.findOne({ email: userEmail.toLowerCase().trim() });
-    if (!user || (user.credits || 0) < 12) {
+    if (!user) {
+      return NextResponse.json({ error: 'Identity mismatch' }, { status: 403 });
+    }
+
+    if (user.role !== 'admin' && !(user.permissions || []).includes('registry')) {
+      return NextResponse.json({ error: 'Registry access denied' }, { status: 403 });
+    }
+
+    if ((user.credits || 0) < 12) {
       return NextResponse.json({ 
         error: 'Insufficient credits for official registry upload. Required: 12 Energy Units.',
         status: 'insufficient_credits'

@@ -98,7 +98,7 @@ export default function TeamPage() {
   };
 
   const handleTogglePermission = async (member: TeamMember, moduleId: string) => {
-    if (member.role === 'admin') return;
+    if (member.role === 'admin' || moduleId === 'dashboard') return;
 
     const adminEmail = localStorage.getItem('authenticated_user_email');
     const newPermissions = member.permissions.includes(moduleId)
@@ -196,6 +196,7 @@ export default function TeamPage() {
                               </span>
                             ) : MODULES.map(m => {
                               const hasAccess = member.permissions.includes(m.id);
+                              const isMandatory = m.id === 'dashboard';
                               return (
                                 <button
                                   key={m.id}
@@ -204,10 +205,10 @@ export default function TeamPage() {
                                     hasAccess 
                                       ? 'bg-zinc-900 text-trust-green border-zinc-800' 
                                       : 'bg-white text-zinc-300 border-zinc-100 opacity-60'
-                                  }`}
+                                  } ${isMandatory ? 'cursor-default' : 'hover:scale-105'}`}
                                   title={m.desc}
                                 >
-                                  {m.name.split(' ')[0]}
+                                  {m.name}
                                 </button>
                               );
                             })}
@@ -350,7 +351,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
   const [loading, setLoading] = useState(false);
 
   const togglePermission = (id: string) => {
-    if (role === 'admin') return;
+    if (role === 'admin' || id === 'dashboard') return;
     setSelectedPermissions(prev => 
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
@@ -505,7 +506,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
                                  isActive ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-50 border-zinc-100'
                                } ${role === 'admin' ? 'opacity-70 cursor-not-allowed' : ''}`}
                              >
-                                <span className={`font-display font-bold text-[10px] ${isActive ? 'text-trust-green' : 'text-zinc-500'}`}>{module.name.split(' ')[0]}</span>
+                                <span className={`font-display font-bold text-[10px] ${isActive ? 'text-trust-green' : 'text-zinc-500'}`}>{module.name}</span>
                                 {isActive && <CheckCircle2 className="w-3 h-3 text-trust-green" />}
                              </button>
                            );

@@ -59,9 +59,17 @@ export async function POST(req: Request) {
     const hashes = db.collection('hashes');
     const users = db.collection('users');
 
-    // 1. Check and Deduct Credits
+    // 1. Check Credentials and Permissions
     const user = await users.findOne({ email: userEmail.trim().toLowerCase() });
-    if (!user || (user.credits || 0) < 7) {
+    if (!user) {
+      return NextResponse.json({ error: 'Identity mismatch' }, { status: 403 });
+    }
+
+    if (user.role !== 'admin' && !(user.permissions || []).includes('notarize')) {
+       return NextResponse.json({ error: 'Index protocol access denied' }, { status: 403 });
+    }
+
+    if ((user.credits || 0) < 7) {
       return NextResponse.json({ 
         error: 'Insufficient credits for hash generation pulse. Required: 7 Energy Units.',
         status: 'insufficient_credits'
