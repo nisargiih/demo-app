@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     await users.updateOne(
       { _id: user._id },
-      { $set: { isVerified: true }, $unset: { otp: "" } }
+      { $set: { isVerified: true, onboardingCompleted: true, entityType: 'individual' }, $unset: { otp: "" } }
     );
 
     const response = { message: 'Verification successful' };

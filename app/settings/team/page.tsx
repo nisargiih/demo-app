@@ -411,7 +411,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
                    <div>
                       <div className="flex items-center gap-2 mb-2">
                         <UserPlus className="w-4 h-4 text-trust-green" />
-                        <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Onboard Member</span>
+                        <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Invite Member</span>
                       </div>
                       <h3 className="font-display text-3xl font-bold text-zinc-900 tracking-tight">Provision New Access</h3>
                    </div>

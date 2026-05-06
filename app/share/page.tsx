@@ -11,8 +11,8 @@ import {
   ExternalLink,
   QrCode,
   Link as LinkIcon,
-  Twitter,
-  Linkedin,
+  MessageSquare,
+  Share,
   Mail
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
@@ -132,10 +132,10 @@ export default function SharePage() {
               
               <div className="flex flex-wrap gap-4">
                  <button className="h-12 px-6 bg-zinc-50 border border-zinc-100 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-950 hover:text-white transition-all flex items-center gap-2">
-                    <Twitter className="w-4 h-4" /> Twitter
+                    <MessageSquare className="w-4 h-4" /> Twitter
                  </button>
                  <button className="h-12 px-6 bg-zinc-50 border border-zinc-100 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-950 hover:text-white transition-all flex items-center gap-2">
-                    <Linkedin className="w-4 h-4" /> LinkedIn
+                    <Share className="w-4 h-4" /> LinkedIn
                  </button>
                  <button className="h-12 px-6 bg-zinc-50 border border-zinc-100 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-950 hover:text-white transition-all flex items-center gap-2">
                     <Mail className="w-4 h-4" /> Email Node

@@ -145,7 +145,7 @@ export default function RegisterPage() {
                 <ShieldCheck className="w-3 h-3" /> System Admin Hub
               </div>
               <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Register as Administrator</h2>
-              <p className="font-sans text-zinc-500 text-sm italic">You will have full control over nodes, permissions, and member onboarding.</p>
+              <p className="font-sans text-zinc-500 text-sm italic">You will have full control over nodes, permissions, and member access.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10" noValidate>

@@ -55,7 +55,7 @@ export default function VerifyOtpPage() {
         setIsSuccess(true);
         notify('Identity verified. Synchronizing node...', 'success');
         setTimeout(() => {
-          router.push('/onboarding');
+          router.push('/dashboard');
         }, 2000);
       } else {
         notify(result.error || 'Invalid OTP segment', 'error');
