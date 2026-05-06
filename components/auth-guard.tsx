@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 
-const PUBLIC_ROUTES = ['/', '/login', '/verify-otp'];
+const PUBLIC_ROUTES = ['/', '/login', '/verify-otp', '/verify'];
 
 const PERMISSION_MAP: Record<string, string> = {
   '/notarize': 'notarize',

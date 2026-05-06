@@ -17,11 +17,25 @@ export async function GET(req: Request) {
     if (hashValue) {
       // 1. Check in Notarized Hashes
       const record = await hashes.findOne({ hash: hashValue });
-      if (record) return NextResponse.json(record);
+      if (record) {
+        // Fetch registrar info
+        const registrar = await db.collection('users').findOne(
+          { email: record.userEmail },
+          { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
+        );
+        return NextResponse.json({ ...record, registrar });
+      }
 
       // 2. Check in Official Registry
       const regRecord = await registry.findOne({ fileHash: hashValue });
-      if (regRecord) return NextResponse.json({ ...regRecord, type: 'registry' });
+      if (regRecord) {
+        // Fetch registrar info
+        const registrar = await db.collection('users').findOne(
+          { email: regRecord.userEmail },
+          { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
+        );
+        return NextResponse.json({ ...regRecord, type: 'registry', registrar });
+      }
 
       // REMOVED: Tamper detection fuzzy logic. Exact matches only.
       return NextResponse.json(null);

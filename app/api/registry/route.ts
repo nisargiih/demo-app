@@ -16,7 +16,14 @@ export async function GET(req: Request) {
     if (registryId) {
       const record = await registry.findOne({ registryId: registryId });
       if (!record) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-      return NextResponse.json(SecurityService.prepareForTransit(record));
+      
+      // Fetch registrar info
+      const registrar = await db.collection('users').findOne(
+        { email: record.userEmail },
+        { projection: { firstName: 1, lastName: 1, companyName: 1, entityType: 1, verificationStatus: 1 } }
+      );
+      
+      return NextResponse.json(SecurityService.prepareForTransit({ ...record, registrar }));
     }
 
     if (!email) {
