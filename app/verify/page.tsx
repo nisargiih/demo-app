@@ -203,88 +203,136 @@ export default function VerifyPage() {
   }
 
   return (
-    <main className={`relative min-h-screen w-full bg-white selection:bg-trust-green/20 ${!isGuest ? 'lg:pl-72' : ''} pt-16 lg:pt-0 pb-20 px-4 sm:px-6`}>
+    <main className={`relative min-h-screen w-full bg-zinc-950 selection:bg-trust-green/20 ${!isGuest ? 'lg:pl-72' : ''} pt-16 lg:pt-0 pb-20 overflow-x-hidden`}>
       <BackgroundAnimation />
       {!isGuest && <Sidebar />}
 
-      <div className={`relative z-10 w-full max-w-4xl mx-auto ${!isGuest ? 'py-12 lg:py-20' : 'py-20 lg:py-32'}`}>
+      <div className={`relative z-10 w-full max-w-6xl mx-auto ${!isGuest ? 'py-12 lg:py-20' : 'py-20 lg:py-32'} px-4 sm:px-6`}>
         {isGuest && (
           <div className="absolute top-8 right-8 z-50">
             <button 
               onClick={() => router.push('/login')}
-              className="px-6 py-2 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
+              className="px-6 py-2 bg-white/5 backdrop-blur-xl border border-white/10 text-white rounded-full font-display font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-white/10 transition-all shadow-2xl"
             >
-              Sign In to Node
+              Access Member Node
             </button>
           </div>
         )}
 
-        <header className="mb-12 text-center">
+        <header className="mb-20 text-center relative">
+          {/* Atmospheric Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-trust-green/5 blur-[120px] rounded-full pointer-events-none" />
+          
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-20 h-20 bg-trust-green/10 rounded-3xl flex items-center justify-center text-trust-green mx-auto mb-8 shadow-inner"
+            className="w-24 h-24 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] flex items-center justify-center text-trust-green mx-auto mb-10 shadow-2xl relative group"
           >
-            {nodeInfo ? <Globe className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
+            <div className="absolute inset-0 bg-trust-green/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            {nodeInfo ? <Globe className="w-12 h-12 relative z-10" /> : <ShieldCheck className="w-12 h-12 relative z-10" />}
           </motion.div>
           
           {nodeInfo && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 bg-zinc-950 text-white rounded-full mb-6 font-mono text-[9px] font-bold uppercase tracking-[0.2em]"
+              className="inline-flex items-center gap-3 px-6 py-2 bg-trust-green/10 border border-trust-green/20 text-trust-green rounded-full mb-8 font-mono text-[10px] font-black uppercase tracking-[0.3em] shadow-lg shadow-trust-green/5"
             >
-              <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />
-              Connected Node: {nodeInfo.companyName || `${nodeInfo.firstName || ''} ${nodeInfo.lastName || ''}`.trim() || nodeParam}
+              <div className="w-2 h-2 bg-trust-green rounded-full animate-pulse" />
+              Verified Authority Instance
             </motion.div>
           )}
 
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="font-display text-5xl font-extrabold text-zinc-900 mb-4 tracking-tight"
+            className="font-display text-6xl lg:text-8xl font-black text-white mb-6 tracking-tighter leading-[0.85] uppercase"
           >
-            {nodeInfo ? 'Consensus Verification' : 'Public Verification Hub'}
-          </motion.h1>
-          <p className="font-sans text-zinc-500 text-lg max-w-2xl mx-auto">
             {nodeInfo 
-              ? `Authenticate any artifact against the authoritative ledger of ${nodeInfo.companyName || nodeInfo.firstName}.`
-              : 'Authenticate digital assets and identity records against the immutable TechCore ledger.'}
+              ? (nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`)
+              : 'Protocol Verification'}
+          </motion.h1>
+          
+          <p className="font-sans text-zinc-400 text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+            {nodeInfo 
+              ? `Authorized gateway for ${nodeInfo.companyName || nodeInfo.firstName}. Validating cryptographic artifacts on the TechCore substrate.`
+              : 'Public entry point for decentralized ledger authentication and identity verification.'}
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-zinc-100/80 backdrop-blur-sm p-1.5 rounded-[2rem] flex gap-1 border border-zinc-200/50">
+        <div className="max-w-4xl mx-auto space-y-12">
+          {/* Node Identity Card - Premium Showcase */}
+          {nodeInfo && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 lg:p-12 relative overflow-hidden group shadow-2xl"
+            >
+              <div className="absolute top-0 right-0 w-96 h-96 bg-trust-green/10 blur-[100px] rounded-full -mr-48 -mt-48 group-hover:bg-trust-green/20 transition-colors duration-1000" />
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                <div className="w-32 h-32 bg-white rounded-[2.5rem] flex items-center justify-center shrink-0 shadow-2xl ring-8 ring-white/5">
+                   {nodeInfo.entityType === 'Company' ? <Building2 className="w-16 h-16 text-zinc-950" /> : <User className="w-16 h-16 text-zinc-950" />}
+                </div>
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                    <span className="font-mono text-[10px] font-black text-trust-green uppercase tracking-[0.3em]">Registrar Identity</span>
+                    <div className="h-[1px] flex-1 bg-white/10 hidden md:block" />
+                  </div>
+                  <h2 className="font-display text-4xl font-extrabold text-white mb-3 tracking-tight">
+                    {nodeInfo.companyName || `${nodeInfo.firstName} ${nodeInfo.lastName}`}
+                  </h2>
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                    <div className="flex items-center gap-2 text-zinc-400 font-sans text-sm font-medium">
+                      <Globe className="w-4 h-4" />
+                      Global Node: {nodeParam}
+                    </div>
+                    {nodeInfo.verificationStatus === 'verified' && (
+                      <div className="px-3 py-1 bg-trust-green text-zinc-950 rounded-lg flex items-center gap-2 font-mono text-[9px] font-black uppercase tracking-wider">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        L2 Authority Verified
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="flex justify-center">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-[2rem] flex gap-1">
               <button 
                 onClick={() => { setActiveTab('file'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'file' ? 'bg-white text-zinc-950 shadow-xl shadow-zinc-200/50 scale-[1.02]' : 'text-zinc-400 hover:text-zinc-600'
+                  activeTab === 'file' ? 'bg-white text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-white'
                 }`}
               >
-                File Analysis
+                Artifact Analysis
               </button>
               <button 
                 onClick={() => { setActiveTab('id'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'id' ? 'bg-white text-zinc-950 shadow-xl shadow-zinc-200/50 scale-[1.02]' : 'text-zinc-400 hover:text-zinc-600'
+                  activeTab === 'id' ? 'bg-white text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-white'
                 }`}
               >
-                Record Lookup
+                Record Retrieval
               </button>
             </div>
           </div>
 
-          <section className="bg-white border border-zinc-100 rounded-[4rem] p-10 lg:p-16 shadow-2xl shadow-zinc-200/40 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-trust-green/20 via-trust-green to-trust-green/20" />
+          <section className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[4rem] p-10 lg:p-16 shadow-2xl relative overflow-hidden group">
+            {/* Ambient Border Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-trust-green/5 to-transparent pointer-events-none" />
             
             {error && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-3"
+                className="mb-8 p-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-4"
               >
-                <AlertTriangle className="w-4 h-4" />
+                <div className="w-6 h-6 bg-red-500/20 rounded-lg flex items-center justify-center">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
                 {error}
               </motion.div>
             )}
@@ -292,39 +340,39 @@ export default function VerifyPage() {
             {!result && !isVerifying ? (
               <div className="space-y-10">
                 {activeTab === 'file' ? (
-                  <div className="relative group">
+                  <div className="relative group/upload">
                     <input 
                       type="file" 
                       onChange={onFileChange}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="border-2 border-dashed border-zinc-100 group-hover:border-trust-green/50 rounded-[3.5rem] py-24 px-10 transition-all duration-500 bg-zinc-50/30 flex flex-col items-center justify-center group-hover:bg-trust-green/[0.02]">
-                      <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center mb-8 shadow-lg ring-8 ring-zinc-50 group-hover:scale-110 transition-transform duration-500">
-                        <Upload className="w-8 h-8 text-zinc-300 group-hover:text-trust-green transition-colors" />
+                    <div className="border-2 border-dashed border-white/10 group-hover/upload:border-trust-green/50 rounded-[3.5rem] py-24 px-10 transition-all duration-500 bg-white/[0.02] flex flex-col items-center justify-center group-hover/upload:bg-trust-green/[0.03]">
+                      <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl group-hover/upload:scale-110 transition-transform duration-500">
+                        <Upload className="w-10 h-10 text-white/20 group-hover/upload:text-trust-green transition-colors" />
                       </div>
-                      <p className="font-display font-bold text-2xl text-zinc-900 mb-3">
-                        {file ? file.name : 'Upload Document'}
+                      <p className="font-display font-bold text-3xl text-white mb-3">
+                        {file ? file.name : 'Ingest Artifact'}
                       </p>
-                      <p className="font-sans text-base text-zinc-400 max-w-xs text-center leading-relaxed">
-                        {file ? `${(file.size / 1024).toFixed(1)} KB detected. Ready for analysis.` : 'Drag and drop any file to verify its cryptographic integrity.'}
+                      <p className="font-sans text-base text-zinc-500 max-w-xs text-center leading-relaxed">
+                        {file ? `${(file.size / 1024).toFixed(1)} KB identified. Awaiting consensus.` : 'Drop cryptographic asset to verify its immutable signature.'}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-8">
-                    <div className="p-14 bg-zinc-50/50 rounded-[3.5rem] border border-zinc-100 flex flex-col items-center justify-center text-center">
-                       <div className="w-20 h-20 bg-white rounded-[2rem] flex items-center justify-center mb-8 shadow-lg">
-                          <Fingerprint className="w-10 h-10 text-trust-green" />
+                    <div className="p-16 bg-white/[0.02] rounded-[3.5rem] border border-white/10 flex flex-col items-center justify-center text-center">
+                       <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl">
+                          <Fingerprint className="w-12 h-12 text-trust-green" />
                        </div>
-                       <h3 className="font-display font-bold text-2xl text-zinc-900 mb-6">Record Identity Search</h3>
-                       <div className="w-full max-w-md relative group">
-                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-zinc-300 group-focus-within:text-trust-green transition-colors" />
+                       <h3 className="font-display font-bold text-3xl text-white mb-6 uppercase tracking-tight">Access Identifier</h3>
+                       <div className="w-full max-w-md relative group/input">
+                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-7 h-7 text-white/20 group-focus-within/input:text-trust-green transition-colors" />
                           <input 
                             type="text" 
-                            placeholder="TC-NODE-0000-X"
+                            placeholder="TC-PROTOCOL-0000"
                             value={registryId}
                             onChange={(e) => setRegistryId(e.target.value.toUpperCase())}
-                            className="w-full h-16 pl-14 pr-6 bg-white border-2 border-zinc-100 rounded-2xl focus:outline-none focus:border-trust-green font-mono text-lg tracking-wider transition-all shadow-sm"
+                            className="w-full h-20 pl-16 pr-8 bg-white/5 border border-white/10 rounded-3xl focus:outline-none focus:border-trust-green text-white font-mono text-xl tracking-[0.2em] transition-all"
                           />
                        </div>
                     </div>
@@ -334,24 +382,28 @@ export default function VerifyPage() {
                 <button 
                   onClick={activeTab === 'file' ? handleVerify : handleVerifyId}
                   disabled={activeTab === 'file' ? !file : !registryId}
-                  className="w-full h-20 bg-zinc-950 text-white rounded-[2rem] font-display font-bold text-xl flex items-center justify-center gap-4 hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:cursor-not-allowed transition-all duration-300 shadow-2xl shadow-zinc-200"
+                  className="w-full h-24 bg-white text-zinc-950 rounded-[2.5rem] font-display font-black text-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-6 hover:bg-zinc-200 disabled:bg-white/5 disabled:text-white/10 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl relative overflow-hidden group/btn"
                 >
-                  {activeTab === 'file' ? 'Authenticate Document' : 'Query Global Ledger'}
-                  <ArrowRight className="w-6 h-6" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-trust-green to-trust-green opacity-0 group-hover/btn:opacity-10 transition-opacity" />
+                  {activeTab === 'file' ? 'Begin Authentication' : 'Query Substrate'}
+                  <ArrowRight className="w-8 h-8 group-hover/btn:translate-x-2 transition-transform" />
                 </button>
               </div>
             ) : isVerifying ? (
-              <div className="py-24 text-center space-y-10">
-                <div className="relative w-32 h-32 mx-auto">
-                   <div className="absolute inset-0 border-4 border-trust-green/20 border-t-trust-green rounded-full animate-spin" />
-                   <div className="absolute inset-6 border-4 border-zinc-100 border-b-zinc-400 rounded-full animate-spin-reverse" />
+              <div className="py-24 text-center space-y-12">
+                <div className="relative w-40 h-40 mx-auto">
+                   <div className="absolute inset-0 border-[6px] border-white/5 border-t-trust-green rounded-full animate-spin" />
+                   <div className="absolute inset-8 border-[6px] border-white/5 border-b-white/50 rounded-full animate-spin-reverse" />
                    <div className="absolute inset-0 flex items-center justify-center">
-                      <ShieldCheck className="w-10 h-10 text-trust-green opacity-40 animate-pulse" />
+                      <ShieldCheck className="w-14 h-14 text-trust-green opacity-40 animate-pulse" />
                    </div>
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-3xl text-zinc-900 tracking-tight">Executing Verification Protocol</h3>
-                  <p className="font-mono text-xs text-zinc-400 tracking-[0.3em] font-bold mt-4 uppercase animate-pulse">Scanning Decentalized Nodes</p>
+                  <h3 className="font-display font-black text-4xl text-white tracking-widest uppercase">Validating Protocol</h3>
+                  <div className="flex items-center justify-center gap-3 mt-6">
+                    <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-ping" />
+                    <p className="font-mono text-xs text-zinc-500 tracking-[0.4em] font-black uppercase">Consensus Synchronization In Progress</p>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -364,27 +416,21 @@ export default function VerifyPage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-zinc-50 border border-zinc-200/50 rounded-[4rem] p-16 lg:p-24 text-center"
+                    className="bg-white/[0.02] border border-white/10 rounded-[4rem] p-16 lg:p-24 text-center"
                   >
-                    <div className="w-28 h-28 bg-white rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-xl ring-8 ring-zinc-50">
-                      <Archive className="w-12 h-12 text-zinc-300" />
+                    <div className="w-32 h-32 bg-white/5 border border-white/10 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
+                      <Archive className="w-14 h-14 text-white/10" />
                     </div>
-                    <h3 className="font-display font-bold text-4xl text-zinc-900 mb-4 tracking-tighter">Identity Void Detected</h3>
-                    <p className="font-sans text-zinc-500 mb-12 max-w-md mx-auto leading-relaxed text-lg">
-                      No matching cryptographic footprint could be validated. This document or record has not been indexed on the TechCore substrate.
+                    <h3 className="font-display font-black text-5xl text-white mb-6 uppercase tracking-tighter">Null Index</h3>
+                    <p className="font-sans text-zinc-400 mb-12 max-w-md mx-auto leading-relaxed text-xl font-medium">
+                      The cryptographic fingerprint requested is not recognized by this node instance. No substrate record found.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-zinc-950 text-white rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-950/20"
+                        className="h-16 px-12 bg-white text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all shadow-2xl"
                       >
-                        Reset Protocol
-                      </button>
-                      <button 
-                        onClick={() => router.push('/login')}
-                        className="h-16 px-12 bg-white text-zinc-900 border-2 border-zinc-200 rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-50 transition-all"
-                      >
-                        Node Access
+                        Reset Gateway
                       </button>
                     </div>
                   </motion.div>
@@ -392,22 +438,21 @@ export default function VerifyPage() {
                    <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-red-50 border border-red-100 rounded-[4rem] p-16 lg:p-24 text-center"
+                    className="bg-red-500/5 border border-red-500/10 rounded-[4rem] p-16 lg:p-24 text-center"
                   >
-                    <div className="w-28 h-28 bg-white rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-xl ring-8 ring-red-50">
-                      <AlertTriangle className="w-12 h-12 text-red-500" />
+                    <div className="w-32 h-32 bg-white/5 border border-red-500/20 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl">
+                      <AlertTriangle className="w-14 h-14 text-red-500" />
                     </div>
-                    <h3 className="font-display font-bold text-4xl text-zinc-900 mb-4 tracking-tighter text-red-600">Access Denied</h3>
-                    <p className="font-sans text-zinc-600 mb-12 max-w-lg mx-auto leading-relaxed text-lg font-medium">
-                      Authentication failed due to a node mismatch. This record exists but was issued by a different authority. 
-                      <p className="mt-4 text-zinc-400 text-sm italic">Verification through this specific gateway is restricted to native node artifacts only.</p>
+                    <h3 className="font-display font-black text-5xl text-red-500 mb-6 uppercase tracking-tighter">Security Conflict</h3>
+                    <p className="font-sans text-zinc-400 mb-12 max-w-xl mx-auto leading-relaxed text-xl font-medium">
+                      Authentication Denied. This record is registered to a different authority node. gateway isolation active.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-zinc-950 text-white rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl"
+                        className="h-16 px-12 bg-white text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 transition-all shadow-2xl"
                       >
-                        Retry Protocol
+                        Terminate Search
                       </button>
                     </div>
                   </motion.div>
@@ -429,71 +474,35 @@ export default function VerifyPage() {
                             <ShieldCheck className="w-16 h-16 text-trust-green transition-transform duration-700 group-hover:scale-110" />
                           }
                         </div>
-                        <div className="px-6 py-2 bg-trust-green text-white rounded-2xl font-mono text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3 shadow-lg shadow-trust-green/20">
-                           <CheckCircle2 className="w-4 h-4" />
-                           Authentic
+                        <div className="w-full text-center">
+                          <div className="px-6 py-2 bg-trust-green text-zinc-950 rounded-2xl font-mono text-xs font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 shadow-2xl shadow-trust-green/20">
+                             <CheckCircle2 className="w-5 h-5" />
+                             Verified
+                          </div>
                         </div>
                       </div>
 
                       <div className="flex-1 space-y-12">
                         <div>
-                          <div className="flex items-center gap-3 mb-4">
-                            <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] px-3 py-1 bg-trust-green text-white rounded-lg">Verified Substrate</span>
+                          <div className="flex items-center gap-4 mb-4">
+                            <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] px-4 py-1.5 bg-trust-green text-zinc-950 rounded-xl">Protocol.Alpha</span>
                           </div>
-                          <h3 className="font-display font-black text-5xl lg:text-6xl text-zinc-900 tracking-tighter leading-[0.9] mb-4">
-                            {result.type === 'registry' ? 'Official Ledger Entry' : 'Cryptographic Match Verified'}
+                          <h3 className="font-display font-black text-6xl lg:text-7xl text-white tracking-tighter leading-[0.85] uppercase">
+                            Authentic Artifact
                           </h3>
                         </div>
 
-                        {/* Registrar Section - Highlighted Company Data */}
-                        <div className="p-8 bg-white border border-zinc-100 rounded-[2.5rem] shadow-sm relative group overflow-hidden">
-                           <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-50 rounded-full -mr-16 -mt-16 transition-transform duration-700 group-hover:scale-150" />
-                           <div className="relative z-10">
-                              <span className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-6 block">Identity Attestation</span>
-                              
-                              <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-zinc-950 rounded-2xl flex items-center justify-center shrink-0">
-                                  {result.registrar?.entityType === 'Company' ? <Building2 className="w-8 h-8 text-trust-green" /> : <User className="w-8 h-8 text-trust-green" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-display font-extrabold text-2xl text-zinc-900 truncate tracking-tight">
-                                    {(result.registrar?.companyName || (result.registrar?.firstName || result.registrar?.lastName)) ? (
-                                      result.registrar?.companyName || `${result.registrar?.firstName || ''} ${result.registrar?.lastName || ''}`.trim()
-                                    ) : (
-                                      result.userEmail?.split('@')[0] || 'Unknown Registrar'
-                                    )}
-                                  </h4>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <p className="font-sans text-sm text-zinc-500 font-medium">
-                                      {result.registrar?.entityType || 'Trust'} Node
-                                    </p>
-                                    <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-                                    <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase truncate">
-                                      {result.userEmail}
-                                    </p>
-                                  </div>
-                                </div>
-                                {result.registrar?.verificationStatus === 'verified' && (
-                                  <div className="px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full flex items-center gap-1.5 shrink-0 hidden sm:flex">
-                                    <ShieldCheck className="w-3.5 h-3.5 text-trust-green" />
-                                    <span className="font-mono text-[9px] font-bold text-trust-green uppercase">L2 Verified</span>
-                                  </div>
-                                )}
-                              </div>
-                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                           {[
                             { 
-                              label: 'Asset Recognition', 
-                              value: result.docName || result.name || result.fileName || 'Untitled Index', 
+                              label: 'Artifact Class', 
+                              value: result.docName || result.name || result.fileName || 'General Asset', 
                               icon: FileText,
                               type: 'text'
                             },
                             { 
-                              label: result.type === 'registry' ? 'Substrate ID' : 'Protocol Status', 
-                              value: result.type === 'registry' ? result.registryId : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Infinite Persistence'), 
+                              label: result.type === 'registry' ? 'Protocol ID' : 'Persistence', 
+                              value: result.type === 'registry' ? result.registryId : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent'), 
                               icon: result.type === 'registry' ? Fingerprint : Clock,
                               type: 'mono'
                             },
@@ -502,14 +511,20 @@ export default function VerifyPage() {
                               value: new Date(result.createdAt).toLocaleString(), 
                               icon: Clock,
                               type: 'text'
-                            }
+                            },
+                            { 
+                              label: 'Genesis Registrar', 
+                              value: result.registrar?.companyName || result.userEmail, 
+                              icon: User,
+                              type: 'text'
+                            },
                           ].map((card, i) => (
-                            <div key={i} className="p-6 bg-white border border-zinc-100 rounded-3xl shadow-sm hover:shadow-md transition-shadow group">
-                              <div className="flex items-center gap-2 mb-4 text-zinc-400 group-hover:text-trust-green transition-colors">
-                                <card.icon className="w-4 h-4" />
-                                <span className="font-mono text-[9px] font-bold uppercase tracking-[0.2em]">{card.label}</span>
+                            <div key={i} className="p-8 bg-white/5 border border-white/10 rounded-[2.5rem] shadow-2xl group hover:bg-white/[0.08] transition-colors">
+                              <div className="flex items-center gap-3 mb-4 text-zinc-500 group-hover:text-trust-green transition-colors">
+                                <card.icon className="w-5 h-5" />
+                                <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em]">{card.label}</span>
                               </div>
-                              <p className={`font-display font-bold ${card.type === 'mono' ? 'font-mono text-xs' : 'text-base'} text-zinc-900 truncate tracking-tight`}>
+                              <p className={`font-display font-bold ${card.type === 'mono' ? 'font-mono text-sm' : 'text-xl'} text-white truncate tracking-tight`}>
                                 {card.value}
                               </p>
                             </div>
@@ -543,20 +558,20 @@ export default function VerifyPage() {
                            )}
                         </div>
 
-                        <div className="flex items-center justify-between pt-8 border-t border-zinc-100">
+                        <div className="flex items-center justify-between pt-10 border-t border-white/10">
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-trust-green/10 rounded-full flex items-center justify-center">
-                              <ShieldCheck className="w-5 h-5 text-trust-green" />
+                            <div className="w-12 h-12 bg-trust-green/10 rounded-full flex items-center justify-center border border-trust-green/20">
+                              <ShieldCheck className="w-6 h-6 text-trust-green" />
                             </div>
-                            <p className="font-sans text-xs text-zinc-400 font-bold uppercase tracking-widest">
-                              Protocol integrity confirmed at 100%
+                            <p className="font-sans text-xs text-zinc-500 font-black uppercase tracking-[0.3em]">
+                              Audit Complete
                             </p>
                           </div>
                           <button 
                             onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); setError(null); }}
-                            className="h-12 px-8 bg-zinc-100 text-zinc-600 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 hover:text-zinc-900 transition-all flex items-center gap-2"
+                            className="h-14 px-10 bg-white/5 border border-white/10 text-white rounded-2xl font-display font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white/10 transition-all flex items-center gap-3"
                           >
-                             Terminate Audit <X className="w-4 h-4" />
+                             Terminate Session <X className="w-5 h-5" />
                           </button>
                         </div>
                       </div>
@@ -568,14 +583,14 @@ export default function VerifyPage() {
 
           </section>
 
-          <section className="bg-zinc-50 p-12 rounded-[4rem] border border-zinc-100 flex flex-col md:flex-row items-center gap-12 group transition-all hover:bg-white hover:shadow-xl hover:shadow-zinc-200/50">
-            <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shrink-0 shadow-lg ring-[12px] ring-zinc-100 group-hover:scale-110 transition-transform duration-500">
-              <AlertTriangle className="w-10 h-10 text-amber-500" />
+          <section className="bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 group transition-all hover:bg-white/10">
+            <div className="w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center shrink-0 shadow-2xl ring-[16px] ring-white/5 group-hover:scale-110 transition-transform duration-700">
+              <AlertTriangle className="w-14 h-14 text-zinc-950" />
             </div>
             <div>
-              <h4 className="font-display font-bold text-2xl text-zinc-900 mb-3 tracking-tight">Technical Assurance Layer</h4>
+              <h4 className="font-display font-black text-3xl text-white mb-4 uppercase tracking-tight">Technical Assurance Layer</h4>
               <p className="font-sans text-lg text-zinc-500 leading-relaxed max-w-2xl font-medium">
-                TechCore node verification implements strict binary consensus. Any modification to a digital asset, even by a single bit, will invalidate the cryptographic signature and result in a mismatch on the substrate.
+                Our verification substrate utilizes 256-bit cryptographic hashing. Any alteration to the artifact's digital DNA, however minute, will result in immediate authentication failure and gateway lockdown.
               </p>
             </div>
           </section>
