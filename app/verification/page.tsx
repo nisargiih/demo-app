@@ -172,6 +172,7 @@ export default function VerificationPage() {
 
   const isVerified = user?.verificationStatus === 'verified';
   const isPending = user?.verificationStatus === 'pending';
+  const isCompanyTabLocked = user?.entityType !== 'Company' && !isVerified;
 
   const docTypes = {
     individual: [
@@ -237,17 +238,39 @@ export default function VerificationPage() {
                 <User className={`w-4 h-4 ${activeTab === 'individual' ? 'text-trust-green' : 'text-zinc-400'}`} />
                 <span className="font-display font-bold text-[10px] uppercase tracking-widest">Individual</span>
               </button>
-              <button
-                onClick={() => setActiveTab('company')}
-                className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left ${
-                  activeTab === 'company' 
-                    ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
-                    : 'text-zinc-500 hover:bg-zinc-50'
-                }`}
-              >
-                <Building2 className={`w-4 h-4 ${activeTab === 'company' ? 'text-trust-green' : 'text-zinc-400'}`} />
-                <span className="font-display font-bold text-[10px] uppercase tracking-widest">Company</span>
-              </button>
+              
+              <div className="relative group">
+                <button
+                  disabled={isCompanyTabLocked}
+                  onClick={() => setActiveTab('company')}
+                  className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left ${
+                    activeTab === 'company' 
+                      ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
+                      : isCompanyTabLocked
+                        ? 'opacity-50 cursor-not-allowed text-zinc-400 bg-zinc-50'
+                        : 'text-zinc-500 hover:bg-zinc-50'
+                  }`}
+                >
+                  {isCompanyTabLocked ? (
+                    <Lock className="w-4 h-4 text-zinc-400" />
+                  ) : (
+                    <Building2 className={`w-4 h-4 ${activeTab === 'company' ? 'text-trust-green' : 'text-zinc-400'}`} />
+                  )}
+                  <span className="font-display font-bold text-[10px] uppercase tracking-widest">Company</span>
+                </button>
+                
+                {isCompanyTabLocked && (
+                  <div className="absolute left-0 lg:left-full lg:ml-4 top-full lg:top-0 mt-2 lg:mt-0 w-64 p-4 bg-zinc-950 text-white rounded-2xl text-[10px] opacity-0 pointer-events-none group-hover:opacity-100 transition-all z-50 shadow-2xl border border-zinc-800 translate-y-2 group-hover:translate-y-0">
+                    <div className="flex items-center gap-2 mb-2 text-trust-green">
+                      <Lock className="w-3 h-3" />
+                      <p className="font-display font-bold uppercase tracking-tighter">Access Restricted</p>
+                    </div>
+                    <p className="font-sans text-zinc-400 leading-relaxed font-medium">
+                      Verify your individual identity first then you can upgrade to company profile.
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <div className="pt-8 space-y-4">
                 <div className="p-5 bg-zinc-950 rounded-2xl text-white overflow-hidden relative group">
