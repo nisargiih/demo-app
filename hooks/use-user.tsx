@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { SecurityService } from '@/lib/security-service';
 
 interface UserContextType {
@@ -22,6 +23,7 @@ const UserContext = createContext<UserContextType>({
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   const fetchUser = useCallback(async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -45,11 +47,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchUser();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [fetchUser]);
+    fetchUser();
+    
+    // Refresh on focus
+    window.addEventListener('focus', fetchUser);
+    return () => window.removeEventListener('focus', fetchUser);
+  }, [fetchUser, pathname]); // Added pathname here
 
   return (
     <UserContext.Provider value={{ 

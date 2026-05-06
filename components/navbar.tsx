@@ -32,10 +32,10 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const userName = user?.firstName || 'User Account';
-  const userEmail = user?.email || 'user@techcore.io';
+  const userName = user?.firstName ? `${user.firstName} ${user.lastName || ''}` : localStorage.getItem('user_first_name') || 'User Account';
+  const userEmail = user?.email || localStorage.getItem('authenticated_user_email') || 'user@techcore.io';
   const credits = user?.credits || 0;
-  const verificationStatus = user?.verificationStatus;
+  const verificationStatus = user?.verificationStatus || (user?.isVerified ? 'verified' : 'unverified');
 
   const isVerified = verificationStatus === 'verified';
   const isPending = verificationStatus === 'pending';
