@@ -36,7 +36,7 @@ export default function VerifyPage() {
   const [registryId, setRegistryId] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'unindexed' | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'unindexed' | 'mismatch' | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState<string | null>(null);
@@ -96,6 +96,14 @@ export default function VerifyPage() {
       if (res.ok) {
         const data = await res.json();
         if (data) {
+          // If we are on a specific company/node page, only allow verified if it matches that node
+          if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
+            setError(`Security Conflict: This document belongs to a different node (${data.registrar?.companyName || data.userEmail}) and cannot be authenticated here.`);
+            setVerificationStatus('mismatch');
+            setIsVerifying(false);
+            return;
+          }
+
           const resultType = data.type || (data.registryId ? 'registry' : 'hash');
           setResult({...data, type: resultType});
           setVerificationStatus('authentic');
@@ -147,6 +155,14 @@ export default function VerifyPage() {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
         if (data && !data.error) {
+          // If we are on a specific company/node page, only allow verified if it matches that node
+          if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
+            setError(`Security Conflict: This identity record is registered to another authority (${data.registrar?.companyName || data.userEmail}).`);
+            setVerificationStatus('mismatch');
+            setIsVerifying(false);
+            return;
+          }
+
           setResult({...data, type: 'registry'});
           setVerificationStatus('authentic');
         } else {
@@ -369,6 +385,29 @@ export default function VerifyPage() {
                         className="h-16 px-12 bg-white text-zinc-900 border-2 border-zinc-200 rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-50 transition-all"
                       >
                         Node Access
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : verificationStatus === 'mismatch' ? (
+                   <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-red-50 border border-red-100 rounded-[4rem] p-16 lg:p-24 text-center"
+                  >
+                    <div className="w-28 h-28 bg-white rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-xl ring-8 ring-red-50">
+                      <AlertTriangle className="w-12 h-12 text-red-500" />
+                    </div>
+                    <h3 className="font-display font-bold text-4xl text-zinc-900 mb-4 tracking-tighter text-red-600">Access Denied</h3>
+                    <p className="font-sans text-zinc-600 mb-12 max-w-lg mx-auto leading-relaxed text-lg font-medium">
+                      Authentication failed due to a node mismatch. This record exists but was issued by a different authority. 
+                      <p className="mt-4 text-zinc-400 text-sm italic">Verification through this specific gateway is restricted to native node artifacts only.</p>
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                      <button 
+                        onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
+                        className="h-16 px-12 bg-zinc-950 text-white rounded-2xl font-display font-bold text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl"
+                      >
+                        Retry Protocol
                       </button>
                     </div>
                   </motion.div>
