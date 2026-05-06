@@ -30,7 +30,25 @@ export async function POST(req: Request) {
       { $set: { isVerified: true, onboardingCompleted: true, entityType: 'individual' }, $unset: { otp: "" } }
     );
 
-    const response = { message: 'Verification successful' };
+    // Fetch the updated user for the response
+    const updatedUser = await users.findOne({ _id: user._id });
+    if (!updatedUser) {
+       return NextResponse.json(SecurityService.prepareForTransit({ error: 'User synchronization failed' }), { status: 500 });
+    }
+
+    const { password: _p, otp: _o, ...safeUser } = updatedUser;
+
+    const response = { 
+      message: 'Verification successful',
+      user: {
+        id: safeUser._id,
+        email: safeUser.email,
+        firstName: safeUser.firstName,
+        lastName: safeUser.lastName,
+        role: safeUser.role,
+        permissions: safeUser.permissions
+      }
+    };
     return NextResponse.json(SecurityService.prepareForTransit(response));
   } catch (error) {
     console.error('OTP Verification Error:', error);

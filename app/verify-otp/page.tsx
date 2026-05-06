@@ -13,6 +13,8 @@ import Link from 'next/link';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
 
+import { useUser } from '@/hooks/use-user';
+
 const otpSchema = z.object({
   otp: z.string().length(6, 'OTP must be 6 characters'),
 });
@@ -22,6 +24,7 @@ type OtpInputs = z.infer<typeof otpSchema>;
 export default function VerifyOtpPage() {
   const router = useRouter();
   const { notify } = useNotification();
+  const { refresh } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -51,7 +54,17 @@ export default function VerifyOtpPage() {
       const result = SecurityService.processFromTransit(body);
 
       if (response.ok) {
-        localStorage.setItem('authenticated_user_email', email);
+        if (result.user) {
+          localStorage.setItem('authenticated_user_email', result.user.email);
+          localStorage.setItem('authenticated_user_id', result.user.id);
+          localStorage.setItem('user_first_name', result.user.firstName);
+          localStorage.removeItem('pending_verification_email');
+          // Refresh context
+          await refresh();
+        } else {
+          localStorage.setItem('authenticated_user_email', email);
+        }
+
         setIsSuccess(true);
         notify('Identity verified. Synchronizing node...', 'success');
         setTimeout(() => {

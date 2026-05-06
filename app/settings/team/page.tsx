@@ -171,10 +171,10 @@ export default function TeamPage() {
                       <td className="p-6">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-trust-green font-display font-bold">
-                            {member.firstName.charAt(0)}
+                            {member.firstName ? member.firstName.charAt(0) : '?'}
                           </div>
                           <div>
-                            <p className="font-display font-bold text-sm text-zinc-900">{member.firstName} {member.lastName}</p>
+                            <p className="font-display font-bold text-sm text-zinc-900">{member.firstName || 'Unknown'} {member.lastName || 'Node'}</p>
                             <p className="font-sans text-[11px] text-zinc-400">{member.email}</p>
                           </div>
                         </div>
@@ -260,9 +260,9 @@ export default function TeamPage() {
 
                <div className="mt-12">
                   <div className="w-20 h-20 rounded-3xl bg-zinc-950 flex items-center justify-center text-trust-green font-display font-black text-2xl mb-6">
-                    {selectedMember.firstName.charAt(0)}
+                    {selectedMember.firstName ? selectedMember.firstName.charAt(0) : '?'}
                   </div>
-                  <h2 className="font-display text-3xl font-bold text-zinc-900">{selectedMember.firstName} {selectedMember.lastName}</h2>
+                  <h2 className="font-display text-3xl font-bold text-zinc-900">{selectedMember.firstName || 'Unknown'} {selectedMember.lastName || 'Member'}</h2>
                   <p className="font-sans text-zinc-400 mt-1">{selectedMember.email}</p>
                   
                   <div className="mt-12 space-y-8">

@@ -31,7 +31,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const res = await fetch(`/api/auth/me?email=${email}`);
+      const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
