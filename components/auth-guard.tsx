@@ -32,7 +32,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     } 
 
-    if (email && isPublicRoute && pathname !== '/verify-otp') {
+    if (email && isPublicRoute && pathname !== '/verify-otp' && pathname !== '/verify') {
       router.push('/dashboard');
       return;
     }

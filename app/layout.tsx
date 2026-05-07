@@ -24,10 +24,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           <UserProvider>
             <AuthGuard>
               {children}
-              <Script
-                id="razorpay-checkout-js"
-                src="https://checkout.razorpay.com/v1/checkout.js"
-              />
             </AuthGuard>
           </UserProvider>
         </NotificationProvider>

@@ -54,6 +54,7 @@ export async function POST(req: Request) {
       permissions,
       credits: 0,
       otp, 
+      invitedBy: data.invitedBy || null,
       createdAt: new Date(),
     };
 

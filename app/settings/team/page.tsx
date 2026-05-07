@@ -373,6 +373,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
   const [role, setRole] = useState<'admin' | 'member'>('member');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(['dashboard']);
   const { notify } = useNotification();
+  const { user, loading: userLoading } = useUser();
   const [loading, setLoading] = useState(false);
 
   const togglePermission = (id: string) => {
@@ -389,7 +390,8 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
       const payload = SecurityService.prepareForTransit({ 
         ...formData,
         role: role,
-        permissions: role === 'admin' ? MODULES.map(m => m.id) : selectedPermissions 
+        permissions: role === 'admin' ? MODULES.map(m => m.id) : selectedPermissions,
+        invitedBy: user?.email
       });
       const res = await fetch('/api/auth/register', {
         method: 'POST',

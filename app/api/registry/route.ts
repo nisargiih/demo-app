@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { SecurityService } from '@/lib/security-service';
+import { UsageService } from '@/lib/usage-service';
 
 export async function GET(req: Request) {
   try {
@@ -64,10 +65,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Registry access denied' }, { status: 403 });
     }
 
-    if ((user.credits || 0) < 12) {
+    // NEW: Usage Logic - 5 Free registry uploads per month
+    const canUseFree = await UsageService.canUseFree(userEmail.toLowerCase().trim(), 'registry');
+    
+    if (!canUseFree) {
       return NextResponse.json({ 
-        error: 'Insufficient credits for official registry upload. Required: 12 Energy Units.',
-        status: 'insufficient_credits'
+        error: 'Monthly free registry quota reached. Upgrade required for additional official uploads.',
+        status: 'quota_exceeded'
       }, { status: 402 });
     }
 
@@ -77,11 +81,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Registry ID already exists' }, { status: 409 });
     }
 
-    // Deduct credits
-    await users.updateOne(
-      { email: userEmail.toLowerCase().trim() },
-      { $inc: { credits: -12 } }
-    );
+    await UsageService.incrementUsage(userEmail.toLowerCase().trim(), 'registry');
 
     const result = await registry.insertOne({
       ...data,
