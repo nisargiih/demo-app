@@ -9,21 +9,28 @@ export const LIMITS = {
 };
 
 export class UsageService {
-  static async resolveUsageEmail(email: string): Promise<string> {
+  static async resolveUsageId(email: string): Promise<string> {
     const cleanEmail = email.toLowerCase().trim();
     const client = await clientPromise;
     const db = client.db('tech-core');
     const users = db.collection('users');
     
     const user = await users.findOne({ email: cleanEmail });
-    if (user && user.invitedBy) {
-      return user.invitedBy.toLowerCase().trim();
+    if (!user) return cleanEmail; // Fallback to email if user not found (shouldn't happen for active users)
+    
+    if (user.invitedBy) {
+      // If invitedBy is an email (legacy), try to find that user's ID
+      if (user.invitedBy.includes('@')) {
+        const parent = await users.findOne({ email: user.invitedBy.toLowerCase().trim() });
+        return parent ? parent._id.toString() : user.invitedBy;
+      }
+      return user.invitedBy; // Already an ID
     }
-    return cleanEmail;
+    return user._id.toString();
   }
 
   static async getMonthlyUsage(email: string) {
-    const parentEmail = await this.resolveUsageEmail(email);
+    const parentId = await this.resolveUsageId(email);
     const client = await clientPromise;
     const db = client.db('tech-core');
     const usage = db.collection('monthly_usage');
@@ -32,11 +39,11 @@ export class UsageService {
     const month = now.getMonth(); // 0-11
     const year = now.getFullYear();
 
-    let record = await usage.findOne({ email: parentEmail, month, year });
+    let record = await usage.findOne({ userId: parentId, month, year });
     
     if (!record) {
       const newRecord = {
-        email: parentEmail,
+        userId: parentId,
         month,
         year,
         hashCount: 0,
@@ -59,7 +66,7 @@ export class UsageService {
   }
 
   static async incrementUsage(email: string, type: UsageType) {
-    const parentEmail = await this.resolveUsageEmail(email);
+    const parentId = await this.resolveUsageId(email);
     const client = await clientPromise;
     const db = client.db('tech-core');
     const usage = db.collection('monthly_usage');
@@ -71,7 +78,7 @@ export class UsageService {
     const field = type === 'hash' ? 'hashCount' : type === 'verify' ? 'verifyCount' : 'registryCount';
 
     await usage.updateOne(
-      { email: parentEmail, month, year },
+      { userId: parentId, month, year },
       { 
         $inc: { [field]: 1 },
         $set: { updatedAt: now }

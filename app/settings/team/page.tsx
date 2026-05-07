@@ -391,7 +391,7 @@ function InviteModal({ isOpen, onClose, onSuccess }: { isOpen: boolean, onClose:
         ...formData,
         role: role,
         permissions: role === 'admin' ? MODULES.map(m => m.id) : selectedPermissions,
-        invitedBy: user?.email
+        invitedBy: user?._id
       });
       const res = await fetch('/api/auth/register', {
         method: 'POST',
