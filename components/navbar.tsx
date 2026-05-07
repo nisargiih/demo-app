@@ -65,7 +65,7 @@ export function Sidebar() {
     { name: 'Profile', icon: User, path: '/profile' },
     { name: 'Verification', icon: ShieldCheck, path: '/verification' },
     ...(role === 'admin' ? [
-      { name: 'Wallet & Credits', icon: CreditCard, path: '/subscription' },
+      { name: 'Nodes & Subscription', icon: Box, path: '/subscription' },
       { name: 'Team Hub', icon: Users, path: '/settings/team' }
     ] : []),
   ];
@@ -100,27 +100,6 @@ export function Sidebar() {
 
           {/* Nav Section */}
           <div className="flex-1 space-y-8 overflow-y-auto pr-2 -mr-2 scrollbar-none">
-            {role === 'admin' && (
-              <div className="px-4">
-                 <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 group">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest">Available Credits</span>
-                      <CreditCard className="w-3.5 h-3.5 text-trust-green" />
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-display font-black text-2xl text-zinc-950">{credits.toLocaleString()}</span>
-                      <span className="font-mono text-[10px] text-zinc-400 font-bold">Units</span>
-                    </div>
-                    <Link 
-                      href="/subscription"
-                      className="mt-3 w-full h-8 flex items-center justify-center bg-white border border-zinc-200 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-600 hover:bg-zinc-950 hover:text-white transition-all shadow-sm"
-                    >
-                      Add Credits
-                    </Link>
-                 </div>
-              </div>
-            )}
-
             <div>
               <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest px-4 mb-4">Main Interface</p>
               <nav className="space-y-1">

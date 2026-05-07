@@ -258,11 +258,6 @@ export default function DashboardPage() {
                 )}
               </div>
               <p className="font-display text-4xl font-bold relative z-10">{stat.value}</p>
-              {stat.label === 'Energy Core' && (
-                <div className="absolute top-7 right-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Plus className="w-4 h-4 text-trust-green" />
-                </div>
-              )}
             </motion.div>
           ))}
         </div>

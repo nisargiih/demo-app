@@ -120,23 +120,14 @@ export async function POST(req: Request) {
     // NEW: Usage Logic - 10 Free hashes per month
     const canUseFree = await UsageService.canUseFree(email, 'hash');
     
-    if (canUseFree) {
-      // Use free quota
-      await UsageService.incrementUsage(email, 'hash');
-    } else {
-      // Deduct credits
-      if ((user.credits || 0) < 7) {
-        return NextResponse.json({ 
-          error: 'Monthly free quota reached. Insufficient credits for additional hash generation. Required: 7 Energy Units.',
-          status: 'insufficient_credits'
-        }, { status: 402 });
-      }
-
-      await users.updateOne(
-        { email },
-        { $inc: { credits: -7 } }
-      );
+    if (!canUseFree) {
+      return NextResponse.json({ 
+        error: 'Monthly free quota reached. Upgrade required for additional indexing.',
+        status: 'quota_exceeded'
+      }, { status: 402 });
     }
+
+    await UsageService.incrementUsage(email, 'hash');
 
     const newHash = {
       userEmail: email,

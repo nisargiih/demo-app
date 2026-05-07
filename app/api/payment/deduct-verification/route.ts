@@ -25,23 +25,14 @@ export async function POST(req: Request) {
     // NEW: Usage Logic - 15 Free verifications per month
     const canUseFree = await UsageService.canUseFree(cleanEmail, 'verify');
     
-    if (canUseFree) {
-      // Use free quota
-      await UsageService.incrementUsage(cleanEmail, 'verify');
-    } else {
-      // Deduct credits
-      if ((user.credits || 0) < 1) {
-        return NextResponse.json({ 
-          error: 'Monthly free verification quota reached. Insufficient credits. Required: 1 Energy Unit.',
-          status: 'insufficient_credits'
-        }, { status: 402 });
-      }
-
-      await users.updateOne(
-        { email: cleanEmail },
-        { $inc: { credits: -1 } }
-      );
+    if (!canUseFree) {
+      return NextResponse.json({ 
+        error: 'Monthly free verification quota reached. Upgrade required for additional analysis.',
+        status: 'quota_exceeded'
+      }, { status: 402 });
     }
+
+    await UsageService.incrementUsage(cleanEmail, 'verify');
 
     return NextResponse.json(SecurityService.prepareForTransit({ success: true }));
   } catch (error) {

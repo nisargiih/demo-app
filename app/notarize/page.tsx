@@ -135,9 +135,9 @@ export default function NotarizePage() {
           }
         } else if (res.status === 402) {
           updateItemStatus(item.id, 'error', 'Quota Exhausted');
-          notify('Monthly free quota reached and Energy Core is depleted. Recharge required for additional indexing.', 'error');
+          notify('Monthly free quota reached for the current period. Upgrade required for additional indexing.', 'error');
           setIsProcessing(false);
-          return; // Stop the batch if credits and quota are gone
+          return; // Stop the batch if quota is gone
         } else {
           updateItemStatus(item.id, 'error', 'Store failed');
         }

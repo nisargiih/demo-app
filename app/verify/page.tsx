@@ -80,7 +80,7 @@ export default function VerifyPage() {
         if (!deductRes.ok) {
           const errorData = await deductRes.json();
           if (deductRes.status === 402) {
-            setError('Monthly free verification quota reached. Insufficient Energy Units for additional analysis.');
+            setError('Monthly free verification quota reached for the current period. Upgrade required for additional analysis.');
             setIsVerifying(false); // Stop here
             return;
           }
@@ -142,7 +142,7 @@ export default function VerifyPage() {
         if (!deductRes.ok) {
           const errorData = await deductRes.json();
           if (deductRes.status === 402) {
-            setError('Monthly free verification quota reached. Registry lookup requires Energy Units.');
+            setError('Monthly free verification quota reached for the current period. Upgrade required for additional registry lookups.');
             setIsVerifying(false);
             return;
           }
