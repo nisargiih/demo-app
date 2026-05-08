@@ -15,7 +15,12 @@ import {
   Download,
   FileText,
   Clock,
-  ArrowUpRight
+  ArrowUpRight,
+  Plus,
+  X,
+  Upload,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -32,6 +37,17 @@ export default function RegistryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // New Record Stats
+  const [newRecord, setNewRecord] = useState({
+    registryId: '',
+    docName: '',
+    description: '',
+    type: 'identity',
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchRecords = async () => {
     if (!user?.email) return;
@@ -59,6 +75,98 @@ export default function RegistryPage() {
     }
     fetchRecords();
   }, [user, loading, router]);
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const res = await fetch('/api/upload/presigned', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to get presigned URL');
+      const { url, fileKey } = await res.json();
+
+      await fetch(url, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      });
+
+      return fileKey;
+    } catch (err) {
+      console.error('Upload error:', err);
+      throw err;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRecord.registryId || !newRecord.docName || !selectedFile) {
+      notify('Registry ID, Title and Document are mandatory.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      let fileKey = null;
+      if (selectedFile) {
+        fileKey = await handleFileUpload(selectedFile);
+      }
+
+      const payload = SecurityService.prepareForTransit({
+        ...newRecord,
+        userEmail: user?.email,
+        fileKey,
+        fileName: selectedFile?.name,
+        fileSize: selectedFile?.size,
+        contentType: selectedFile?.type,
+      });
+
+      const res = await fetch('/api/registry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        notify('Official record committed to ledger.', 'success');
+        setShowAddModal(false);
+        setNewRecord({ registryId: '', docName: '', description: '', type: 'identity' });
+        setSelectedFile(null);
+        fetchRecords();
+      } else {
+        const error = await res.json();
+        notify(error.error || 'Failed to create registry record.', 'error');
+      }
+    } catch (err) {
+      notify('Registry protocol failed.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDownload = async (fileKey: string, fileName: string) => {
+    try {
+      const res = await fetch(`/api/upload/download?key=${encodeURIComponent(fileKey)}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        notify('Failed to generate secure download link.', 'error');
+      }
+    } catch (err) {
+      notify('Download protocol failed.', 'error');
+    }
+  };
 
   const filteredRecords = records.filter(record => {
     const matchesSearch = 
@@ -124,20 +232,141 @@ export default function RegistryPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-4"
             >
-                <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex items-center gap-6">
-                    <div className="text-center">
-                        <p className="font-mono text-[9px] text-zinc-400 uppercase font-black mb-1">Total Records</p>
-                        <p className="font-display font-black text-xl text-zinc-950 leading-none">{records.length}</p>
-                    </div>
-                    <div className="w-[1px] h-8 bg-zinc-200" />
-                    <div className="text-center">
-                        <p className="font-mono text-[9px] text-zinc-400 uppercase font-black mb-1">Node Health</p>
-                        <p className="font-display font-black text-xl text-trust-green leading-none">99.9%</p>
-                    </div>
-                </div>
+                <button 
+                  onClick={() => setShowAddModal(true)}
+                  className="h-14 px-8 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
+                >
+                  <Plus className="w-4 h-4 text-trust-green" />
+                  Official Registration
+                </button>
             </motion.div>
           </div>
         </header>
+
+        {/* Modal for Adding Record */}
+        <AnimatePresence>
+          {showAddModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-20">
+               <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => !isSubmitting && setShowAddModal(false)}
+                  className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm"
+               />
+               <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-zinc-100"
+               >
+                  <form onSubmit={handleSubmit}>
+                    <div className="p-8 sm:p-10 border-b border-zinc-100 flex items-center justify-between">
+                       <div>
+                          <h2 className="font-display text-2xl font-black text-zinc-950 uppercase tracking-tight">Record Enrollment</h2>
+                          <p className="font-sans text-xs text-zinc-400 font-medium mt-1">Populate the decentralized ledger with official artifacts.</p>
+                       </div>
+                       <button 
+                          type="button"
+                          onClick={() => !isSubmitting && setShowAddModal(false)}
+                          className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-950 transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                       </button>
+                    </div>
+
+                    <div className="p-8 sm:p-10 space-y-8 max-h-[60vh] overflow-y-auto">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                               <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Registry Identifier (ID)</label>
+                               <input 
+                                  required
+                                  type="text" 
+                                  placeholder="TC-AUTH-0000"
+                                  value={newRecord.registryId}
+                                  onChange={e => setNewRecord({...newRecord, registryId: e.target.value.toUpperCase()})}
+                                  className="w-full h-14 px-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-mono text-sm font-bold tracking-widest uppercase transition-all"
+                               />
+                            </div>
+                            <div className="space-y-2">
+                               <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Artifact Type</label>
+                               <select 
+                                  value={newRecord.type}
+                                  onChange={e => setNewRecord({...newRecord, type: e.target.value})}
+                                  className="w-full h-14 px-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-display font-bold text-xs uppercase tracking-widest transition-all appearance-none cursor-pointer"
+                               >
+                                  <option value="identity">Identity Record</option>
+                                  <option value="corporate">Corporate Data</option>
+                                  <option value="asset">Digital Asset</option>
+                                  <option value="legal">Legal Instrument</option>
+                               </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                           <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Official Document Title</label>
+                           <input 
+                              required
+                              type="text" 
+                              placeholder="e.g., Certificate of Incorporation"
+                              value={newRecord.docName}
+                              onChange={e => setNewRecord({...newRecord, docName: e.target.value})}
+                              className="w-full h-14 px-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-sans text-sm font-bold transition-all"
+                           />
+                        </div>
+
+                        <div className="space-y-2">
+                           <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Attestation Statement (Optional)</label>
+                           <textarea 
+                              placeholder="Directives, constraints or notarization notes..."
+                              value={newRecord.description}
+                              onChange={e => setNewRecord({...newRecord, description: e.target.value})}
+                              className="w-full h-32 p-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-sans text-sm font-medium transition-all resize-none"
+                           />
+                        </div>
+
+                        <div className="space-y-4">
+                           <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Document Artifact (AWS S3)</label>
+                           <div className={`relative border-2 border-dashed rounded-3xl p-8 transition-all ${selectedFile ? 'border-trust-green bg-trust-green/[0.02]' : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'}`}>
+                              <input 
+                                type="file" 
+                                onChange={e => e.target.files?.[0] && setSelectedFile(e.target.files[0])}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              />
+                              <div className="flex flex-col items-center justify-center text-center">
+                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 border transition-all ${selectedFile ? 'bg-trust-green text-white border-trust-green' : 'bg-white text-zinc-400 border-zinc-100'}`}>
+                                    {selectedFile ? <ShieldCheck className="w-6 h-6" /> : <Upload className="w-6 h-6" />}
+                                 </div>
+                                 <p className="font-display font-bold text-sm text-zinc-950 mb-1">
+                                    {selectedFile ? selectedFile.name : 'Upload Official Artifact'}
+                                 </p>
+                                 <p className="font-sans text-[10px] text-zinc-400 font-medium max-w-[200px]">
+                                    {selectedFile ? `${(selectedFile.size / 1024).toFixed(1)} KB recognized` : 'Select the document to be notarized on the registry'}
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                    </div>
+
+                    <div className="p-8 sm:p-10 bg-zinc-50 border-t border-zinc-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div className="flex items-center gap-3 text-zinc-400">
+                           <AlertCircle className="w-4 h-4" />
+                           <p className="font-sans text-[10px] font-medium leading-tight">This will consume 1 Registry Credit. Action is immutable.</p>
+                        </div>
+                        <button 
+                           type="submit"
+                           disabled={isSubmitting}
+                           className="w-full sm:w-auto h-14 px-10 bg-zinc-950 text-white rounded-2xl font-display font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-zinc-800 transition-all disabled:opacity-50"
+                        >
+                           {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin text-trust-green" /> : <ShieldCheck className="w-4 h-4 text-trust-green" />}
+                           {isSubmitting ? 'Protocol Executing...' : 'Commit to Ledger'}
+                        </button>
+                    </div>
+                  </form>
+               </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Search & Filter Bar */}
         <div className="mb-8 flex flex-col md:flex-row gap-4 items-stretch">
@@ -228,6 +457,15 @@ export default function RegistryPage() {
                       </div>
                       
                       <div className="flex items-center gap-2">
+                        {record.fileKey && (
+                          <button 
+                            onClick={() => handleDownload(record.fileKey, record.docName)}
+                            className="w-12 h-12 bg-zinc-50 rounded-2xl flex items-center justify-center text-zinc-400 hover:bg-trust-green hover:text-white transition-all border border-zinc-100"
+                            title="Download Official Document"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        )}
                         <button 
                           onClick={() => router.push(`/verify?id=${record.registryId}`)}
                           className="w-12 h-12 bg-zinc-50 rounded-2xl flex items-center justify-center text-zinc-400 hover:bg-zinc-950 hover:text-white transition-all border border-zinc-100"

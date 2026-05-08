@@ -214,6 +214,23 @@ export default function VerifyPage() {
     }
   };
 
+  const handleDownload = async (fileKey: string, fileName: string) => {
+    try {
+      const res = await fetch(`/api/upload/download?key=${encodeURIComponent(fileKey)}`);
+      if (res.ok) {
+        const { url } = await res.json();
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      console.error('Download protocol failed:', err);
+    }
+  };
+
   const isGuest = !user?.email;
 
   if (loading) {
@@ -491,11 +508,21 @@ export default function VerifyPage() {
                             <ShieldCheck className="w-16 h-16 text-trust-green transition-transform duration-700 group-hover:scale-110" />
                           }
                         </div>
-                        <div className="w-full text-center">
+                        <div className="w-full text-center space-y-4">
                           <div className="px-6 py-2 bg-trust-green text-zinc-950 rounded-2xl font-mono text-xs font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 shadow-lg shadow-trust-green/20">
                              <CheckCircle2 className="w-5 h-5" />
                              Verified
                           </div>
+
+                          {result.fileKey && (
+                            <button 
+                              onClick={() => handleDownload(result.fileKey, result.docName || result.fileName)}
+                              className="w-full h-14 bg-white border border-zinc-200 rounded-2xl flex items-center justify-center gap-3 font-display font-black text-[10px] uppercase tracking-[0.2em] text-zinc-950 hover:bg-zinc-50 transition-all shadow-sm group/dl"
+                            >
+                              <Download className="w-4 h-4 text-trust-green group-hover/dl:scale-110 transition-transform" />
+                              Fetch Artifact
+                            </button>
+                          )}
                         </div>
                       </div>
 
