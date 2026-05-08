@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   BarChart, 
@@ -11,7 +11,11 @@ import {
   Tooltip, 
   ResponsiveContainer, 
   AreaChart, 
-  Area 
+  Area,
+  PieChart, 
+  Pie, 
+  Cell,
+  Legend
 } from 'recharts';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -22,38 +26,62 @@ import {
   TrendingUp, 
   FileCheck, 
   Users,
-  Search
+  Search,
+  PieChart as PieIcon,
+  RefreshCw
 } from 'lucide-react';
-
-const verificationData = [
-  { name: 'Mon', count: 12, size: 45 },
-  { name: 'Tue', count: 19, size: 78 },
-  { name: 'Wed', count: 25, size: 52 },
-  { name: 'Thu', count: 32, size: 120 },
-  { name: 'Fri', count: 22, size: 90 },
-  { name: 'Sat', count: 45, size: 156 },
-  { name: 'Sun', count: 38, size: 110 },
-];
-
-const networkData = [
-  { name: '00:00', load: 30 },
-  { name: '04:00', load: 45 },
-  { name: '08:00', load: 75 },
-  { name: '12:00', load: 95 },
-  { name: '16:00', load: 80 },
-  { name: '20:00', load: 60 },
-  { name: '23:59', load: 40 },
-];
+import { useUser } from '@/hooks/use-user';
+import { useRouter } from 'next/navigation';
 
 export default function AnalyticsPage() {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const router = useRouter();
+  const { user, loading: userLoading } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
 
-  React.useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const fetchStats = async () => {
+    if (!user?.email) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/analytics?email=${encodeURIComponent(user.email)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
+      }
+    } catch (err) {
+      console.error('Fetch Stats Error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (userLoading) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    fetchStats();
+  }, [user, userLoading, router]);
+
+  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
+
+  const verificationVolumeData = stats?.weeklyVolume?.map((v: any) => ({
+    name: new Date(v._id).toLocaleDateString('en-US', { weekday: 'short' }),
+    count: v.count
+  })) || [];
+
+  const indexingHistoryData = stats?.indexingHistory?.map((v: any) => ({
+    name: new Date(v._id).toLocaleDateString('en-US', { weekday: 'short' }),
+    count: v.count
+  })) || [];
+
+  const sourceData = stats?.sourceStats?.map((s: any) => ({
+    name: s._id === 'share_hub' ? 'Share Hub' : 'Public Page',
+    value: s.count
+  })) || [];
+
+  const totalVerifications = stats?.sourceStats?.reduce((acc: number, curr: any) => acc + curr.count, 0) || 0;
   const trustScore = 99.98;
 
   return (
@@ -64,10 +92,20 @@ export default function AnalyticsPage() {
       <div className="relative z-10 w-full max-w-7xl mx-auto py-12 lg:py-20">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 mb-4"
+            >
+              <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-trust-green" />
+              </div>
+              <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Insight_Analyzer_v8.0</span>
+            </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-display text-4xl font-bold text-zinc-900 mb-2"
+              className="font-display text-5xl font-black text-zinc-950 tracking-tighter uppercase mb-2"
             >
               Network Insights
             </motion.h1>
@@ -75,14 +113,20 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="font-sans text-zinc-500"
+              className="font-sans text-zinc-500 font-medium"
             >
-              Real-time monitoring of your cryptographic assets.
+              Real-time cryptographic auditing and verification forensics.
             </motion.p>
           </div>
+          <button 
+            onClick={fetchStats}
+            className="h-12 w-12 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-all"
+          >
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
         </header>
 
-        {isLoading ? (
+        {isLoading && !stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse mb-12">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="h-32 bg-zinc-50 border border-zinc-100 rounded-3xl" />
@@ -93,117 +137,195 @@ export default function AnalyticsPage() {
             {/* Top Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: "Active Nodes", val: "42", change: "+2", icon: Activity },
-            { label: "Relay Latency", val: "14ms", change: "-4ms", icon: Database },
-            { label: "Trust Score", val: trustScore.toString(), change: "Stable", icon: ShieldCheck },
-            { label: "Network Load", val: "Lo-Fi", change: "Optimal", icon: TrendingUp },
+            { label: "Total Audits", val: totalVerifications.toString(), change: "All Time", icon: Activity },
+            { label: "Avg Latency", val: "14ms", change: "-4ms", icon: Database },
+            { label: "Trust Score", val: trustScore.toString() + "%", change: "Stable", icon: ShieldCheck },
+            { label: "Substrate Load", val: "Optimal", change: "Synced", icon: TrendingUp },
           ].map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="p-6 glass rounded-3xl border border-zinc-100 shadow-sm"
+              className="p-6 bg-white rounded-3xl border border-zinc-100 shadow-sm hover:shadow-xl hover:shadow-zinc-200/40 transition-all overflow-hidden relative group"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-zinc-400" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center group-hover:bg-trust-green/10 transition-colors">
+                  <stat.icon className="w-5 h-5 text-zinc-400 group-hover:text-trust-green" />
                 </div>
                 <div className="flex items-center gap-1 text-[10px] font-bold font-mono text-trust-green">
                   {stat.change}
                 </div>
               </div>
-              <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1">{stat.label}</p>
-              <p className="font-display text-2xl font-bold text-zinc-900">{stat.val}</p>
+              <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1 relative z-10">{stat.label}</p>
+              <p className="font-display text-2xl font-black text-zinc-950 relative z-10">{stat.val}</p>
             </motion.div>
           ))}
         </div>
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          <section className="glass rounded-[2rem] p-8 border border-zinc-100">
-            <div className="flex items-center justify-between mb-8">
+          {/* Chart 1: Verification Volume */}
+          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-trust-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between mb-10">
               <div>
-                <h3 className="font-display text-xl font-bold text-zinc-900">Verification Volume</h3>
-                <p className="font-sans text-xs text-zinc-400">Total documents processed per cycle (Projected)</p>
+                <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Verification Inflow</h3>
+                <p className="font-sans text-xs text-zinc-400 font-medium">Daily traffic volume across all protocol entry points</p>
               </div>
               <TrendingUp className="text-trust-green w-5 h-5" />
             </div>
             
             <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={verificationData}>
-                  <defs>
-                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.5} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
-                  />
-                  <Tooltip 
-                    cursor={{ fill: '#f4f4f5' }}
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
-                  />
-                  <Bar dataKey="count" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {verificationVolumeData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={verificationVolumeData}>
+                    <defs>
+                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                    <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
+                    />
+                    <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
+                    />
+                    <Tooltip 
+                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                    />
+                    <Area 
+                        type="monotone" 
+                        dataKey="count" 
+                        stroke="#10b981" 
+                        strokeWidth={4}
+                        fillOpacity={1} 
+                        fill="url(#areaGradient)" 
+                    />
+                    </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
+                    Waiting for Protocol Data...
+                </div>
+              )}
             </div>
           </section>
 
-          <section className="glass rounded-[2rem] p-8 border border-zinc-100">
-            <div className="flex items-center justify-between mb-8">
+          {/* Chart 2: Indexing Volume */}
+          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between mb-10">
               <div>
-                <h3 className="font-display text-xl font-bold text-zinc-900">Network Load</h3>
-                <p className="font-sans text-xs text-zinc-400">Current relay throughput and utilization</p>
+                <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Indexing Activity</h3>
+                <p className="font-sans text-xs text-zinc-400 font-medium">New document fingerprints committed to substrate</p>
               </div>
-              <Users className="text-zinc-400 w-5 h-5" />
+              <FileCheck className="text-blue-500 w-5 h-5" />
             </div>
             
             <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={networkData}>
-                  <defs>
-                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
-                  />
-                  <Tooltip 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="load" 
-                    stroke="#10b981" 
-                    strokeWidth={4}
-                    fillOpacity={1} 
-                    fill="url(#areaGradient)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+               {indexingHistoryData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={indexingHistoryData}>
+                    <defs>
+                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                        <stop offset="100%" stopColor="#2563eb" stopOpacity={0.8} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                    <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
+                    />
+                    <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
+                    />
+                    <Tooltip 
+                        cursor={{ fill: '#f8fafc' }}
+                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                    />
+                    <Bar dataKey="count" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                </ResponsiveContainer>
+               ) : (
+                <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
+                    No Recent Ledger Commits
+                </div>
+               )}
+            </div>
+          </section>
+
+          {/* Chart 3: Source Distribution */}
+          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group col-span-1 lg:col-span-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div className="max-w-md">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center">
+                            <PieIcon className="w-4 h-4 text-trust-green" />
+                        </div>
+                        <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Entry Point Forensics</h3>
+                    </div>
+                    <p className="font-sans text-sm text-zinc-500 font-medium leading-relaxed">
+                        Analysis of verification requests originating from the Public Portal vs Direct Node Share links. This helps optimize node distribution strategies.
+                    </p>
+
+                    <div className="mt-8 space-y-4">
+                        {sourceData.map((s: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                                    <span className="font-display font-black text-xs text-zinc-900 uppercase tracking-wider">{s.name}</span>
+                                </div>
+                                <span className="font-mono font-black text-zinc-950 text-sm">
+                                    {totalVerifications > 0 ? ((s.value / totalVerifications) * 100).toFixed(1) : 0}%
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="h-[340px] flex-1 min-w-[300px]">
+                   {sourceData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                        <Pie
+                            data={sourceData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={80}
+                            outerRadius={120}
+                            paddingAngle={8}
+                            dataKey="value"
+                            stroke="none"
+                        >
+                            {sourceData.map((_entry: any, index: number) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip 
+                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                        />
+                        </PieChart>
+                    </ResponsiveContainer>
+                   ) : (
+                    <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase border-2 border-dashed border-zinc-100 rounded-[3rem]">
+                        Awaiting Source Traffic
+                    </div>
+                   )}
+                </div>
             </div>
           </section>
         </div>

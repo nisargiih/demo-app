@@ -60,6 +60,24 @@ export default function VerifyPage() {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
   };
 
+  const logVerificationResult = async (status: 'authentic' | 'unindexed' | 'mismatch', type: 'file' | 'registry', registrarEmail: string | null, identifier: string) => {
+    try {
+      await fetch('/api/analytics/log-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: nodeParam ? 'share_hub' : 'public',
+          registrarEmail: registrarEmail || (nodeParam ? nodeInfo?.userEmail : null),
+          status,
+          type,
+          [type === 'file' ? 'hash' : 'registryId']: identifier
+        })
+      });
+    } catch (err) {
+      console.error('Failed to log verification:', err);
+    }
+  };
+
   const handleVerify = async () => {
     if (!file) return;
     setIsVerifying(true);
@@ -100,6 +118,7 @@ export default function VerifyPage() {
           if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
             setError(`Security Conflict: This document belongs to a different node (${data.registrar?.companyName || data.userEmail}) and cannot be authenticated here.`);
             setVerificationStatus('mismatch');
+            logVerificationResult('mismatch', 'file', data.userEmail, hash);
             setIsVerifying(false);
             return;
           }
@@ -107,9 +126,11 @@ export default function VerifyPage() {
           const resultType = data.type || (data.registryId ? 'registry' : 'hash');
           setResult({...data, type: resultType});
           setVerificationStatus('authentic');
+          logVerificationResult('authentic', 'file', data.userEmail, hash);
         } else {
           setResult('NOT_FOUND');
           setVerificationStatus('unindexed');
+          logVerificationResult('unindexed', 'file', nodeParam, hash);
         }
       } else {
         throw new Error('Network error during verification');
@@ -159,19 +180,23 @@ export default function VerifyPage() {
           if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
             setError(`Security Conflict: This identity record is registered to another authority (${data.registrar?.companyName || data.userEmail}).`);
             setVerificationStatus('mismatch');
+            logVerificationResult('mismatch', 'registry', data.userEmail, registryId);
             setIsVerifying(false);
             return;
           }
 
           setResult({...data, type: 'registry'});
           setVerificationStatus('authentic');
+          logVerificationResult('authentic', 'registry', data.userEmail, registryId);
         } else {
           setResult('NOT_FOUND');
           setVerificationStatus('unindexed');
+          logVerificationResult('unindexed', 'registry', nodeParam, registryId);
         }
       } else {
         setResult('NOT_FOUND');
         setVerificationStatus('unindexed');
+        logVerificationResult('unindexed', 'registry', nodeParam, registryId);
       }
     } catch (err) {
       console.error(err);
