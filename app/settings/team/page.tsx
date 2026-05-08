@@ -80,7 +80,7 @@ export default function TeamPage() {
     const adminEmail = localStorage.getItem('authenticated_user_email');
     const updates = { 
       role: newRole,
-      permissions: newRole === 'admin' ? MODULES.map(m => m.id) : [] 
+      permissions: newRole === 'admin' ? MODULES.map(m => m.id) : ['dashboard'] 
     };
 
     try {
@@ -93,6 +93,9 @@ export default function TeamPage() {
 
       if (res.ok) {
         notify(`Updated ${targetEmail} to ${newRole}`, 'success');
+        if (selectedMember && selectedMember.email === targetEmail) {
+            setSelectedMember({ ...selectedMember, ...updates });
+        }
         fetchMembers();
       }
     } catch (err) {
@@ -121,10 +124,39 @@ export default function TeamPage() {
       });
 
       if (res.ok) {
+        if (selectedMember && selectedMember.email === member.email) {
+            setSelectedMember({ ...selectedMember, permissions: newPermissions });
+        }
         fetchMembers();
       }
     } catch (err) {
        notify('Permission update failed', 'error');
+    }
+  };
+
+  const handleRevokeAccess = async (targetEmail: string) => {
+    const adminEmail = localStorage.getItem('authenticated_user_email');
+    
+    if (adminEmail?.toLowerCase() === targetEmail.toLowerCase()) {
+        notify('System Override: You cannot revoke your own primary access.', 'error');
+        return;
+    }
+
+    try {
+      const res = await fetch(`/api/team/members?adminEmail=${adminEmail}&targetEmail=${targetEmail}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        notify('Member access revoked and purged from ledger.', 'success');
+        setSelectedMember(null);
+        fetchMembers();
+      } else {
+        const err = await res.json();
+        notify(err.error || 'Revoke protocol failed', 'error');
+      }
+    } catch (err) {
+      notify('Revoke protocol failed', 'error');
     }
   };
 
@@ -347,7 +379,10 @@ export default function TeamPage() {
                   </div>
 
                   <div className="mt-12 pt-12 border-t border-zinc-100">
-                     <button className="w-full h-14 border border-red-100 text-red-500 rounded-2xl font-display font-bold text-xs uppercase tracking-widest hover:bg-red-50 transition-all flex items-center justify-center gap-2">
+                     <button 
+                        onClick={() => handleRevokeAccess(selectedMember.email)}
+                        className="w-full h-14 border border-red-100 text-red-500 rounded-2xl font-display font-bold text-xs uppercase tracking-widest hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                     >
                         <Trash2 className="w-4 h-4" />
                         Revoke Access
                      </button>

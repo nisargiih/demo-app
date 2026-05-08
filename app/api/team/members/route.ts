@@ -60,3 +60,35 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const adminEmail = searchParams.get('adminEmail');
+    const targetEmail = searchParams.get('targetEmail');
+
+    if (!adminEmail || !targetEmail) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db('tech-core');
+    const users = db.collection('users');
+
+    const admin = await users.findOne({ email: adminEmail.toLowerCase() });
+    if (!admin || admin.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Safety: Cannot delete the primary admin if you are that admin (or any other logic)
+    if (adminEmail.toLowerCase() === targetEmail.toLowerCase()) {
+      return NextResponse.json({ error: 'Cannot revoke your own access' }, { status: 400 });
+    }
+
+    await users.deleteOne({ email: targetEmail.toLowerCase() });
+
+    return NextResponse.json(SecurityService.prepareForTransit({ success: true }));
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
+  }
+}
