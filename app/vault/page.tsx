@@ -17,7 +17,9 @@ import {
   MoreVertical,
   CheckCircle2,
   X,
-  RefreshCw
+  RefreshCw,
+  Tag,
+  Plus
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -33,8 +35,13 @@ export default function VaultPage() {
   const [hashes, setHashes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTagsId, setEditingTagsId] = useState<string | null>(null);
   const [newExpiryDate, setNewExpiryDate] = useState('');
+  const [tagInput, setTagInput] = useState('');
+
+  const allTags = Array.from(new Set(hashes.flatMap(h => h.tags || []))).sort();
 
   const fetchHashes = async () => {
     if (!user?.email) return;
@@ -63,10 +70,13 @@ export default function VaultPage() {
     fetchHashes();
   }, [user, loading, router]);
 
-  const filteredHashes = hashes.filter(h => 
-    h.fileName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    h.hash?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredHashes = hashes.filter(h => {
+    const matchesSearch = h.fileName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          h.hash?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (h.tags || []).some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesTag = !selectedTag || (h.tags || []).includes(selectedTag);
+    return matchesSearch && matchesTag;
+  });
 
   const handleDelete = async (id: string, fileName: string) => {
     const isConfirmed = await confirm({
@@ -104,6 +114,46 @@ export default function VaultPage() {
       }
     } catch (err) {
       notify('Update failed.', 'error');
+    }
+  };
+
+  const handleUpdateTags = async (id: string, currentTags: string[]) => {
+    if (!tagInput.trim()) return;
+    const newTags = Array.from(new Set([...currentTags, tagInput.trim().toLowerCase()]));
+    
+    try {
+      const res = await fetch('/api/hashes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, tags: newTags, userEmail: user?.email }),
+      });
+
+      if (res.ok) {
+        setHashes(prev => prev.map(h => h._id === id ? { ...h, tags: newTags } : h));
+        setTagInput('');
+        notify('Tags updated.', 'success');
+      }
+    } catch (err) {
+      notify('Tag update failed.', 'error');
+    }
+  };
+
+  const handleRemoveTag = async (id: string, tagToRemove: string, currentTags: string[]) => {
+    const newTags = currentTags.filter(t => t !== tagToRemove);
+    
+    try {
+      const res = await fetch('/api/hashes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, tags: newTags, userEmail: user?.email }),
+      });
+
+      if (res.ok) {
+        setHashes(prev => prev.map(h => h._id === id ? { ...h, tags: newTags } : h));
+        notify('Tag removed.', 'success');
+      }
+    } catch (err) {
+      notify('Tag removal failed.', 'error');
     }
   };
 
@@ -176,6 +226,27 @@ export default function VaultPage() {
           />
         </div>
 
+        {/* Tag Filters */}
+        {allTags.length > 0 && (
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all ${!selectedTag ? 'bg-zinc-950 text-white shadow-lg shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+            >
+              All Assets
+            </button>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${selectedTag === tag ? 'bg-trust-green text-zinc-950 shadow-lg shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* List Content */}
         {isLoading ? (
           <div className="space-y-4">
@@ -234,6 +305,48 @@ export default function VaultPage() {
                                Expiry: {h.expiryDate ? new Date(h.expiryDate).toLocaleDateString() : 'Infinite Protocol'}
                              </p>
                           </div>
+                        </div>
+
+                        {/* Tags Display */}
+                        <div className="flex flex-wrap items-center gap-2 mt-4">
+                           {(h.tags || []).map((tag: string) => (
+                             <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-zinc-100 rounded-lg group/tag">
+                               <span className="font-display font-bold text-[9px] uppercase tracking-widest text-zinc-500">{tag}</span>
+                               <button 
+                                 onClick={() => handleRemoveTag(h._id, tag, h.tags)}
+                                 className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
+                               >
+                                 <X className="w-2.5 h-2.5" />
+                               </button>
+                             </span>
+                           ))}
+                           {editingTagsId === h._id ? (
+                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1">
+                               <input 
+                                 autoFocus
+                                 type="text"
+                                 placeholder="Add tag..."
+                                 value={tagInput}
+                                 onChange={e => setTagInput(e.target.value)}
+                                 onKeyDown={e => e.key === 'Enter' && handleUpdateTags(h._id, h.tags || [])}
+                                 className="h-7 px-2 bg-zinc-50 border border-zinc-200 rounded focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-24"
+                               />
+                               <button 
+                                 onClick={() => setEditingTagsId(null)}
+                                 className="text-zinc-400 hover:text-zinc-950"
+                               >
+                                 <X className="w-3.5 h-3.5" />
+                               </button>
+                             </div>
+                           ) : (
+                             <button 
+                               onClick={() => setEditingTagsId(h._id)}
+                               className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-lg text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
+                             >
+                               <Plus className="w-2.5 h-2.5" />
+                               <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>
+                             </button>
+                           )}
                         </div>
                       </div>
                     </div>

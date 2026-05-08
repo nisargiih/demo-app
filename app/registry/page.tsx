@@ -20,7 +20,8 @@ import {
   X,
   Upload,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Tag
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -37,7 +38,13 @@ export default function RegistryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingTagsId, setEditingTagsId] = useState<string | null>(null);
+  const [tagInput, setTagInput] = useState('');
+  const [modalTagInput, setModalTagInput] = useState('');
+
+  const allTags = Array.from(new Set(records.flatMap(r => r.tags || []))).sort();
 
   // New Record Stats
   const [newRecord, setNewRecord] = useState({
@@ -45,6 +52,7 @@ export default function RegistryPage() {
     docName: '',
     description: '',
     type: 'identity',
+    tags: [] as string[],
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -135,7 +143,8 @@ export default function RegistryPage() {
       if (res.ok) {
         notify('Official record committed to ledger.', 'success');
         setShowAddModal(false);
-        setNewRecord({ registryId: '', docName: '', description: '', type: 'identity' });
+        setNewRecord({ registryId: '', docName: '', description: '', type: 'identity', tags: [] });
+        setModalTagInput('');
         setSelectedFile(null);
         fetchRecords();
       } else {
@@ -172,10 +181,13 @@ export default function RegistryPage() {
     const matchesSearch = 
       (record.registryId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (record.docName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (record.description?.toLowerCase().includes(searchTerm.toLowerCase()));
+      (record.description?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (record.tags || []).some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    if (filterType === 'all') return matchesSearch;
-    return matchesSearch && record.type === filterType;
+    const matchesTag = !selectedTag || (record.tags || []).includes(selectedTag);
+    
+    if (filterType === 'all') return matchesSearch && matchesTag;
+    return matchesSearch && matchesTag && record.type === filterType;
   });
 
   const handleDelete = async (id: string) => {
@@ -187,6 +199,46 @@ export default function RegistryPage() {
       }
     } catch (err) {
       notify('Purge protocol failed.', 'error');
+    }
+  };
+
+  const handleUpdateTags = async (id: string, currentTags: string[]) => {
+    if (!tagInput.trim()) return;
+    const newTags = Array.from(new Set([...currentTags, tagInput.trim().toLowerCase()]));
+    
+    try {
+      const res = await fetch('/api/registry', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, tags: newTags, userEmail: user?.email }),
+      });
+
+      if (res.ok) {
+        setRecords(prev => prev.map(r => r._id === id ? { ...r, tags: newTags } : r));
+        setTagInput('');
+        notify('Tags updated.', 'success');
+      }
+    } catch (err) {
+      notify('Tag update failed.', 'error');
+    }
+  };
+
+  const handleRemoveTag = async (id: string, tagToRemove: string, currentTags: string[]) => {
+    const newTags = currentTags.filter(t => t !== tagToRemove);
+    
+    try {
+      const res = await fetch('/api/registry', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, tags: newTags, userEmail: user?.email }),
+      });
+
+      if (res.ok) {
+        setRecords(prev => prev.map(r => r._id === id ? { ...r, tags: newTags } : r));
+        notify('Tag removed.', 'success');
+      }
+    } catch (err) {
+      notify('Tag removal failed.', 'error');
     }
   };
 
@@ -326,6 +378,38 @@ export default function RegistryPage() {
                         </div>
 
                         <div className="space-y-4">
+                           <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Organization Tags</label>
+                           <div className="flex flex-wrap gap-2 mb-2">
+                             {newRecord.tags.map(tag => (
+                               <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-zinc-950 text-white rounded-lg">
+                                 <span className="font-display font-medium text-[10px] uppercase tracking-widest">{tag}</span>
+                                 <button type="button" onClick={() => setNewRecord({...newRecord, tags: newRecord.tags.filter(t => t !== tag)})}>
+                                   <X className="w-3 h-3 text-trust-green" />
+                                 </button>
+                               </span>
+                             ))}
+                           </div>
+                           <div className="flex gap-2">
+                              <input 
+                                type="text"
+                                placeholder="Enter tag and press Enter..."
+                                value={modalTagInput}
+                                onChange={e => setModalTagInput(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (modalTagInput.trim()) {
+                                      setNewRecord({...newRecord, tags: Array.from(new Set([...newRecord.tags, modalTagInput.trim().toLowerCase()]))});
+                                      setModalTagInput('');
+                                    }
+                                  }
+                                }}
+                                className="flex-1 h-12 px-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-sans text-sm font-medium transition-all"
+                              />
+                           </div>
+                        </div>
+
+                        <div className="space-y-4">
                            <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Document Artifact (AWS S3)</label>
                            <div className={`relative border-2 border-dashed rounded-3xl p-8 transition-all ${selectedFile ? 'border-trust-green bg-trust-green/[0.02]' : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'}`}>
                               <input 
@@ -397,6 +481,27 @@ export default function RegistryPage() {
           </div>
         </div>
 
+        {/* Tag Filters */}
+        {allTags.length > 0 && (
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all ${!selectedTag ? 'bg-zinc-950 text-white shadow-lg shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+            >
+              All Artifacts
+            </button>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${selectedTag === tag ? 'bg-trust-green text-zinc-950 shadow-lg shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Records Table/Grid */}
         {isLoading ? (
           <div className="space-y-4">
@@ -443,6 +548,48 @@ export default function RegistryPage() {
                              <Calendar className="w-3.5 h-3.5 text-zinc-300" />
                              <p className="font-sans text-[10px] text-zinc-400 font-medium">Genesis: {new Date(record.createdAt).toLocaleDateString()}</p>
                           </div>
+                        </div>
+
+                        {/* Tags Display */}
+                        <div className="flex flex-wrap items-center gap-2 mt-4">
+                           {(record.tags || []).map((tag: string) => (
+                             <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-zinc-100 rounded-lg group/tag">
+                               <span className="font-display font-bold text-[9px] uppercase tracking-widest text-zinc-500">{tag}</span>
+                               <button 
+                                 onClick={() => handleRemoveTag(record._id, tag, record.tags)}
+                                 className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
+                               >
+                                 <X className="w-2.5 h-2.5" />
+                               </button>
+                             </span>
+                           ))}
+                           {editingTagsId === record._id ? (
+                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1">
+                               <input 
+                                 autoFocus
+                                 type="text"
+                                 placeholder="Add tag..."
+                                 value={tagInput}
+                                 onChange={e => setTagInput(e.target.value)}
+                                 onKeyDown={e => e.key === 'Enter' && handleUpdateTags(record._id, record.tags || [])}
+                                 className="h-7 px-2 bg-zinc-50 border border-zinc-200 rounded focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-24"
+                               />
+                               <button 
+                                 onClick={() => setEditingTagsId(null)}
+                                 className="text-zinc-400 hover:text-zinc-950"
+                               >
+                                 <X className="w-3.5 h-3.5" />
+                               </button>
+                             </div>
+                           ) : (
+                             <button 
+                               onClick={() => setEditingTagsId(record._id)}
+                               className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-lg text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
+                             >
+                               <Plus className="w-2.5 h-2.5" />
+                               <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>
+                             </button>
+                           )}
                         </div>
                       </div>
                     </div>

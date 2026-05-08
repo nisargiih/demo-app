@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     
     // 1. Process from Transit (Decrypt if it was encrypted by frontend)
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { userEmail, fileName, fileSize, hash, expiryDate } = data;
+    const { userEmail, fileName, fileSize, hash, expiryDate, tags } = data;
 
     if (!userEmail || !hash) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 });
@@ -143,6 +143,7 @@ export async function POST(req: Request) {
       fileSize,
       hash,
       expiryDate,
+      tags: tags || [],
       createdAt: new Date(),
     };
 
@@ -159,7 +160,7 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const { id, ids, expiryDate, userEmail } = await req.json();
+    const { id, ids, expiryDate, tags, userEmail } = await req.json();
 
     if (!userEmail) return NextResponse.json({ error: 'Auth required' }, { status: 401 });
     if (!id && (!ids || !Array.isArray(ids))) {
@@ -180,15 +181,19 @@ export async function PATCH(req: Request) {
       ]
     };
 
+    const update: any = { $set: {} };
+    if (expiryDate !== undefined) update.$set.expiryDate = expiryDate;
+    if (tags !== undefined) update.$set.tags = tags;
+
     if (ids) {
       filter._id = { $in: ids.map((i: string) => new ObjectId(i)) };
-      await hashes.updateMany(filter, { $set: { expiryDate } });
+      await hashes.updateMany(filter, update);
     } else {
       filter._id = new ObjectId(id);
-      await hashes.updateOne(filter, { $set: { expiryDate } });
+      await hashes.updateOne(filter, update);
     }
 
-    return NextResponse.json({ message: 'Expiry updated' });
+    return NextResponse.json({ message: 'Record updated' });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

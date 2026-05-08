@@ -86,6 +86,7 @@ export async function POST(req: Request) {
     const result = await registry.insertOne({
       ...data,
       userEmail: userEmail.toLowerCase().trim(),
+      tags: data.tags || [],
       createdAt: new Date(),
     });
 
@@ -108,6 +109,33 @@ export async function DELETE(req: Request) {
     const registry = db.collection('registry');
 
     await registry.deleteOne({ _id: new ObjectId(id) });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const { id, tags, userEmail } = await req.json();
+
+    if (!userEmail || !id) {
+      return NextResponse.json({ error: 'ID and Auth required' }, { status: 400 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db('tech-core');
+    const registry = db.collection('registry');
+
+    const result = await registry.updateOne(
+      { _id: new ObjectId(id), userEmail: userEmail.toLowerCase().trim() },
+      { $set: { tags: tags || [] } }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json({ error: 'Record not found or access denied' }, { status: 403 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

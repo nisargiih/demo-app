@@ -13,7 +13,8 @@ import {
   Trash2,
   AlertCircle,
   CheckCircle2,
-  Search
+  Search,
+  Tag
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -34,6 +35,8 @@ export default function NotarizePage() {
   const { notify, confirm } = useNotification();
   const [items, setItems] = useState<NotaryItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [batchTags, setBatchTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
@@ -113,7 +116,8 @@ export default function NotarizePage() {
           fileName: item.file.name,
           fileSize: item.file.size,
           hash: item.hash,
-          expiryDate: null // Default to infinite
+          expiryDate: null, // Default to infinite
+          tags: batchTags
         });
 
         const res = await fetch('/api/hashes', {
@@ -312,6 +316,31 @@ export default function NotarizePage() {
               <h3 className="font-display font-bold text-xl text-zinc-900 mb-6 font-display">Batch Overview</h3>
               
               <div className="space-y-6 mb-8">
+                {/* Batch Tags Section */}
+                <div className="space-y-3">
+                   <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block">Categorization Tags</label>
+                   <div className="flex flex-wrap gap-2">
+                      {batchTags.map(tag => (
+                        <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-zinc-950 text-white rounded-md">
+                           <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
+                           <button onClick={() => setBatchTags(prev => prev.filter(t => t !== tag))}>
+                             <X className="w-2.5 h-2.5 text-trust-green" />
+                           </button>
+                        </span>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="text"
+                          placeholder="Add tag..."
+                          value={tagInput}
+                          onChange={e => setTagInput(e.target.value)}
+                          onKeyDown={e => e.key === 'Enter' && (setBatchTags(prev => Array.from(new Set([...prev, tagInput.toLowerCase().trim()]))), setTagInput(''))}
+                          className="w-24 h-7 px-2 bg-zinc-50 border border-zinc-100 rounded text-[10px] focus:outline-none focus:border-zinc-950"
+                        />
+                      </div>
+                   </div>
+                </div>
+
                 <div className="flex items-center justify-between pb-4 border-b border-zinc-50">
                   <span className="font-sans text-sm text-zinc-500">Queue Total</span>
                   <span className="font-mono text-sm font-bold text-zinc-900">{stats.total}</span>
