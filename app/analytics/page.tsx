@@ -97,7 +97,7 @@ export default function AnalyticsPage() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-3 mb-4"
             >
-              <div className="w-10 h-10 bg-zinc-950 dark:bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-trust-green" />
               </div>
               <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Insight_Analyzer_v8.0</span>
@@ -205,8 +205,8 @@ export default function AnalyticsPage() {
                           border: 'none', 
                           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
                           padding: '16px',
-                          backgroundColor: '#09090b',
-                          color: '#fff'
+                          backgroundColor: 'var(--tooltip-bg, #09090b)',
+                          color: 'var(--tooltip-text, #fff)'
                         }}
                     />
                     <Area 
@@ -267,8 +267,8 @@ export default function AnalyticsPage() {
                           border: 'none', 
                           boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
                           padding: '16px',
-                          backgroundColor: '#09090b',
-                          color: '#fff'
+                          backgroundColor: 'var(--tooltip-bg, #09090b)',
+                          color: 'var(--tooltip-text, #fff)'
                         }}
                     />
                     <Bar dataKey="count" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
@@ -287,7 +287,7 @@ export default function AnalyticsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div className="max-w-md">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-zinc-950 dark:bg-zinc-800 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-zinc-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center">
                             <PieIcon className="w-4 h-4 text-trust-green" />
                         </div>
                         <h3 className="font-display text-xl font-black text-zinc-950 dark:text-white uppercase tracking-tight">Entry Point Forensics</h3>
@@ -335,8 +335,8 @@ export default function AnalyticsPage() {
                               border: 'none', 
                               boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
                               padding: '16px',
-                              backgroundColor: '#09090b',
-                              color: '#fff'
+                              backgroundColor: 'var(--tooltip-bg, #09090b)',
+                              color: 'var(--tooltip-text, #fff)'
                             }}
                         />
                         </PieChart>

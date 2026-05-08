@@ -287,7 +287,7 @@ export default function RegistryPage() {
             >
                 <button 
                   onClick={() => setShowAddModal(true)}
-                  className="h-14 px-8 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
+                  className="h-14 px-8 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
                 >
                   <Plus className="w-4 h-4 text-trust-green dark:text-zinc-950" />
                   Official Registration
@@ -448,7 +448,7 @@ export default function RegistryPage() {
                         <button 
                            type="submit"
                            disabled={isSubmitting}
-                           className="w-full sm:w-auto h-14 px-10 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all disabled:opacity-50"
+                           className="w-full sm:w-auto h-14 px-10 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-950/10 dark:shadow-none disabled:opacity-50"
                         >
                            {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin text-trust-green dark:text-zinc-950" /> : <ShieldCheck className="w-4 h-4 text-trust-green dark:text-zinc-950" />}
                            {isSubmitting ? 'Protocol Executing...' : 'Commit to Ledger'}
@@ -494,7 +494,7 @@ export default function RegistryPage() {
           <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${!selectedTag ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl dark:shadow-none' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-100 dark:border-white/5'}`}
+              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl dark:shadow-none' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-100 dark:border-white/5'}`}
             >
               <Filter className="w-3 h-3" />
               All Artifacts

@@ -172,7 +172,7 @@ export default function VaultPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-3 mb-4"
               >
-                <div className="w-10 h-10 bg-zinc-950 dark:bg-zinc-900 border border-zinc-900/50 dark:border-white/10 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-xl flex items-center justify-center">
                   <Shield className="w-5 h-5 text-trust-green" />
                 </div>
                 <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Vault_Protocol_v4.2</span>
@@ -231,8 +231,8 @@ export default function VaultPage() {
         {allTags.length > 0 && (
           <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
             <button
-              onClick={() => setSelectedTag(null)}
-              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
+               onClick={() => setSelectedTag(null)}
+               className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none font-bold' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
             >
               <Filter className="w-3 h-3" />
               All Assets
@@ -270,7 +270,7 @@ export default function VaultPage() {
             <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">You haven't notarized any documents yet. Head to the Indexer to begin.</p>
             <button 
                 onClick={() => router.push('/notarize')}
-                className="mt-8 h-12 px-8 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-lg dark:shadow-none"
+                className="mt-8 h-12 px-8 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-lg dark:shadow-none"
             >
                 Go to Indexer
             </button>
@@ -379,7 +379,7 @@ export default function VaultPage() {
                                 />
                                 <button 
                                     onClick={() => handleUpdateExpiry(h._id)}
-                                    className="h-10 px-4 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all"
+                                    className="h-10 px-4 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-lg dark:shadow-none"
                                 >
                                     Confirm
                                 </button>

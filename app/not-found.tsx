@@ -8,7 +8,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 
 export default function NotFound() {
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center p-6 bg-white selection:bg-trust-green/20 overflow-hidden">
+    <main className="relative min-h-screen w-full flex items-center justify-center p-6 bg-white dark:bg-zinc-950 selection:bg-trust-green/20 overflow-hidden transition-colors duration-300">
       <BackgroundAnimation />
       
       <div className="relative z-10 w-full max-w-2xl text-center">
@@ -29,7 +29,7 @@ export default function NotFound() {
                 repeat: Infinity,
                 ease: "easeInOut" 
               }}
-              className="w-32 h-32 bg-zinc-950 rounded-[3rem] flex items-center justify-center shadow-2xl shadow-zinc-900/20"
+              className="w-32 h-32 bg-zinc-950 dark:bg-zinc-900 rounded-[3rem] flex items-center justify-center shadow-2xl shadow-zinc-900/20 dark:shadow-none"
             >
               <FileSearch className="w-12 h-12 text-trust-green" />
             </motion.div>
@@ -50,13 +50,13 @@ export default function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="font-display text-8xl font-black text-zinc-900 mb-4 tracking-tighter">
+          <h1 className="font-display text-8xl font-black text-zinc-900 dark:text-white mb-4 tracking-tighter">
             404
           </h1>
-          <h2 className="font-display text-2xl font-bold text-zinc-800 mb-4 uppercase tracking-widest">
+          <h2 className="font-display text-2xl font-bold text-zinc-800 dark:text-zinc-200 mb-4 uppercase tracking-widest">
             Protocol Not Found
           </h2>
-          <p className="font-sans text-zinc-500 max-w-md mx-auto mb-12 leading-relaxed">
+          <p className="font-sans text-zinc-500 dark:text-zinc-400 max-w-md mx-auto mb-12 leading-relaxed">
             The requested resource node could not be resolved. This endpoint may have been decommissioned or moved to a different cryptographic sector.
           </p>
         </motion.div>
@@ -69,7 +69,7 @@ export default function NotFound() {
         >
           <Link 
             href="/dashboard"
-            className="w-full sm:w-auto h-14 px-8 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-900/20"
+            className="w-full sm:w-auto h-14 px-8 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-900/20 dark:shadow-none"
           >
             <Home className="w-4 h-4" />
             Back to Dashboard
@@ -77,7 +77,7 @@ export default function NotFound() {
           
           <button 
             onClick={() => window.history.back()}
-            className="w-full sm:w-auto h-14 px-8 bg-white border border-zinc-100 text-zinc-600 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:border-zinc-200 transition-all"
+            className="w-full sm:w-auto h-14 px-8 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 text-zinc-600 dark:text-zinc-400 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:border-zinc-200 dark:hover:border-white/10 transition-all shadow-sm dark:shadow-none"
           >
             <ArrowLeft className="w-4 h-4" />
             Return to Previous Node
@@ -88,9 +88,9 @@ export default function NotFound() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="mt-20 pt-10 border-t border-zinc-50"
+          className="mt-20 pt-10 border-t border-zinc-50 dark:border-white/5"
         >
-          <p className="font-mono text-[9px] text-zinc-300 uppercase tracking-[0.4em]">
+          <p className="font-mono text-[9px] text-zinc-300 dark:text-zinc-700 uppercase tracking-[0.4em]">
             System Status: Operational • Secure Signature Required
           </p>
         </motion.div>

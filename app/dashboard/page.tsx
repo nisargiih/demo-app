@@ -222,26 +222,26 @@ export default function DashboardPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {[
-            { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-50 dark:bg-zinc-900/50' },
-            { 
-              label: 'Free Index Quota', 
-              value: usageStats ? `${usageStats.hashCount}/${usageStats.hashLimit}` : '0/10', 
-              icon: Zap, 
-              color: 'text-trust-green', 
-              bg: 'bg-trust-green/5 dark:bg-trust-green/10',
-              sub: usageStats && usageStats.hashCount >= usageStats.hashLimit ? 'Limit reached' : 'Resets monthly'
-            },
-            { 
-              label: 'Free Verify Quota', 
-              value: usageStats ? `${usageStats.verifyCount}/${usageStats.verifyLimit}` : '0/15', 
-              icon: ShieldCheck, 
-              color: 'text-zinc-950 dark:text-white', 
-              bg: 'bg-zinc-50 dark:bg-zinc-900/50',
-              sub: usageStats && usageStats.verifyCount >= usageStats.verifyLimit ? 'Limit reached' : 'Resets monthly'
-            },
-            { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-zinc-950 dark:text-white', bg: 'bg-zinc-100 dark:bg-zinc-800' },
-          ].map((stat, i) => (
+            {[
+              { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-100 dark:bg-zinc-900/50' },
+              { 
+                label: 'Free Index Quota', 
+                value: usageStats ? `${usageStats.hashCount}/${usageStats.hashLimit}` : '0/10', 
+                icon: Zap, 
+                color: 'text-trust-green', 
+                bg: 'bg-trust-green/5 dark:bg-trust-green/10',
+                sub: usageStats && usageStats.hashCount >= usageStats.hashLimit ? 'Limit reached' : 'Resets monthly'
+              },
+              { 
+                label: 'Free Verify Quota', 
+                value: usageStats ? `${usageStats.verifyCount}/${usageStats.verifyLimit}` : '0/15', 
+                icon: ShieldCheck, 
+                color: 'text-zinc-900 dark:text-white', 
+                bg: 'bg-zinc-100 dark:bg-zinc-900/50',
+                sub: usageStats && usageStats.verifyCount >= usageStats.verifyLimit ? 'Limit reached' : 'Resets monthly'
+              },
+              { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-200 dark:bg-zinc-800' },
+            ].map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.95 }}
@@ -318,8 +318,8 @@ export default function DashboardPage() {
                               contentStyle={{ 
                                   borderRadius: '24px', 
                                   border: 'none',
-                                  backgroundColor: 'rgba(9, 9, 11, 0.9)',
-                                  color: '#fff',
+                                  backgroundColor: 'var(--tooltip-bg, rgba(9, 9, 11, 0.9))',
+                                  color: 'var(--tooltip-text, #fff)',
                                   boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.5)',
                                   fontFamily: 'var(--font-sans)',
                                   fontSize: '12px',

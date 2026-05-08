@@ -235,7 +235,7 @@ export default function VerifyPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950 transition-colors duration-300">
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
           <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
@@ -338,7 +338,7 @@ export default function VerifyPage() {
               <button 
                 onClick={() => { setActiveTab('file'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'file' ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                  activeTab === 'file' ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
                 Artifact Analysis
@@ -346,7 +346,7 @@ export default function VerifyPage() {
               <button 
                 onClick={() => { setActiveTab('id'); setResult(null); setVerificationStatus(null); }}
                 className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'id' ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                  activeTab === 'id' ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
                 Record Retrieval
@@ -417,7 +417,7 @@ export default function VerifyPage() {
                 <button 
                   onClick={activeTab === 'file' ? handleVerify : handleVerifyId}
                   disabled={activeTab === 'file' ? !file : !registryId}
-                  className="w-full h-24 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-[2.5rem] font-display font-black text-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-6 hover:bg-zinc-800 dark:hover:bg-trust-green/90 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:text-zinc-300 dark:disabled:text-zinc-700 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl dark:shadow-none relative overflow-hidden group/btn"
+                  className="w-full h-24 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-[2.5rem] font-display font-black text-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-6 hover:bg-zinc-200 dark:hover:bg-trust-green/90 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:text-zinc-300 dark:disabled:text-zinc-700 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl dark:shadow-none relative overflow-hidden group/btn"
                 >
                   {activeTab === 'file' ? 'Begin Authentication' : 'Query Substrate'}
                   <ArrowRight className="w-8 h-8 group-hover/btn:translate-x-2 transition-transform" />
@@ -462,7 +462,7 @@ export default function VerifyPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl dark:shadow-none"
+                        className="h-16 px-12 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl dark:shadow-none"
                       >
                         Reset Gateway
                       </button>
@@ -484,7 +484,7 @@ export default function VerifyPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl dark:shadow-none"
+                        className="h-16 px-12 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl dark:shadow-none"
                       >
                         Terminate Search
                       </button>

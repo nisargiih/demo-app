@@ -124,7 +124,7 @@ export default function RegisterPage() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           className="w-full max-w-[500px]"
         >
-          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-white/40 dark:border-white/5 shadow-2xl relative overflow-hidden">
+          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-zinc-200 dark:border-white/5 shadow-2xl relative overflow-hidden">
             <AnimatePresence>
               {isSuccess && (
                 <motion.div

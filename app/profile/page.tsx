@@ -63,7 +63,7 @@ export default function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950 transition-colors duration-300">
         <div className="relative w-12 h-12">
           <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
           <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
@@ -103,7 +103,7 @@ export default function ProfilePage() {
   const isPending = user?.verificationStatus === 'pending';
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
+    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6 transition-colors duration-300">
       <BackgroundAnimation />
       <Sidebar />
  
@@ -114,27 +114,27 @@ export default function ProfilePage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 mb-4"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-zinc-950 rounded-xl sm:rounded-2xl flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-zinc-100 dark:bg-zinc-900 rounded-xl sm:rounded-2xl flex items-center justify-center">
               <User className="text-trust-green w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 flex items-center gap-2">
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
               {user?.firstName || 'User Account'}
               {isVerified && <ShieldCheck className="w-6 h-6 text-trust-green fill-trust-green/10" />}
               {isPending && <Clock className="w-6 h-6 text-zinc-400" />}
               {user?.entityType && (
-                <span className="px-2 py-0.5 bg-zinc-100 border border-zinc-200 rounded text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500">
+                <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
                   {user.entityType}
                 </span>
               )}
             </h1>
           </motion.div>
-          <p className="font-sans text-sm text-zinc-500">Manage your network identity and security configurations.</p>
+          <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400">Manage your network identity and security configurations.</p>
         </header>
 
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-pulse">
-            <div className="lg:col-span-1 h-[200px] bg-zinc-50 rounded-2xl" />
-            <div className="lg:col-span-3 h-[500px] bg-zinc-50 border border-zinc-100 rounded-[2.5rem]" />
+            <div className="lg:col-span-1 h-[200px] bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl" />
+            <div className="lg:col-span-3 h-[500px] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-[2.5rem]" />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -150,11 +150,11 @@ export default function ProfilePage() {
                   onClick={() => setActiveSection(section.id as any)}
                   className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all text-left ${
                     activeSection === section.id 
-                      ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
-                      : 'text-zinc-500 hover:bg-zinc-50'
+                      ? 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xl shadow-zinc-900/10 dark:shadow-none' 
+                      : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                   }`}
                 >
-                  <section.icon className={`w-4 h-4 ${activeSection === section.id ? 'text-trust-green' : 'text-zinc-400'}`} />
+                  <section.icon className={`w-4 h-4 ${activeSection === section.id ? 'text-trust-green' : 'text-zinc-400 dark:text-zinc-600'}`} />
                   <span className="font-display font-bold text-[10px] uppercase tracking-widest">{section.label}</span>
                 </button>
               ))}
@@ -177,9 +177,9 @@ export default function ProfilePage() {
                       exit={{ opacity: 0, scale: 0.98 }}
                       className="space-y-6"
                     >
-                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-xl shadow-zinc-900/[0.02] dark:shadow-none">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="font-display font-bold text-xl text-zinc-900 flex items-center gap-2">
+                          <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white flex items-center gap-2">
                             <User className="w-5 h-5 text-trust-green" />
                             Personal Profile
                           </h3>
@@ -188,46 +188,46 @@ export default function ProfilePage() {
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">First Name</label>
+                              <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">First Name</label>
                               <input 
                                 type="text" 
                                 value={user?.firstName || ''}
                                 onChange={(e) => setUser({...user, firstName: e.target.value})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                               />
                             </div>
                             <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Last Name</label>
+                              <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Last Name</label>
                               <input 
                                 type="text" 
                                 value={user?.lastName || ''}
                                 onChange={(e) => setUser({...user, lastName: e.target.value})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Public ID / Email</label>
+                            <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Public ID / Email</label>
                             <div className="relative">
-                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-600" />
                               <input 
                                 type="email" 
                                 value={user?.email || ''}
                                 disabled
-                                className="w-full h-12 pl-11 pr-4 bg-zinc-100 border border-zinc-100 rounded-xl font-sans text-sm text-zinc-400 cursor-not-allowed"
+                                className="w-full h-12 pl-11 pr-4 bg-zinc-100 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl font-sans text-sm text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Mission Statement</label>
+                            <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Mission Statement</label>
                             <textarea 
                               rows={4}
                               placeholder="Tell us about your core mission..."
                               value={user?.bio || ''}
                               onChange={(e) => setUser({...user, bio: e.target.value})}
-                              className="w-full px-4 py-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all resize-none"
+                              className="w-full px-4 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all resize-none"
                             />
                           </div>
                         </div>
@@ -243,9 +243,9 @@ export default function ProfilePage() {
                       exit={{ opacity: 0, scale: 0.98 }}
                       className="space-y-6"
                     >
-                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-xl shadow-zinc-900/[0.02] dark:shadow-none">
                         <div className="flex items-center justify-between mb-8">
-                          <h3 className="font-display font-bold text-xl text-zinc-900 flex items-center gap-2">
+                          <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white flex items-center gap-2">
                             <Briefcase className="w-5 h-5 text-trust-green" />
                             {user?.entityType === 'Individual' ? 'Professional Status' : 'Organization Metrics'}
                           </h3>
@@ -254,23 +254,23 @@ export default function ProfilePage() {
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Professional Title</label>
+                              <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Professional Title</label>
                               <input 
                                 type="text" 
                                 placeholder="e.g. Protocol Engineer"
                                 value={user?.jobTitle || ''}
                                 onChange={(e) => setUser({...user, jobTitle: e.target.value})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                               />
                             </div>
                             <div className="space-y-2">
-                              <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Contact Protocol (Phone)</label>
+                              <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Contact Protocol (Phone)</label>
                               <input 
                                 type="tel" 
                                 placeholder="+1 (555) 000-0000"
                                 value={user?.phone || ''}
                                 onChange={(e) => setUser({...user, phone: e.target.value})}
-                                className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                               />
                             </div>
                           </div>
@@ -281,62 +281,62 @@ export default function ProfilePage() {
                               animate={{ opacity: 1, height: 'auto' }}
                               className="space-y-6 pt-2"
                             >
-                              <div className="h-px bg-zinc-50" />
+                              <div className="h-px bg-zinc-50 dark:bg-zinc-900" />
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Organization Name</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Organization Name</label>
                                   <div className="relative">
-                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-600" />
                                     <input 
                                       type="text" 
                                       placeholder="e.g. TechCore Labs Inc."
                                       value={user?.companyName || ''}
                                       onChange={(e) => setUser({...user, companyName: e.target.value})}
-                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                                     />
                                   </div>
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Corporate Email</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Corporate Email</label>
                                   <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300" />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-600" />
                                     <input 
                                       type="email" 
                                       placeholder="contact@org.io"
                                       value={user?.companyEmail || ''}
                                       onChange={(e) => setUser({...user, companyEmail: e.target.value})}
-                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                      className="w-full h-12 pl-11 pr-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                                     />
                                   </div>
                                 </div>
                               </div>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Registration ID</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Registration ID</label>
                                   <input 
                                     type="text" 
                                     placeholder="REG-001X"
                                     value={user?.companyRegistration || ''}
                                     onChange={(e) => setUser({...user, companyRegistration: e.target.value})}
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Industry</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Industry</label>
                                   <input 
                                     type="text" 
                                     placeholder="Technology"
                                     value={user?.companyIndustry || ''}
                                     onChange={(e) => setUser({...user, companyIndustry: e.target.value})}
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                                   />
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Node Scale</label>
+                                  <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Node Scale</label>
                                   <select 
                                     value={user?.companySize || ''}
                                     onChange={(e) => setUser({...user, companySize: e.target.value})}
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all appearance-none"
+                                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all appearance-none"
                                   >
                                     <option value="">Select Scale</option>
                                     <option value="1-10">1-10 (Boutique)</option>
@@ -347,28 +347,28 @@ export default function ProfilePage() {
                                 </div>
                               </div>
                               <div className="space-y-2">
-                                <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Network Website</label>
+                                <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Network Website</label>
                                 <input 
                                   type="url" 
                                   placeholder="https://techcore.io"
                                   value={user?.companyWebsite || ''}
                                   onChange={(e) => setUser({...user, companyWebsite: e.target.value})}
-                                  className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                  className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                                 />
                               </div>
                             </motion.div>
                           )}
 
                           <div className="space-y-2 pt-2">
-                            <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1">Node Location</label>
+                            <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Node Location</label>
                             <div className="relative">
-                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600" />
                               <input 
                                 type="text" 
                                 placeholder="Global / City, Country"
                                 value={user?.location || ''}
                                 onChange={(e) => setUser({...user, location: e.target.value})}
-                                className="w-full h-12 pl-11 pr-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm transition-all"
+                                className="w-full h-12 pl-11 pr-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
                               />
                             </div>
                           </div>
@@ -385,16 +385,16 @@ export default function ProfilePage() {
                       exit={{ opacity: 0, scale: 0.98 }}
                       className="space-y-6"
                     >
-                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 shadow-xl shadow-zinc-900/[0.02]">
-                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-8 flex items-center gap-2">
+                      <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-xl shadow-zinc-900/[0.02] dark:shadow-none">
+                        <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8 flex items-center gap-2">
                           <ShieldCheck className="w-5 h-5 text-trust-green" />
                           Network Identity Status
                         </h3>
 
                         <div className="space-y-8">
-                          <div className="flex flex-col items-center text-center p-10 bg-zinc-50 border border-zinc-100 rounded-3xl">
+                          <div className="flex flex-col items-center text-center p-10 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-3xl">
                             <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 relative ${
-                              isVerified ? 'bg-trust-green/10' : isPending ? 'bg-amber-50' : 'bg-red-50'
+                              isVerified ? 'bg-trust-green/10' : isPending ? 'bg-amber-50 dark:bg-amber-950/20' : 'bg-red-50 dark:bg-red-950/20'
                             }`}>
                               {isVerified ? (
                                 <CheckCircle2 className="w-10 h-10 text-trust-green" />
@@ -408,10 +408,10 @@ export default function ProfilePage() {
                               )}
                             </div>
                             
-                            <h4 className="font-display text-2xl font-bold text-zinc-900 mb-2">
+                            <h4 className="font-display text-2xl font-bold text-zinc-900 dark:text-white mb-2">
                               {isVerified ? 'Cryptographically Verified' : isPending ? 'Identity Under Review' : 'Identity Unverified'}
                             </h4>
-                            <p className="font-sans text-sm text-zinc-500 max-w-xs leading-relaxed">
+                            <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed font-medium">
                               {isVerified 
                                 ? 'Your identifiers have been notarized on the TechCore ledger. You have full access to L2 operations.' 
                                 : isPending 
@@ -423,7 +423,7 @@ export default function ProfilePage() {
                               <button 
                                 type="button"
                                 onClick={() => router.push('/verification')}
-                                className="mt-8 px-8 h-12 bg-zinc-900 text-white rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg"
+                                className="mt-8 px-8 h-12 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-lg shadow-zinc-900/10 dark:shadow-none"
                               >
                                 Begin Verification
                               </button>
@@ -436,13 +436,13 @@ export default function ProfilePage() {
                               { label: 'AML Check', status: isVerified ? 'Passed' : isPending ? 'Pending' : 'Required', val: isVerified ? 100 : isPending ? 30 : 0 },
                               { label: 'Ledger Sync', status: isVerified ? 'Synced' : 'Waiting', val: isVerified ? 100 : 0 }
                             ].map((item, i) => (
-                              <div key={i} className="p-4 bg-white border border-zinc-100 rounded-2xl">
-                                <p className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-2">{item.label}</p>
+                              <div key={i} className="p-4 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-white/5 rounded-2xl">
+                                <p className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-2 font-mono">{item.label}</p>
                                 <div className="flex items-end justify-between">
-                                  <span className="font-sans text-xs font-bold text-zinc-900">{item.status}</span>
-                                  <span className="font-mono text-[9px] text-zinc-400">{item.val}%</span>
+                                  <span className="font-sans text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-tight">{item.status}</span>
+                                  <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 font-bold">{item.val}%</span>
                                 </div>
-                                <div className="mt-2 h-1 bg-zinc-50 rounded-full overflow-hidden">
+                                <div className="mt-2 h-1 bg-zinc-50 dark:bg-zinc-900 rounded-full overflow-hidden">
                                   <motion.div 
                                     initial={{ width: 0 }}
                                     animate={{ width: `${item.val}%` }}
@@ -462,38 +462,38 @@ export default function ProfilePage() {
                   <button 
                     type="submit"
                     disabled={isSaving}
-                    className="h-14 px-12 bg-zinc-950 text-white rounded-2xl font-display font-bold flex items-center justify-center gap-3 hover:bg-zinc-900 transition-all shadow-2xl shadow-zinc-950/20 disabled:opacity-50"
+                    className="h-14 px-12 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-2xl shadow-zinc-950/20 dark:shadow-none disabled:opacity-50"
                   >
                     {isSaving ? 'Syncing...' : 'Sync Profile Changes'}
-                    <Save className="w-5 h-5 text-trust-green" />
+                    <Save className="w-5 h-5 text-trust-green dark:text-zinc-950" />
                   </button>
                 </div>
               </motion.form>
 
               {/* Stats & Metadata Footer */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-12 pb-12">
-                <section className="glass rounded-3xl p-6 border border-zinc-100">
-                   <h4 className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-4">Security Baseline</h4>
+                <section className="glass rounded-3xl p-6 border border-zinc-100 dark:border-white/5">
+                   <h4 className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4">Security Baseline</h4>
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isVerified ? 'bg-trust-green/10 text-trust-green' : 'bg-amber-100 text-amber-600'}`}>
+                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isVerified ? 'bg-trust-green/10 text-trust-green' : 'bg-amber-100 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500'}`}>
                             <ShieldCheck className="w-4 h-4" />
                          </div>
-                         <p className="font-display font-bold text-xs text-zinc-900">{isVerified ? 'Verified Account' : isPending ? 'Review Pending' : 'Unverified'}</p>
+                         <p className="font-display font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-tight">{isVerified ? 'Verified Account' : isPending ? 'Review Pending' : 'Unverified'}</p>
                       </div>
-                      <span className="font-mono text-[9px] font-bold text-zinc-400">SCORE: {isVerified ? '98' : '40'}</span>
+                      <span className="font-mono text-[9px] font-bold text-zinc-400 dark:text-zinc-600">SCORE: {isVerified ? '98' : '40'}</span>
                    </div>
                 </section>
-                <section className="glass rounded-3xl p-6 border border-zinc-100">
-                   <h4 className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest mb-4">Protocol Metadata</h4>
+                <section className="glass rounded-3xl p-6 border border-zinc-100 dark:border-white/5">
+                   <h4 className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-4">Protocol Metadata</h4>
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-400">
+                         <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-zinc-400 dark:text-zinc-600 border border-zinc-100 dark:border-white/5">
                             <Fingerprint className="w-4 h-4" />
                          </div>
-                         <p className="font-display font-bold text-xs text-zinc-900">TC-HASH-NODE</p>
+                         <p className="font-display font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-tight">TC-HASH-NODE</p>
                       </div>
-                      <span className="font-mono text-[9px] font-bold text-trust-green">ALPHA_REV_2</span>
+                      <span className="font-mono text-[9px] font-bold text-trust-green uppercase tracking-widest">ALPHA_REV_2</span>
                    </div>
                 </section>
               </div>

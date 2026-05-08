@@ -21,7 +21,7 @@ interface ComingSoonProps {
 
 export function ComingSoon({ title, description }: ComingSoonProps) {
   return (
-    <main className="relative min-h-screen w-full bg-white flex flex-col items-center justify-center p-6 text-center lg:pl-72 selection:bg-trust-green/20">
+    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 flex flex-col items-center justify-center p-6 text-center lg:pl-72 selection:bg-trust-green/20 transition-colors duration-300">
       <BackgroundAnimation />
       <Sidebar />
 
@@ -29,7 +29,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-24 h-24 bg-white border border-zinc-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-xl shadow-zinc-100"
+          className="w-24 h-24 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-12 shadow-xl shadow-zinc-100/50 dark:shadow-none"
         >
           <Hammer className="text-trust-green w-10 h-10 animate-bounce" />
         </motion.div>
@@ -39,8 +39,8 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
            animate={{ opacity: 1, y: 0 }}
            transition={{ delay: 0.2 }}
         >
-          <h1 className="font-display text-5xl font-bold text-zinc-900 mb-6 tracking-tight">{title}</h1>
-          <p className="font-sans text-xl text-zinc-500 mb-12 leading-relaxed">{description}</p>
+          <h1 className="font-display text-5xl font-bold text-zinc-900 dark:text-white mb-6 tracking-tight">{title}</h1>
+          <p className="font-sans text-xl text-zinc-500 dark:text-zinc-400 mb-12 leading-relaxed">{description}</p>
         </motion.div>
 
         <motion.div 
@@ -54,9 +54,9 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
              { icon: Cpu, label: "Core Processing" },
              { icon: ShieldCheck, label: "Edge Security" }
            ].map((item, i) => (
-             <div key={i} className="p-6 glass rounded-3xl border border-zinc-100">
-               <item.icon className="w-6 h-6 text-zinc-300 mx-auto mb-3" />
-               <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{item.label}</span>
+             <div key={i} className="p-6 glass rounded-3xl border border-zinc-100 dark:border-white/5">
+               <item.icon className="w-6 h-6 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" />
+               <span className="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">{item.label}</span>
              </div>
            ))}
         </motion.div>
@@ -68,7 +68,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
         >
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-zinc-200 text-zinc-900 rounded-2xl font-bold hover:bg-zinc-50 transition-all shadow-md"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white rounded-2xl font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-md dark:shadow-none"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Dashboard
@@ -77,7 +77,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
       </div>
 
       <div className="absolute bottom-12 left-0 right-0 flex justify-center opacity-10">
-        <Construction className="w-64 h-64 text-zinc-900 rotate-12" />
+        <Construction className="w-64 h-64 text-zinc-900 dark:text-white rotate-12" />
       </div>
     </main>
   );

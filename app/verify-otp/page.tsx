@@ -126,7 +126,7 @@ export default function VerifyOtpPage() {
               <button
                 disabled={isSubmitting}
                 type="submit"
-                className="w-full h-14 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl dark:shadow-none"
+                className="w-full h-14 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-200 dark:hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl dark:shadow-none"
               >
                 {isSubmitting ? "Verifying..." : "Validate Hash"}
                 <ArrowRight className="w-5 h-5" />

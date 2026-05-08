@@ -191,7 +191,7 @@ export default function NotarizePage() {
           <div className="flex flex-wrap gap-4">
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="h-12 px-6 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-sm flex items-center gap-2 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
+              className="h-12 px-6 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-bold text-sm flex items-center gap-2 hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
             >
               <Plus className="w-4 h-4" />
               Add Files
