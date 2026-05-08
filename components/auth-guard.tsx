@@ -47,12 +47,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center gap-4">
+      <div className="fixed inset-0 bg-white dark:bg-zinc-950 z-[9999] flex flex-col items-center justify-center gap-4 transition-colors duration-300">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-zinc-100 border-t-trust-green rounded-full animate-spin" />
+          <div className="w-16 h-16 border-4 border-zinc-100 dark:border-white/5 border-t-trust-green rounded-full animate-spin" />
           <Loader2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-trust-green animate-pulse" />
         </div>
-        <p className="font-display font-medium text-xs uppercase tracking-[0.3em] text-zinc-400">Synchronizing Node...</p>
+        <p className="font-display font-medium text-xs uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-600">Synchronizing Node...</p>
       </div>
     );
   }

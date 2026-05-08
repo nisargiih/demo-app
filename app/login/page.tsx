@@ -54,7 +54,7 @@ export default function LoginPage() {
         }
 
         localStorage.setItem('user_first_name', result.user.firstName);
-        localStorage.setItem('authenticated_user_email', data.email);
+        localStorage.setItem('authenticated_user_email', result.user.email.toLowerCase());
         localStorage.setItem('authenticated_user_id', result.user.id);
         setIsSuccess(true);
         notify('Authentication successful.', 'success');
@@ -79,7 +79,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white selection:bg-trust-green/20">
+    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
       <BackgroundAnimation />
  
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
@@ -89,10 +89,10 @@ export default function LoginPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 lg:mb-8 text-zinc-900">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 lg:mb-8 text-zinc-900 dark:text-white">
               Welcome back to <span className="text-gradient">TechCore.</span>
             </h1>
-            <p className="font-sans text-lg lg:text-xl text-zinc-600 leading-relaxed max-w-md mx-auto lg:mx-0">
+            <p className="font-sans text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-md mx-auto lg:mx-0">
               Your cryptographic identity is ready. Access your secure documents with absolute certainty.
             </p>
           </motion.div>
@@ -104,56 +104,56 @@ export default function LoginPage() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           className="w-full max-w-[500px]"
         >
-          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-white/40 shadow-2xl relative overflow-hidden">
+          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 md:p-12 border border-white/40 dark:border-white/5 shadow-2xl relative overflow-hidden">
             <AnimatePresence>
               {isSuccess && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
+                  className="absolute inset-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
                 >
                   <CheckCircle2 className="text-trust-green w-16 h-16 mb-4" />
-                  <h2 className="font-display text-3xl font-bold mb-3 text-zinc-900">Access Granted</h2>
-                  <p className="font-sans text-zinc-500 mb-8 max-w-[280px]">Identity verified. Synchronizing node...</p>
+                  <h2 className="font-display text-3xl font-bold mb-3 text-zinc-900 dark:text-white">Access Granted</h2>
+                  <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-8 max-w-[280px]">Identity verified. Synchronizing node...</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div className="mb-10 text-center lg:text-left relative z-10">
-              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Login</h2>
-              <p className="font-sans text-zinc-500 text-sm">Enter your credentials to access your secure vault.</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900 dark:text-white">Login</h2>
+              <p className="font-sans text-zinc-500 dark:text-zinc-400 text-sm">Enter your credentials to access your secure vault.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
               <div className="space-y-2">
-                <label className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="font-mono text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600 group-focus-within:text-trust-green transition-colors" />
                   <input
                     {...register('email')}
                     type="email"
                     placeholder="alan@turing.io"
-                    className={`w-full h-13 pl-12 pr-4 bg-zinc-50 border ${errors.email ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
+                    className={`w-full h-13 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-900/50 border ${errors.email ? 'border-red-500' : 'border-zinc-100 dark:border-white/5'} rounded-2xl font-sans text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700`}
                   />
                 </div>
                 <FormError message={errors.email?.message} />
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1">Password</label>
+                <label className="font-mono text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600 group-focus-within:text-trust-green transition-colors" />
                   <input
                     {...register('password')}
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••••••"
-                    className={`w-full h-13 pl-12 pr-12 bg-zinc-50 border ${errors.password ? 'border-red-500' : 'border-zinc-100'} rounded-2xl font-sans text-sm text-zinc-900 focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300`}
+                    className={`w-full h-13 pl-12 pr-12 bg-zinc-50 dark:bg-zinc-900/50 border ${errors.password ? 'border-red-500' : 'border-zinc-100 dark:border-white/5'} rounded-2xl font-sans text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-900 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-900 dark:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                 <button
                   disabled={isSubmitting}
                   type="submit"
-                  className="w-full h-14 bg-zinc-950 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 disabled:opacity-70 transition-all"
+                  className="w-full h-14 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl dark:shadow-none"
                 >
                   {isSubmitting ? "Authenticating..." : (
                     <>
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <p className="text-center font-sans text-xs text-zinc-600">
+              <p className="text-center font-sans text-xs text-zinc-600 dark:text-zinc-400">
                 New to the network? <Link href="/" className="text-trust-green font-bold hover:underline">Register Identity</Link>
               </p>
             </form>

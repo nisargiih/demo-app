@@ -27,9 +27,11 @@ import { FormError } from '@/components/form-error';
 import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
+import { useTheme } from '@/components/theme-provider';
 
 export default function SettingsPage() {
   const { notify, confirm } = useNotification();
+  const { theme, setTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<'security' | 'preferences' | 'account'>('security');
   const [user, setUser] = useState<any>(null);
   
@@ -40,7 +42,6 @@ export default function SettingsPage() {
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
 
   // State: Preferences
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [notifications, setNotifications] = useState({ email: true, push: false, alerts: true });
 
   useEffect(() => {
@@ -126,20 +127,34 @@ export default function SettingsPage() {
 
   const handleDeleteAccount = async () => {
     const ok = await confirm({
-      title: 'Permanent Account Deletion',
-      message: 'This process is irreversible. All your cryptographic signatures, ledger history, and templates will be permanently purged from the node.',
-      confirmText: 'Delete Account',
-      cancelText: 'Cancel'
+      title: 'Deep Purge Protocol',
+      message: 'This will permanently destroy your node instance and all associated cryptographic records. This process is irreversible.',
+      confirmText: 'Execute Purge',
+      cancelText: 'Abort'
     });
 
     if (ok) {
-      notify('Account deletion protocol initiated. You will be logged out.', 'info');
-      // Logic for deletion
+      try {
+        const email = localStorage.getItem('authenticated_user_email');
+        const res = await fetch(`/api/auth/delete?email=${encodeURIComponent(email || '')}`, {
+          method: 'DELETE'
+        });
+        
+        if (res.ok) {
+          notify('Purge sequence complete. Identity destroyed.', 'success');
+          localStorage.clear();
+          router.push('/login');
+        } else {
+          notify('Purge protocol failed. System lockdown active.', 'error');
+        }
+      } catch (err) {
+        notify('System failure during purge.', 'error');
+      }
     }
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6">
+    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-12 lg:pt-0 pb-20 px-6 transition-colors duration-300">
       <BackgroundAnimation />
       <Sidebar />
 
@@ -150,12 +165,12 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 mb-4"
           >
-            <div className="w-12 h-12 bg-zinc-950 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-zinc-950 dark:bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-900/50 dark:border-white/10">
               <Settings className="text-trust-green w-6 h-6" />
             </div>
-            <h1 className="font-display text-4xl font-bold text-zinc-900">Settings</h1>
+            <h1 className="font-display text-4xl font-bold text-zinc-900 dark:text-white">Settings</h1>
           </motion.div>
-          <p className="font-sans text-zinc-500">Configure your node preferences, security protocols, and account status.</p>
+          <p className="font-sans text-zinc-500 dark:text-zinc-400">Configure your node preferences, security protocols, and account status.</p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -171,8 +186,8 @@ export default function SettingsPage() {
                 onClick={() => setActiveSection(section.id as any)}
                 className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all ${
                   activeSection === section.id 
-                    ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-900/10' 
-                    : 'text-zinc-500 hover:bg-zinc-50'
+                    ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl shadow-zinc-900/10' 
+                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'
                 }`}
               >
                 <section.icon className="w-4 h-4" />
@@ -193,28 +208,28 @@ export default function SettingsPage() {
                   className="space-y-6"
                 >
                   {/* 2FA Section */}
-                  <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
+                  <section className="glass rounded-[2.5rem] p-8">
                     <div className="flex items-start justify-between mb-8">
                       <div>
-                        <h3 className="font-display font-bold text-xl text-zinc-900 mb-2">Two-Factor Authentication</h3>
-                        <p className="font-sans text-sm text-zinc-500">Secure your account with 6-character alphanumeric verification.</p>
+                        <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-2">Two-Factor Authentication</h3>
+                        <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400">Secure your account with 6-character alphanumeric verification.</p>
                       </div>
                       <button 
                         onClick={handleToggle2FA}
                         className={`relative w-14 h-8 rounded-full transition-all flex items-center p-1 ${
-                          is2FAEnabled ? 'bg-trust-green' : 'bg-zinc-200'
+                          is2FAEnabled ? 'bg-trust-green' : 'bg-zinc-200 dark:bg-zinc-800'
                         }`}
                       >
                         <div className={`w-6 h-6 bg-white rounded-full transition-all shadow-sm ${is2FAEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
                       </button>
                     </div>
                     
-                    <div className="flex items-center gap-4 p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${is2FAEnabled ? 'bg-trust-green/10 text-trust-green' : 'bg-zinc-200 text-zinc-400'}`}>
+                    <div className="flex items-center gap-4 p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-white/5">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${is2FAEnabled ? 'bg-trust-green/10 text-trust-green' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400'}`}>
                         <Smartphone className="w-5 h-5" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-display font-bold text-xs text-zinc-900">Email Verification Protocol</p>
+                        <p className="font-display font-bold text-xs text-zinc-900 dark:text-white">Email Verification Protocol</p>
                         <p className="font-mono text-[10px] text-zinc-400">STATUS: {is2FAEnabled ? 'ENFORCED' : 'DISABLED'}</p>
                       </div>
                       {is2FAEnabled && <div className="px-3 py-1 bg-trust-green/10 text-trust-green rounded-full font-mono text-[9px] font-bold">VERIFIED</div>}
@@ -222,13 +237,13 @@ export default function SettingsPage() {
                   </section>
 
                   {/* Password Section */}
-                  <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
+                  <section className="glass rounded-[2.5rem] p-8">
                     <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-display font-bold text-xl text-zinc-900">Security Credentials</h3>
+                      <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white">Security Credentials</h3>
                       {!showPasswordChange && (
                         <button 
                           onClick={() => setShowPasswordChange(true)}
-                          className="px-4 py-2 border border-zinc-100 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:border-trust-green transition-all"
+                          className="px-4 py-2 border border-zinc-100 dark:border-white/10 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:border-trust-green transition-all"
                         >
                           Change Password
                         </button>
@@ -258,12 +273,12 @@ export default function SettingsPage() {
                                     placeholder={p.placeholder}
                                     value={passwords[p.id as keyof typeof passwords]}
                                     onChange={(e) => setPasswords({...passwords, [p.id]: e.target.value})}
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-100 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm"
+                                    className="w-full h-12 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green font-sans text-sm dark:text-white dark:placeholder:text-zinc-700 transition-all"
                                   />
                                   <button
                                     type="button"
                                     onClick={() => setShowPasswords({...showPasswords, [p.id]: !showPasswords[p.id as keyof typeof showPasswords]})}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-500 dark:text-zinc-600 dark:hover:text-zinc-400"
                                   >
                                     {showPasswords[p.id as keyof typeof showPasswords] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                   </button>
@@ -281,13 +296,13 @@ export default function SettingsPage() {
                             <button 
                               type="button" 
                               onClick={() => setShowPasswordChange(false)}
-                              className="flex-1 h-12 bg-zinc-50 text-zinc-500 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest"
+                              className="flex-1 h-12 bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest"
                             >
                               Cancel
                             </button>
                             <button 
                               type="submit"
-                              className="flex-1 h-12 bg-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-zinc-950/20"
+                              className="flex-1 h-12 bg-zinc-950 dark:bg-trust-green dark:text-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-zinc-950/20"
                             >
                               Update Credentials
                             </button>
@@ -312,32 +327,37 @@ export default function SettingsPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
-                    <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">System interface</h3>
+                  <section className="glass rounded-[2.5rem] p-8">
+                    <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8">System interface</h3>
                     
                     <div className="space-y-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center">
-                            {theme === 'light' ? <Sun className="w-5 h-5 text-zinc-400" /> : <Moon className="w-5 h-5 text-zinc-400" />}
+                          <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-100 dark:border-white/5">
+                            {theme === 'light' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-400" />}
                           </div>
                           <div>
-                            <p className="font-display font-bold text-sm text-zinc-900">Core Theme</p>
-                            <p className="font-sans text-xs text-zinc-500">Toggle between professional modes.</p>
+                            <p className="font-display font-bold text-sm text-zinc-900 dark:text-white">Core Theme</p>
+                            <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400">Toggle between professional modes.</p>
                           </div>
                         </div>
                         <button 
                           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                          className="px-6 py-2 bg-zinc-50 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-900 hover:bg-zinc-100"
+                          className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl"
                         >
-                          {theme === 'light' ? 'Light Mode' : 'Dark Mode'}
+                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${theme === 'light' ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                            Light
+                          </div>
+                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                            Dark
+                          </div>
                         </button>
                       </div>
 
-                      <div className="h-px bg-zinc-100" />
+                      <div className="h-px bg-zinc-100 dark:bg-white/5" />
 
                       <div className="space-y-6">
-                        <h4 className="font-display font-bold text-xs text-zinc-400 uppercase tracking-[0.2em]">Operational Alerts</h4>
+                        <h4 className="font-display font-bold text-xs text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Operational Alerts</h4>
                         {[
                           { id: 'email', label: 'Email Digest', desc: 'Secure summary of signature activity.' },
                           { id: 'push', label: 'Real-time Pulse', desc: 'Push notifications for direct verification.' },
@@ -345,13 +365,13 @@ export default function SettingsPage() {
                         ].map((n) => (
                           <div key={n.id} className="flex items-center justify-between">
                             <div>
-                              <p className="font-display font-bold text-sm text-zinc-900">{n.label}</p>
-                              <p className="font-sans text-xs text-zinc-500">{n.desc}</p>
+                              <p className="font-display font-bold text-sm text-zinc-900 dark:text-white">{n.label}</p>
+                              <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400">{n.desc}</p>
                             </div>
                             <button 
                               onClick={() => setNotifications({...notifications, [n.id]: !notifications[n.id as keyof typeof notifications]})}
                               className={`relative w-12 h-6 rounded-full transition-all flex items-center p-0.5 ${
-                                notifications[n.id as keyof typeof notifications] ? 'bg-trust-green' : 'bg-zinc-200'
+                                notifications[n.id as keyof typeof notifications] ? 'bg-trust-green' : 'bg-zinc-200 dark:bg-zinc-800'
                               }`}
                             >
                               <div className={`w-5 h-5 bg-white rounded-full transition-all shadow-sm ${notifications[n.id as keyof typeof notifications] ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -372,12 +392,12 @@ export default function SettingsPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  <section className="glass rounded-[2.5rem] p-8 border border-zinc-100">
-                    <h3 className="font-display font-bold text-xl text-zinc-900 mb-8">Node Configuration</h3>
+                  <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5">
+                    <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8">Node Configuration</h3>
                     
                     <div className="space-y-6">
-                      <div className="p-6 bg-zinc-50 border border-zinc-100 rounded-3xl">
-                        <label className="font-display font-bold text-[10px] text-zinc-400 uppercase tracking-widest pl-1 block mb-4">Active Node Tier</label>
+                      <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl">
+                        <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest pl-1 block mb-4">Active Node Tier</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {[
                           { id: 'Individual', label: 'Personal', icon: User },
@@ -402,49 +422,49 @@ export default function SettingsPage() {
                             }}
                             className={`p-4 rounded-xl border text-left transition-all ${
                               user?.entityType === type.id 
-                                ? 'bg-zinc-950 border-zinc-950 text-white shadow-xl' 
-                                : 'bg-white border-zinc-100 text-zinc-900 hover:border-zinc-200'
+                                ? 'bg-zinc-950 dark:bg-trust-green border-zinc-950 dark:border-trust-green text-white dark:text-zinc-950 shadow-xl' 
+                                : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-white/10 text-zinc-900 dark:text-zinc-400 hover:border-zinc-200 dark:hover:border-zinc-700'
                             }`}
                           >
-                            <type.icon className={`w-4 h-4 mb-2 ${user?.entityType === type.id ? 'text-trust-green' : 'text-zinc-300'}`} />
+                            <type.icon className={`w-4 h-4 mb-2 ${user?.entityType === type.id ? 'text-trust-green dark:text-zinc-950' : 'text-zinc-300 dark:text-zinc-700'}`} />
                             <p className="font-display font-bold text-[10px] uppercase tracking-wider">{type.label}</p>
                           </button>
                         ))}
                         </div>
                       </div>
 
-                      <div className="h-px bg-zinc-100" />
+                      <div className="h-px bg-zinc-100 dark:bg-white/5" />
 
                       <div className="flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center">
-                            <LogOut className="w-5 h-5 text-zinc-400" />
+                          <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-100 dark:border-white/5">
+                            <LogOut className="w-5 h-5 text-zinc-400 dark:text-zinc-600" />
                           </div>
                           <div>
-                            <p className="font-display font-bold text-sm text-zinc-900">Session Purge</p>
-                            <p className="font-sans text-xs text-zinc-500">Sign out from all currently active sessions.</p>
+                            <p className="font-display font-bold text-sm text-zinc-900 dark:text-white">Session Purge</p>
+                            <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400">Sign out from all currently active sessions.</p>
                           </div>
                         </div>
-                        <button className="p-2 text-zinc-300 hover:text-zinc-900 transition-colors">
+                        <button className="p-2 text-zinc-300 dark:text-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">
                           <ChevronRight className="w-5 h-5" />
                         </button>
                       </div>
 
-                      <div className="h-px bg-zinc-100" />
+                      <div className="h-px bg-zinc-100 dark:bg-white/5" />
 
                       <div className="flex items-center justify-between group">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
-                            <Trash2 className="w-5 h-5 text-red-400" />
+                          <div className="w-10 h-10 bg-red-50 dark:bg-red-500/10 rounded-xl flex items-center justify-center border border-red-100 dark:border-red-500/20">
+                            <Trash2 className="w-5 h-5 text-red-400 dark:text-red-500" />
                           </div>
                           <div>
                             <p className="font-display font-bold text-sm text-red-500">Terminal Deletion</p>
-                            <p className="font-sans text-xs text-zinc-500">Permanently remove all data from the node.</p>
+                            <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400">Permanently remove all data from the node.</p>
                           </div>
                         </div>
                         <button 
                           onClick={handleDeleteAccount}
-                          className="px-4 py-2 bg-red-50 text-red-500 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all underline decoration-red-200"
+                          className="px-4 py-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all underline decoration-red-200 dark:decoration-red-900"
                         >
                           Purge Account
                         </button>
@@ -452,11 +472,11 @@ export default function SettingsPage() {
                     </div>
                   </section>
                   
-                  <div className="p-6 bg-amber-50 border border-amber-100 rounded-[2rem] flex gap-4">
+                  <div className="p-6 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-[2rem] flex gap-4">
                     <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-display font-bold text-sm text-amber-900 mb-1">Administrative Alert</p>
-                      <p className="font-sans text-xs text-amber-800/80 leading-relaxed">
+                      <p className="font-display font-bold text-sm text-amber-900 dark:text-amber-500 mb-1">Administrative Alert</p>
+                      <p className="font-sans text-xs text-amber-800/80 dark:text-amber-500/60 leading-relaxed">
                         Account deletion involves purging your cryptographic keys. Any files authenticated with these keys will no longer be verifiable through your legacy hash signatures.
                       </p>
                     </div>

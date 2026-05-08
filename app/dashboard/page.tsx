@@ -172,7 +172,7 @@ export default function DashboardPage() {
   const isPending = user?.verificationStatus === 'pending';
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
+    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6 transition-colors duration-300">
       <BackgroundAnimation />
       <Sidebar />
  
@@ -184,7 +184,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-zinc-900 tracking-tight">
+                <h1 className="font-display text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-white tracking-tight">
                   Control Center
                 </h1>
                 {isVerified && (
@@ -194,14 +194,14 @@ export default function DashboardPage() {
                   </div>
                 )}
                 {isPending && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full">
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-full">
                     <Clock className="w-4 h-4 text-zinc-400" />
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-500">Under Review</span>
+                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Under Review</span>
                   </div>
                 )}
               </div>
-              <p className="font-sans text-sm sm:text-base text-zinc-500">
-                Logged as <span className="text-zinc-900 font-semibold">{user?.firstName} {user?.lastName}</span> — {user?.entityType} node.
+              <p className="font-sans text-sm sm:text-base text-zinc-500 dark:text-zinc-400">
+                Logged as <span className="text-zinc-900 dark:text-zinc-100 font-semibold">{user?.firstName} {user?.lastName}</span> — {user?.entityType} node.
               </p>
             </motion.div>
 
@@ -212,7 +212,7 @@ export default function DashboardPage() {
             >
               <button 
                 onClick={() => router.push('/notarize')}
-                className="h-12 px-8 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-200"
+                className="h-12 px-8 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
               >
                 <Plus className="w-4 h-4" />
                 Capture Fingerprint
@@ -223,24 +223,24 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900', bg: 'bg-zinc-50' },
+            { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-50 dark:bg-zinc-900/50' },
             { 
               label: 'Free Index Quota', 
               value: usageStats ? `${usageStats.hashCount}/${usageStats.hashLimit}` : '0/10', 
               icon: Zap, 
               color: 'text-trust-green', 
-              bg: 'bg-trust-green/5',
+              bg: 'bg-trust-green/5 dark:bg-trust-green/10',
               sub: usageStats && usageStats.hashCount >= usageStats.hashLimit ? 'Limit reached' : 'Resets monthly'
             },
             { 
               label: 'Free Verify Quota', 
               value: usageStats ? `${usageStats.verifyCount}/${usageStats.verifyLimit}` : '0/15', 
               icon: ShieldCheck, 
-              color: 'text-zinc-950', 
-              bg: 'bg-zinc-50',
+              color: 'text-zinc-950 dark:text-white', 
+              bg: 'bg-zinc-50 dark:bg-zinc-900/50',
               sub: usageStats && usageStats.verifyCount >= usageStats.verifyLimit ? 'Limit reached' : 'Resets monthly'
             },
-            { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-white', bg: 'bg-zinc-950', invert: true },
+            { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-white', bg: 'bg-zinc-950 dark:bg-zinc-800', invert: true },
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -248,9 +248,9 @@ export default function DashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.1 }}
               onClick={stat.action}
-              className={`${stat.invert ? 'bg-zinc-950 text-white' : `${stat.bg} ${stat.color}`} p-7 rounded-[2.5rem] border border-zinc-100 flex flex-col justify-between h-44 shadow-sm transition-all hover:shadow-xl hover:shadow-zinc-200/40 group relative overflow-hidden ${stat.action ? 'cursor-pointer' : ''}`}
+              className={`${stat.invert ? 'bg-zinc-950 dark:bg-zinc-800 text-white' : `${stat.bg} ${stat.color}`} p-7 rounded-[2.5rem] border border-zinc-100 dark:border-white/5 flex flex-col justify-between h-44 shadow-sm transition-all hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none group relative overflow-hidden ${stat.action ? 'cursor-pointer' : ''}`}
             >
-              <stat.icon className={`absolute -right-4 -bottom-4 w-24 h-24 opacity-5 transition-transform group-hover:scale-125 ${stat.invert ? 'text-white' : 'text-zinc-950'}`} />
+              <stat.icon className={`absolute -right-4 -bottom-4 w-24 h-24 opacity-5 transition-transform group-hover:scale-125 ${stat.invert ? 'text-white' : 'text-zinc-950 dark:text-white'}`} />
               <div className="relative z-10">
                 <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest ${stat.invert ? 'text-zinc-500' : 'opacity-60'}`}>{stat.label}</h4>
                 {stat.sub && (
@@ -265,23 +265,23 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Activity Chart Area */}
-            <section className="glass rounded-[3rem] p-8 sm:p-10 border border-zinc-100 flex flex-col min-h-[500px]">
+            <section className="glass rounded-[3rem] p-8 sm:p-10 flex flex-col min-h-[500px]">
                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
                  <div>
                     <div className="flex items-center gap-2 mb-1">
                         <Activity className="w-5 h-5 text-trust-green" />
-                        <h3 className="font-display font-bold text-2xl text-zinc-900 tracking-tight">Index Activity</h3>
+                        <h3 className="font-display font-bold text-2xl text-zinc-900 dark:text-white tracking-tight">Index Activity</h3>
                     </div>
                     <p className="font-sans text-xs text-zinc-400 font-medium">Real-time cryptographic fingerprint tracking</p>
                  </div>
                  
-                 <div className="bg-zinc-100/50 p-1.5 rounded-2xl flex gap-1 border border-zinc-100 self-start">
+                 <div className="bg-zinc-100/50 dark:bg-zinc-900/50 p-1.5 rounded-2xl flex gap-1 border border-zinc-100 dark:border-white/5 self-start">
                     {(['day', 'week', 'month', '3month'] as const).map((p) => (
                         <button
                             key={p}
                             onClick={() => setStatsPeriod(p)}
                             className={`px-4 py-2 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${
-                            statsPeriod === p ? 'bg-white text-zinc-900 shadow-md' : 'text-zinc-400 hover:text-zinc-600'
+                            statsPeriod === p ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-md' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
                             }`}
                         >
                             {p === '3month' ? '90 Days' : p}
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                                   <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                               </linearGradient>
                           </defs>
-                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" />
+                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" className="dark:opacity-10" />
                           <XAxis 
                               dataKey="name" 
                               axisLine={false} 
@@ -316,13 +316,17 @@ export default function DashboardPage() {
                           />
                           <Tooltip 
                               contentStyle={{ 
-                                  borderRadius: '16px', 
-                                  border: '1px solid #f4f4f5',
-                                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                                  borderRadius: '24px', 
+                                  border: 'none',
+                                  backgroundColor: 'rgba(9, 9, 11, 0.9)',
+                                  color: '#fff',
+                                  boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.5)',
                                   fontFamily: 'var(--font-sans)',
                                   fontSize: '12px',
-                                  fontWeight: 'bold'
+                                  fontWeight: 'bold',
+                                  backdropFilter: 'blur(8px)'
                               }}
+                              itemStyle={{ color: '#10b981' }}
                           />
                           <Area 
                               type="monotone" 
@@ -338,7 +342,7 @@ export default function DashboardPage() {
                     </ResponsiveContainer>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-zinc-100 dark:border-white/5 border-t-zinc-900 dark:border-t-trust-green rounded-full animate-spin" />
                     </div>
                   )}
                </div>
@@ -346,10 +350,10 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-8">
-            <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 flex flex-col h-full">
+            <section className="glass rounded-[2.5rem] p-8 flex flex-col h-full">
                <div className="flex items-center gap-3 mb-8">
-                  <History className="w-5 h-5 text-zinc-900" />
-                  <h3 className="font-display font-bold text-xl text-zinc-900">Recent Ledger</h3>
+                  <History className="w-5 h-5 text-zinc-900 dark:text-white" />
+                  <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white">Recent Ledger</h3>
                </div>
                
                <div className="space-y-6 flex-1">
@@ -363,12 +367,12 @@ export default function DashboardPage() {
                         className="flex gap-4 group cursor-pointer"
                         onClick={() => router.push('/notarize')}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center shrink-0 group-hover:bg-zinc-900 transition-colors">
-                          <FileText className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" />
+                        <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:bg-zinc-900 dark:group-hover:bg-trust-green transition-colors">
+                          <FileText className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-white dark:group-hover:text-zinc-950 transition-colors" />
                         </div>
                         <div className="min-w-0 flex-1">
-                           <p className="font-display font-bold text-sm text-zinc-900 truncate tracking-tight">{log.fileName}</p>
-                           <p className="font-mono text-[9px] text-zinc-400 font-bold uppercase tracking-widest mt-0.5">
+                           <p className="font-display font-bold text-sm text-zinc-900 dark:text-white truncate tracking-tight">{log.fileName}</p>
+                           <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
                              {new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                            </p>
                         </div>
@@ -376,14 +380,14 @@ export default function DashboardPage() {
                     ))
                  ) : (
                     <div className="py-20 text-center flex flex-col items-center justify-center h-full">
-                        <Fingerprint className="w-12 h-12 text-zinc-100 mb-4" />
-                        <p className="font-sans text-[11px] text-zinc-400 font-bold uppercase tracking-widest">No activity reported</p>
+                        <Fingerprint className="w-12 h-12 text-zinc-100 dark:text-zinc-800 mb-4" />
+                        <p className="font-sans text-[11px] text-zinc-400 dark:text-zinc-600 font-bold uppercase tracking-widest">No activity reported</p>
                     </div>
                  )}
                </div>
                
                {allHashes.length > 6 && (
-                 <button className="w-full mt-8 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl font-display font-bold text-[10px] text-zinc-900 uppercase tracking-widest hover:bg-zinc-100 transition-colors">
+                 <button className="w-full mt-8 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] text-zinc-900 dark:text-white uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                     View Full Inventory
                  </button>
                )}

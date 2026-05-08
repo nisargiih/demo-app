@@ -72,13 +72,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
               exit={{ opacity: 0, x: 20, scale: 0.9 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="pointer-events-auto relative min-w-[360px] max-w-md bg-white border border-zinc-100 shadow-[0_20px_50px_rgba(0,0,0,0.08)] rounded-[1.5rem] p-5 flex items-start gap-4 group overflow-hidden"
+              className="pointer-events-auto relative min-w-[360px] max-w-md bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.08)] rounded-[1.5rem] p-5 flex items-start gap-4 group overflow-hidden"
             >
               <div className={`shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
                 n.type === 'success' ? 'bg-trust-green/10 text-trust-green' :
-                n.type === 'error' ? 'bg-red-50 text-red-500' :
-                n.type === 'loading' ? 'bg-zinc-50 text-zinc-400' :
-                'bg-zinc-50 text-zinc-950'
+                n.type === 'error' ? 'bg-red-50 dark:bg-red-500/10 text-red-500' :
+                n.type === 'loading' ? 'bg-zinc-50 dark:bg-zinc-800 text-zinc-400' :
+                'bg-zinc-50 dark:bg-zinc-800 text-zinc-950 dark:text-white'
               }`}>
                 {n.type === 'success' && <CheckCircle2 className="w-6 h-6" />}
                 {n.type === 'error' && <AlertCircle className="w-6 h-6" />}
@@ -87,21 +87,21 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               </div>
               
               <div className="flex-1 pt-1">
-                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] mb-1 text-zinc-400">
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.2em] mb-1 text-zinc-400 dark:text-zinc-600">
                   {n.type === 'success' ? 'Protocol Success' : 
                    n.type === 'error' ? 'Security Alert' : 
                    n.type === 'loading' ? 'Processing' : 'System Intel'}
                 </p>
-                <p className="font-sans text-[13px] font-bold text-zinc-900 leading-relaxed pr-6">
+                <p className="font-sans text-[13px] font-bold text-zinc-900 dark:text-white leading-relaxed pr-6">
                   {n.message}
                 </p>
               </div>
 
               <button 
                 onClick={() => setNotifications(prev => prev.filter(item => item.id !== n.id))}
-                className="shrink-0 w-8 h-8 flex items-center justify-center hover:bg-zinc-50 rounded-lg transition-all"
+                className="shrink-0 w-8 h-8 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg transition-all"
               >
-                <X className="w-4 h-4 text-zinc-300 group-hover:text-zinc-600" />
+                <X className="w-4 h-4 text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-600 dark:group-hover:text-zinc-400" />
               </button>
 
               {/* Progress Bar for Auto-dismiss */}
@@ -137,21 +137,21 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               initial={{ opacity: 0, scale: 0.95, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 40 }}
-              className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-10 sm:p-12 shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white overflow-hidden"
+              className="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-[2.5rem] p-10 sm:p-12 shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-white dark:border-white/5 overflow-hidden"
             >
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-trust-green via-zinc-950 to-trust-green" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-trust-green via-zinc-950 dark:via-zinc-800 to-trust-green" />
               
-              <div className="w-20 h-20 bg-zinc-950 rounded-[2rem] flex items-center justify-center mb-10 shadow-xl shadow-zinc-950/20">
+              <div className="w-20 h-20 bg-zinc-950 dark:bg-zinc-950 rounded-[2rem] flex items-center justify-center mb-10 shadow-xl shadow-zinc-950/20 ring-4 ring-zinc-50 dark:ring-white/5">
                 <CheckCircle2 className="w-10 h-10 text-trust-green" />
               </div>
 
               <div className="space-y-4 mb-12">
-                <h3 className="font-display text-4xl font-black text-zinc-900 tracking-tight leading-none">
+                <h3 className="font-display text-4xl font-black text-zinc-900 dark:text-white tracking-tight leading-none">
                   {confirmDialog.options.title}
                 </h3>
-                <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Authorization Protocol Required</p>
-                <div className="h-px bg-zinc-50 w-full" />
-                <p className="font-sans text-base text-zinc-500 leading-relaxed">
+                <p className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600 font-bold uppercase tracking-[0.2em]">Authorization Protocol Required</p>
+                <div className="h-px bg-zinc-50 dark:bg-white/5 w-full" />
+                <p className="font-sans text-base text-zinc-500 dark:text-zinc-400 leading-relaxed">
                   {confirmDialog.options.message}
                 </p>
               </div>
@@ -159,13 +159,13 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
                   onClick={() => handleConfirm(false)}
-                  className="flex-1 h-16 bg-zinc-50 text-zinc-400 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] hover:bg-zinc-100 hover:text-zinc-600 transition-all"
+                  className="flex-1 h-16 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-600 dark:hover:text-zinc-300 transition-all"
                 >
                   {confirmDialog.options.cancelText || 'Decline'}
                 </button>
                 <button 
                   onClick={() => handleConfirm(true)}
-                  className="flex-1 h-16 bg-zinc-950 text-white rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-2xl shadow-zinc-950/30"
+                  className="flex-1 h-16 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-2xl shadow-zinc-950/30 dark:shadow-none"
                 >
                   {confirmDialog.options.confirmText || 'Authorize'}
                 </button>

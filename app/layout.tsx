@@ -15,18 +15,21 @@ export const metadata: Metadata = {
 import { NotificationProvider } from '@/hooks/use-notification';
 import { AuthGuard } from '@/components/auth-guard';
 import { UserProvider } from '@/hooks/use-user';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body suppressHydrationWarning className="font-sans antialiased">
-        <NotificationProvider>
-          <UserProvider>
-            <AuthGuard>
-              {children}
-            </AuthGuard>
-          </UserProvider>
-        </NotificationProvider>
+      <body suppressHydrationWarning className="font-sans antialiased bg-white dark:bg-zinc-950 transition-colors duration-300">
+        <ThemeProvider>
+          <NotificationProvider>
+            <UserProvider>
+              <AuthGuard>
+                {children}
+              </AuthGuard>
+            </UserProvider>
+          </NotificationProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

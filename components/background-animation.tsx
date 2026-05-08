@@ -33,8 +33,8 @@ export function BackgroundAnimation() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-zinc-50">
-      <div className="absolute inset-0 grid-bg opacity-20" />
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-zinc-50 dark:bg-zinc-950 transition-colors duration-500">
+      <div className="absolute inset-0 grid-bg opacity-20 dark:opacity-40" />
       
       {/* Soft Aurora Orbs */}
       <motion.div
@@ -49,7 +49,7 @@ export function BackgroundAnimation() {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute -top-[10%] -left-[10%] w-[80%] h-[80%] bg-trust-green/10 rounded-full blur-[120px]"
+        className="absolute -top-[10%] -left-[10%] w-[80%] h-[80%] bg-trust-green/10 dark:bg-trust-green/5 rounded-full blur-[120px]"
       />
       <motion.div
         animate={{
@@ -63,7 +63,7 @@ export function BackgroundAnimation() {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute top-[10%] -right-[15%] w-[70%] h-[70%] bg-neon-purple/5 rounded-full blur-[140px]"
+        className="absolute top-[10%] -right-[15%] w-[70%] h-[70%] bg-neon-purple/5 dark:bg-neon-purple/[0.03] rounded-full blur-[140px]"
       />
       <motion.div
         animate={{
@@ -75,7 +75,7 @@ export function BackgroundAnimation() {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute bottom-0 left-1/4 w-[60%] h-[40%] bg-neon-green/5 rounded-full blur-[100px]"
+        className="absolute bottom-0 left-1/4 w-[60%] h-[40%] bg-neon-green/5 dark:bg-neon-green/[0.02] rounded-full blur-[100px]"
       />
 
       {/* Floating Data Fragments */}
@@ -97,7 +97,7 @@ export function BackgroundAnimation() {
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute font-mono text-[10px] text-zinc-400 font-bold tracking-widest whitespace-nowrap"
+          className="absolute font-mono text-[10px] text-zinc-400 dark:text-zinc-600 font-bold tracking-widest whitespace-nowrap"
         >
           {p.id.toString(16).padStart(8, '0').toUpperCase()}
         </motion.div>
@@ -113,7 +113,7 @@ export function BackgroundAnimation() {
           repeat: Infinity,
           ease: "linear",
         }}
-        className="absolute inset-x-0 h-[300px] bg-gradient-to-b from-transparent via-trust-green/[0.03] to-transparent z-1 pointer-events-none"
+        className="absolute inset-x-0 h-[300px] bg-gradient-to-b from-transparent via-trust-green/[0.03] dark:via-trust-green/[0.01] to-transparent z-1 pointer-events-none"
       />
     </div>
   );

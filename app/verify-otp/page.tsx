@@ -81,7 +81,7 @@ export default function VerifyOtpPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white selection:bg-trust-green/20">
+    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
       <BackgroundAnimation />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8">
@@ -90,26 +90,26 @@ export default function VerifyOtpPage() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           className="w-full max-w-[450px]"
         >
-          <div className="glass rounded-[3rem] p-8 md:p-12 border border-white/40 shadow-2xl relative overflow-hidden">
+          <div className="glass rounded-[3rem] p-8 md:p-12 border border-white/40 dark:border-white/5 shadow-2xl relative overflow-hidden">
             {isSuccess && (
-               <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-zinc-900 font-display">
+               <div className="absolute inset-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-zinc-900 dark:text-white font-display">
                 <CheckCircle2 className="text-trust-green w-16 h-16 mb-4" />
                 <h2 className="text-2xl font-bold">Verification Complete</h2>
-                <p className="font-sans text-zinc-500">Redirecting to setup...</p>
+                <p className="font-sans text-zinc-500 dark:text-zinc-400">Redirecting to setup...</p>
                </div>
             )}
 
             <div className="mb-10 text-center">
-              <div className="w-16 h-16 bg-trust-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 bg-trust-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-trust-green/20">
                 <Lock className="text-trust-green w-8 h-8" />
               </div>
-              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900">Verify Identity</h2>
-              <p className="font-sans text-zinc-500 text-sm">We&apos;ve sent a 6-character code to your email.</p>
+              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900 dark:text-white">Verify Identity</h2>
+              <p className="font-sans text-zinc-500 dark:text-zinc-400 text-sm">We&apos;ve sent a 6-character code to your email.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               <div className="space-y-2 text-center">
-                <label className="font-mono text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Enter Verification Code</label>
+                <label className="font-mono text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.2em]">Enter Verification Code</label>
                 <div className="relative">
                   <input
                     {...register('otp')}
@@ -117,7 +117,7 @@ export default function VerifyOtpPage() {
                     type="text"
                     placeholder="XXXXXX"
                     style={{ textTransform: 'uppercase' }}
-                    className="w-full h-20 text-center text-4xl font-display font-bold tracking-[0.3em] bg-zinc-50 border border-zinc-100 rounded-3xl focus:outline-none focus:border-trust-green/50 focus:ring-8 focus:ring-trust-green/5 transition-all"
+                    className="w-full h-20 text-center text-4xl font-display font-bold tracking-[0.3em] bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl focus:outline-none focus:border-trust-green/50 focus:ring-8 focus:ring-trust-green/5 transition-all text-zinc-900 dark:text-white placeholder:text-zinc-200 dark:placeholder:text-zinc-800"
                   />
                 </div>
                 {errors.otp && <p className="text-[10px] text-red-500 font-mono">{errors.otp.message}</p>}
@@ -126,14 +126,14 @@ export default function VerifyOtpPage() {
               <button
                 disabled={isSubmitting}
                 type="submit"
-                className="w-full h-14 bg-zinc-950 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 disabled:opacity-70 transition-all"
+                className="w-full h-14 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl dark:shadow-none"
               >
                 {isSubmitting ? "Verifying..." : "Validate Hash"}
                 <ArrowRight className="w-5 h-5" />
               </button>
 
-              <p className="text-center font-sans text-xs text-zinc-500">
-                Didn&apos;t receive the code? <button type="button" className="text-trust-green font-bold">Resend</button>
+              <p className="text-center font-sans text-xs text-zinc-500 dark:text-zinc-400">
+                Didn&apos;t receive the code? <button type="button" className="text-trust-green font-bold hover:underline">Resend</button>
               </p>
             </form>
           </div>

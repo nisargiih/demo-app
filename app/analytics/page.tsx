@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
   const trustScore = 99.98;
 
   return (
-    <main className="relative min-h-screen w-full bg-white selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6">
+    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6 transition-colors duration-300">
       <BackgroundAnimation />
       <Sidebar />
 
@@ -97,15 +97,15 @@ export default function AnalyticsPage() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-3 mb-4"
             >
-              <div className="w-10 h-10 bg-zinc-950 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-zinc-950 dark:bg-zinc-900 border border-white/5 rounded-xl flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-trust-green" />
               </div>
-              <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400">Insight_Analyzer_v8.0</span>
+              <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Insight_Analyzer_v8.0</span>
             </motion.div>
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-display text-5xl font-black text-zinc-950 tracking-tighter uppercase mb-2"
+              className="font-display text-5xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase mb-2"
             >
               Network Insights
             </motion.h1>
@@ -113,14 +113,14 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="font-sans text-zinc-500 font-medium"
+              className="font-sans text-zinc-500 dark:text-zinc-400 font-medium"
             >
               Real-time cryptographic auditing and verification forensics.
             </motion.p>
           </div>
           <button 
             onClick={fetchStats}
-            className="h-12 w-12 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-950 hover:border-zinc-200 transition-all"
+            className="h-12 w-12 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl flex items-center justify-center text-zinc-400 dark:text-zinc-600 hover:text-zinc-950 dark:hover:text-white hover:border-zinc-200 dark:hover:border-white/10 transition-all"
           >
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
@@ -129,7 +129,7 @@ export default function AnalyticsPage() {
         {isLoading && !stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse mb-12">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-zinc-50 border border-zinc-100 rounded-3xl" />
+              <div key={i} className="h-32 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl" />
             ))}
           </div>
         ) : (
@@ -147,19 +147,19 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="p-6 bg-white rounded-3xl border border-zinc-100 shadow-sm hover:shadow-xl hover:shadow-zinc-200/40 transition-all overflow-hidden relative group"
+              className="p-6 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none transition-all overflow-hidden relative group"
             >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-50 dark:bg-zinc-800 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700" />
               <div className="flex items-center justify-between mb-4 relative z-10">
-                <div className="w-10 h-10 bg-zinc-50 rounded-xl flex items-center justify-center group-hover:bg-trust-green/10 transition-colors">
-                  <stat.icon className="w-5 h-5 text-zinc-400 group-hover:text-trust-green" />
+                <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-white/5 rounded-xl flex items-center justify-center group-hover:bg-trust-green/10 transition-colors">
+                  <stat.icon className="w-5 h-5 text-zinc-400 dark:text-zinc-600 group-hover:text-trust-green" />
                 </div>
                 <div className="flex items-center gap-1 text-[10px] font-bold font-mono text-trust-green">
                   {stat.change}
                 </div>
               </div>
-              <p className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-1 relative z-10">{stat.label}</p>
-              <p className="font-display text-2xl font-black text-zinc-950 relative z-10">{stat.val}</p>
+              <p className="font-mono text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mb-1 relative z-10">{stat.label}</p>
+              <p className="font-display text-2xl font-black text-zinc-950 dark:text-white relative z-10">{stat.val}</p>
             </motion.div>
           ))}
         </div>
@@ -167,12 +167,12 @@ export default function AnalyticsPage() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Chart 1: Verification Volume */}
-          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group">
+          <section className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-trust-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between mb-10">
               <div>
-                <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Verification Inflow</h3>
-                <p className="font-sans text-xs text-zinc-400 font-medium">Daily traffic volume across all protocol entry points</p>
+                <h3 className="font-display text-xl font-black text-zinc-950 dark:text-white uppercase tracking-tight">Verification Inflow</h3>
+                <p className="font-sans text-xs text-zinc-400 dark:text-zinc-500 font-medium">Daily traffic volume across all protocol entry points</p>
               </div>
               <TrendingUp className="text-trust-green w-5 h-5" />
             </div>
@@ -187,7 +187,7 @@ export default function AnalyticsPage() {
                         <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" className="dark:opacity-[0.03]" />
                     <XAxis 
                         dataKey="name" 
                         axisLine={false} 
@@ -200,7 +200,14 @@ export default function AnalyticsPage() {
                         tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
                     />
                     <Tooltip 
-                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                        contentStyle={{ 
+                          borderRadius: '20px', 
+                          border: 'none', 
+                          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
+                          padding: '16px',
+                          backgroundColor: '#09090b',
+                          color: '#fff'
+                        }}
                     />
                     <Area 
                         type="monotone" 
@@ -213,7 +220,7 @@ export default function AnalyticsPage() {
                     </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
+                <div className="h-full flex items-center justify-center text-zinc-300 dark:text-zinc-800 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
                     Waiting for Protocol Data...
                 </div>
               )}
@@ -221,12 +228,12 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Chart 2: Indexing Volume */}
-          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group">
+          <section className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between mb-10">
               <div>
-                <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Indexing Activity</h3>
-                <p className="font-sans text-xs text-zinc-400 font-medium">New document fingerprints committed to substrate</p>
+                <h3 className="font-display text-xl font-black text-zinc-950 dark:text-white uppercase tracking-tight">Indexing Activity</h3>
+                <p className="font-sans text-xs text-zinc-400 dark:text-zinc-500 font-medium">New document fingerprints committed to substrate</p>
               </div>
               <FileCheck className="text-blue-500 w-5 h-5" />
             </div>
@@ -241,7 +248,7 @@ export default function AnalyticsPage() {
                         <stop offset="100%" stopColor="#2563eb" stopOpacity={0.8} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" className="dark:opacity-[0.03]" />
                     <XAxis 
                         dataKey="name" 
                         axisLine={false} 
@@ -254,14 +261,21 @@ export default function AnalyticsPage() {
                         tick={{ fill: '#a1a1aa', fontSize: 10, fontWeight: 'bold' }} 
                     />
                     <Tooltip 
-                        cursor={{ fill: '#f8fafc' }}
-                        contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                        contentStyle={{ 
+                          borderRadius: '20px', 
+                          border: 'none', 
+                          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
+                          padding: '16px',
+                          backgroundColor: '#09090b',
+                          color: '#fff'
+                        }}
                     />
                     <Bar dataKey="count" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
                ) : (
-                <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
+                <div className="h-full flex items-center justify-center text-zinc-300 dark:text-zinc-800 font-mono text-[10px] uppercase tracking-widest font-black uppercase">
                     No Recent Ledger Commits
                 </div>
                )}
@@ -269,27 +283,27 @@ export default function AnalyticsPage() {
           </section>
 
           {/* Chart 3: Source Distribution */}
-          <section className="bg-white rounded-[2.5rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group col-span-1 lg:col-span-2">
+          <section className="bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5 shadow-sm relative overflow-hidden group col-span-1 lg:col-span-2">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div className="max-w-md">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-zinc-950 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-zinc-950 dark:bg-zinc-800 rounded-lg flex items-center justify-center">
                             <PieIcon className="w-4 h-4 text-trust-green" />
                         </div>
-                        <h3 className="font-display text-xl font-black text-zinc-950 uppercase tracking-tight">Entry Point Forensics</h3>
+                        <h3 className="font-display text-xl font-black text-zinc-950 dark:text-white uppercase tracking-tight">Entry Point Forensics</h3>
                     </div>
-                    <p className="font-sans text-sm text-zinc-500 font-medium leading-relaxed">
+                    <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">
                         Analysis of verification requests originating from the Public Portal vs Direct Node Share links. This helps optimize node distribution strategies.
                     </p>
 
                     <div className="mt-8 space-y-4">
                         {sourceData.map((s: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 rounded-2xl border border-zinc-100">
+                            <div key={i} className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-white/5">
                                 <div className="flex items-center gap-3">
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                                    <span className="font-display font-black text-xs text-zinc-900 uppercase tracking-wider">{s.name}</span>
+                                    <span className="font-display font-black text-xs text-zinc-900 dark:text-white uppercase tracking-wider">{s.name}</span>
                                 </div>
-                                <span className="font-mono font-black text-zinc-950 text-sm">
+                                <span className="font-mono font-black text-zinc-950 dark:text-white text-sm">
                                     {totalVerifications > 0 ? ((s.value / totalVerifications) * 100).toFixed(1) : 0}%
                                 </span>
                             </div>
@@ -316,12 +330,19 @@ export default function AnalyticsPage() {
                             ))}
                         </Pie>
                         <Tooltip 
-                            contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                            contentStyle={{ 
+                              borderRadius: '20px', 
+                              border: 'none', 
+                              boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
+                              padding: '16px',
+                              backgroundColor: '#09090b',
+                              color: '#fff'
+                            }}
                         />
                         </PieChart>
                     </ResponsiveContainer>
                    ) : (
-                    <div className="h-full flex items-center justify-center text-zinc-300 font-mono text-[10px] uppercase tracking-widest font-black uppercase border-2 border-dashed border-zinc-100 rounded-[3rem]">
+                    <div className="h-full flex items-center justify-center text-zinc-300 dark:text-zinc-800 font-mono text-[10px] uppercase tracking-widest font-black uppercase border-2 border-dashed border-zinc-100 dark:border-white/5 rounded-[3rem]">
                         Awaiting Source Traffic
                     </div>
                    )}
