@@ -54,7 +54,7 @@ export default function TeamPage() {
   const fetchMembers = useCallback(async () => {
     const adminEmail = localStorage.getItem('authenticated_user_email');
     try {
-      const res = await fetch(`/api/team/members?adminEmail=${adminEmail}`);
+      const res = await fetch(`/api/team/members?adminEmail=${encodeURIComponent(adminEmail || '')}`);
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
@@ -148,7 +148,7 @@ export default function TeamPage() {
     setSelectedMember(null);
 
     try {
-      const res = await fetch(`/api/team/members?adminEmail=${adminEmail}&targetEmail=${targetEmail}`, {
+      const res = await fetch(`/api/team/members?adminEmail=${encodeURIComponent(adminEmail || '')}&targetEmail=${encodeURIComponent(targetEmail)}`, {
         method: 'DELETE',
       });
 

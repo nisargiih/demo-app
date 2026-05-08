@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     const db = client.db('tech-core');
     const users = db.collection('users');
 
-    const existingUser = await users.findOne({ email: validatedData.email });
+    const email = validatedData.email.trim().toLowerCase();
+    const existingUser = await users.findOne({ email });
     if (existingUser) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'User already exists' }), { status: 400 });
     }
@@ -33,9 +34,6 @@ export async function POST(req: Request) {
     for (let i = 0; i < 6; i++) {
       otp += chars[Math.floor(Math.random() * chars.length)];
     }
-
-    // 2. Prepare for Storage (Store in plain text as requested)
-    const email = validatedData.email.trim().toLowerCase();
     
     // Default to 'admin' for public signup, use provided role for invitations
     const role = data.role || 'admin';
