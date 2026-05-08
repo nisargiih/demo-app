@@ -29,6 +29,7 @@ import { SecurityService } from '@/lib/security-service';
 import { useNotification } from '@/hooks/use-notification';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/use-user';
+import { getTagColor } from '@/lib/tag-utils';
 
 export default function RegistryPage() {
   const router = useRouter();
@@ -380,32 +381,39 @@ export default function RegistryPage() {
                         <div className="space-y-4">
                            <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block ml-1">Organization Tags</label>
                            <div className="flex flex-wrap gap-2 mb-2">
-                             {newRecord.tags.map(tag => (
-                               <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-zinc-950 text-white rounded-lg">
-                                 <span className="font-display font-medium text-[10px] uppercase tracking-widest">{tag}</span>
-                                 <button type="button" onClick={() => setNewRecord({...newRecord, tags: newRecord.tags.filter(t => t !== tag)})}>
-                                   <X className="w-3 h-3 text-trust-green" />
-                                 </button>
-                               </span>
-                             ))}
+                             {newRecord.tags.map(tag => {
+                               const color = getTagColor(tag);
+                               return (
+                                 <span key={tag} className={`flex items-center gap-1.5 px-3 py-1.5 ${color.bg} ${color.text} border ${color.border} rounded-xl`}>
+                                   <div className={`w-1 h-1 rounded-full ${color.dot} animate-pulse`} />
+                                   <span className="font-display font-bold text-[10px] uppercase tracking-widest">{tag}</span>
+                                   <button type="button" onClick={() => setNewRecord({...newRecord, tags: newRecord.tags.filter(t => t !== tag)})}>
+                                     <X className="w-3 h-3 hover:text-red-500 transition-colors" />
+                                   </button>
+                                 </span>
+                               );
+                             })}
                            </div>
                            <div className="flex gap-2">
-                              <input 
-                                type="text"
-                                placeholder="Enter tag and press Enter..."
-                                value={modalTagInput}
-                                onChange={e => setModalTagInput(e.target.value)}
-                                onKeyDown={e => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    if (modalTagInput.trim()) {
-                                      setNewRecord({...newRecord, tags: Array.from(new Set([...newRecord.tags, modalTagInput.trim().toLowerCase()]))});
-                                      setModalTagInput('');
+                              <div className="relative flex-1 group">
+                                <Tag className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-zinc-950 transition-colors" />
+                                <input 
+                                  type="text"
+                                  placeholder="Enter tag and press Enter..."
+                                  value={modalTagInput}
+                                  onChange={e => setModalTagInput(e.target.value)}
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      if (modalTagInput.trim()) {
+                                        setNewRecord({...newRecord, tags: Array.from(new Set([...newRecord.tags, modalTagInput.trim().toLowerCase()]))});
+                                        setModalTagInput('');
+                                      }
                                     }
-                                  }
-                                }}
-                                className="flex-1 h-12 px-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-sans text-sm font-medium transition-all"
-                              />
+                                  }}
+                                  className="w-full h-12 pl-12 pr-5 bg-zinc-50 border border-zinc-100 rounded-2xl focus:outline-none focus:border-zinc-950 font-sans text-sm font-bold transition-all"
+                                />
+                              </div>
                            </div>
                         </div>
 
@@ -483,22 +491,28 @@ export default function RegistryPage() {
 
         {/* Tag Filters */}
         {allTags.length > 0 && (
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all ${!selectedTag ? 'bg-zinc-950 text-white shadow-lg shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${!selectedTag ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100 border-zinc-100'}`}
             >
+              <Filter className="w-3 h-3" />
               All Artifacts
             </button>
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${selectedTag === tag ? 'bg-trust-green text-zinc-950 shadow-lg shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
-              >
-                {tag}
-              </button>
-            ))}
+            {allTags.map(tag => {
+              const color = getTagColor(tag);
+              const isActive = selectedTag === tag;
+              return (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(isActive ? null : tag)}
+                  className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100` : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100 border-zinc-100'}`}
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                  {tag}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -552,19 +566,26 @@ export default function RegistryPage() {
 
                         {/* Tags Display */}
                         <div className="flex flex-wrap items-center gap-2 mt-4">
-                           {(record.tags || []).map((tag: string) => (
-                             <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-zinc-100 rounded-lg group/tag">
-                               <span className="font-display font-bold text-[9px] uppercase tracking-widest text-zinc-500">{tag}</span>
-                               <button 
-                                 onClick={() => handleRemoveTag(record._id, tag, record.tags)}
-                                 className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
-                               >
-                                 <X className="w-2.5 h-2.5" />
-                               </button>
-                             </span>
-                           ))}
+                           {(record.tags || []).map((tag: string) => {
+                             const color = getTagColor(tag);
+                             return (
+                               <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl group/tag transition-all hover:scale-105`}>
+                                 <div className={`w-1 h-1 rounded-full ${color.dot}`} />
+                                 <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
+                                 <button 
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleRemoveTag(record._id, tag, record.tags);
+                                   }}
+                                   className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
+                                 >
+                                   <X className="w-2.5 h-2.5" />
+                                 </button>
+                               </span>
+                             );
+                           })}
                            {editingTagsId === record._id ? (
-                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1">
+                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1" onClick={e => e.stopPropagation()}>
                                <input 
                                  autoFocus
                                  type="text"
@@ -572,19 +593,22 @@ export default function RegistryPage() {
                                  value={tagInput}
                                  onChange={e => setTagInput(e.target.value)}
                                  onKeyDown={e => e.key === 'Enter' && handleUpdateTags(record._id, record.tags || [])}
-                                 className="h-7 px-2 bg-zinc-50 border border-zinc-200 rounded focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-24"
+                                 className="h-8 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-28 font-bold"
                                />
                                <button 
                                  onClick={() => setEditingTagsId(null)}
-                                 className="text-zinc-400 hover:text-zinc-950"
+                                 className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-950 bg-zinc-50 rounded-xl border border-zinc-100"
                                >
                                  <X className="w-3.5 h-3.5" />
                                </button>
                              </div>
                            ) : (
                              <button 
-                               onClick={() => setEditingTagsId(record._id)}
-                               className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-lg text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setEditingTagsId(record._id);
+                               }}
+                               className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-xl text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
                              >
                                <Plus className="w-2.5 h-2.5" />
                                <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>

@@ -21,6 +21,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { useNotification } from '@/hooks/use-notification';
 import { useRouter } from 'next/navigation';
 import { SecurityService } from '@/lib/security-service';
+import { getTagColor } from '@/lib/tag-utils';
 
 interface NotaryItem {
   id: string;
@@ -320,23 +321,30 @@ export default function NotarizePage() {
                 <div className="space-y-3">
                    <label className="font-mono text-[10px] font-black text-zinc-400 uppercase tracking-widest block">Categorization Tags</label>
                    <div className="flex flex-wrap gap-2">
-                      {batchTags.map(tag => (
-                        <span key={tag} className="flex items-center gap-1 px-2 py-0.5 bg-zinc-950 text-white rounded-md">
-                           <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
-                           <button onClick={() => setBatchTags(prev => prev.filter(t => t !== tag))}>
-                             <X className="w-2.5 h-2.5 text-trust-green" />
-                           </button>
-                        </span>
-                      ))}
+                      {batchTags.map(tag => {
+                        const color = getTagColor(tag);
+                        return (
+                          <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl shadow-sm transition-all hover:scale-105`}>
+                             <div className={`w-1 h-1 rounded-full ${color.dot} animate-pulse`} />
+                             <span className="font-display font-black text-[9px] uppercase tracking-widest">{tag}</span>
+                             <button onClick={() => setBatchTags(prev => prev.filter(t => t !== tag))}>
+                               <X className="w-2.5 h-2.5 hover:text-red-500 transition-colors" />
+                             </button>
+                          </span>
+                        );
+                      })}
                       <div className="flex items-center gap-2">
-                        <input 
-                          type="text"
-                          placeholder="Add tag..."
-                          value={tagInput}
-                          onChange={e => setTagInput(e.target.value)}
-                          onKeyDown={e => e.key === 'Enter' && (setBatchTags(prev => Array.from(new Set([...prev, tagInput.toLowerCase().trim()]))), setTagInput(''))}
-                          className="w-24 h-7 px-2 bg-zinc-50 border border-zinc-100 rounded text-[10px] focus:outline-none focus:border-zinc-950"
-                        />
+                        <div className="relative group">
+                          <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-400 group-focus-within:text-zinc-950 transition-colors" />
+                          <input 
+                            type="text"
+                            placeholder="Add batch tag..."
+                            value={tagInput}
+                            onChange={e => setTagInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && tagInput.trim() && (setBatchTags(prev => Array.from(new Set([...prev, tagInput.toLowerCase().trim()]))), setTagInput(''))}
+                            className="w-32 h-8 pl-8 pr-3 bg-zinc-50 border border-zinc-100 rounded-xl text-[10px] font-bold focus:outline-none focus:border-zinc-950 transition-all"
+                          />
+                        </div>
                       </div>
                    </div>
                 </div>

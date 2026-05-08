@@ -27,6 +27,7 @@ import { SecurityService } from '@/lib/security-service';
 import { useNotification } from '@/hooks/use-notification';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/use-user';
+import { getTagColor } from '@/lib/tag-utils';
 
 export default function VaultPage() {
   const router = useRouter();
@@ -228,22 +229,28 @@ export default function VaultPage() {
 
         {/* Tag Filters */}
         {allTags.length > 0 && (
-          <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all ${!selectedTag ? 'bg-zinc-950 text-white shadow-lg shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
+              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-950 text-white shadow-xl shadow-zinc-200' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100 border border-zinc-100'}`}
             >
+              <Filter className="w-3 h-3" />
               All Assets
             </button>
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
-                className={`px-4 py-1.5 rounded-full font-display font-bold text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${selectedTag === tag ? 'bg-trust-green text-zinc-950 shadow-lg shadow-trust-green/20' : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}`}
-              >
-                {tag}
-              </button>
-            ))}
+            {allTags.map(tag => {
+              const color = getTagColor(tag);
+              const isActive = selectedTag === tag;
+              return (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(isActive ? null : tag)}
+                  className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100` : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100 border-zinc-100'}`}
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                  {tag}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -309,19 +316,26 @@ export default function VaultPage() {
 
                         {/* Tags Display */}
                         <div className="flex flex-wrap items-center gap-2 mt-4">
-                           {(h.tags || []).map((tag: string) => (
-                             <span key={tag} className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-zinc-100 rounded-lg group/tag">
-                               <span className="font-display font-bold text-[9px] uppercase tracking-widest text-zinc-500">{tag}</span>
-                               <button 
-                                 onClick={() => handleRemoveTag(h._id, tag, h.tags)}
-                                 className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
-                               >
-                                 <X className="w-2.5 h-2.5" />
-                               </button>
-                             </span>
-                           ))}
+                           {(h.tags || []).map((tag: string) => {
+                             const color = getTagColor(tag);
+                             return (
+                               <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl group/tag transition-all hover:scale-105`}>
+                                 <div className={`w-1 h-1 rounded-full ${color.dot}`} />
+                                 <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
+                                 <button 
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleRemoveTag(h._id, tag, h.tags);
+                                   }}
+                                   className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
+                                 >
+                                   <X className="w-2.5 h-2.5" />
+                                 </button>
+                               </span>
+                             );
+                           })}
                            {editingTagsId === h._id ? (
-                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1">
+                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1" onClick={e => e.stopPropagation()}>
                                <input 
                                  autoFocus
                                  type="text"
@@ -329,19 +343,22 @@ export default function VaultPage() {
                                  value={tagInput}
                                  onChange={e => setTagInput(e.target.value)}
                                  onKeyDown={e => e.key === 'Enter' && handleUpdateTags(h._id, h.tags || [])}
-                                 className="h-7 px-2 bg-zinc-50 border border-zinc-200 rounded focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-24"
+                                 className="h-8 px-3 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-950 font-sans text-[10px] w-28 font-bold"
                                />
                                <button 
                                  onClick={() => setEditingTagsId(null)}
-                                 className="text-zinc-400 hover:text-zinc-950"
+                                 className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-950 bg-zinc-50 rounded-xl border border-zinc-100"
                                >
                                  <X className="w-3.5 h-3.5" />
                                </button>
                              </div>
                            ) : (
                              <button 
-                               onClick={() => setEditingTagsId(h._id)}
-                               className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-lg text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setEditingTagsId(h._id);
+                               }}
+                               className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 border border-dashed border-zinc-200 rounded-xl text-zinc-400 hover:text-zinc-950 hover:border-zinc-300 transition-all"
                              >
                                <Plus className="w-2.5 h-2.5" />
                                <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>
