@@ -47,8 +47,14 @@ export async function GET(req: Request) {
     }
 
     const email = rawEmail.trim().toLowerCase();
+    const parentId = await UsageService.resolveUsageId(email);
 
-    const history = await hashes.find({ userEmail: email }).sort({ createdAt: -1 }).toArray();
+    const history = await hashes.find({ 
+      $or: [
+        { userEmail: email },
+        { userId: parentId }
+      ]
+    }).sort({ createdAt: -1 }).toArray();
     
     // Also include usage stats
     const usage = await UsageService.getMonthlyUsage(email);
@@ -118,6 +124,7 @@ export async function POST(req: Request) {
     }
 
     // NEW: Usage Logic - 10 Free hashes per month
+    const parentId = await UsageService.resolveUsageId(email);
     const canUseFree = await UsageService.canUseFree(email, 'hash');
     
     if (!canUseFree) {
@@ -131,6 +138,7 @@ export async function POST(req: Request) {
 
     const newHash = {
       userEmail: email,
+      userId: parentId,
       fileName,
       fileSize,
       hash,
@@ -151,26 +159,33 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const { id, ids, expiryDate } = await req.json();
+    const { id, ids, expiryDate, userEmail } = await req.json();
 
+    if (!userEmail) return NextResponse.json({ error: 'Auth required' }, { status: 401 });
     if (!id && (!ids || !Array.isArray(ids))) {
       return NextResponse.json({ error: 'ID or IDs required' }, { status: 400 });
     }
+
+    const email = userEmail.trim().toLowerCase();
+    const parentId = await UsageService.resolveUsageId(email);
 
     const client = await clientPromise;
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
+    const filter: any = { 
+      $or: [
+        { userEmail: email },
+        { userId: parentId }
+      ]
+    };
+
     if (ids) {
-      await hashes.updateMany(
-        { _id: { $in: ids.map((i: string) => new ObjectId(i)) } },
-        { $set: { expiryDate } }
-      );
+      filter._id = { $in: ids.map((i: string) => new ObjectId(i)) };
+      await hashes.updateMany(filter, { $set: { expiryDate } });
     } else {
-      await hashes.updateOne(
-        { _id: new ObjectId(id) },
-        { $set: { expiryDate } }
-      );
+      filter._id = new ObjectId(id);
+      await hashes.updateOne(filter, { $set: { expiryDate } });
     }
 
     return NextResponse.json({ message: 'Expiry updated' });
@@ -183,14 +198,28 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const userEmail = searchParams.get('email');
 
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id || !userEmail) return NextResponse.json({ error: 'ID and Email required' }, { status: 400 });
+
+    const email = userEmail.trim().toLowerCase();
+    const parentId = await UsageService.resolveUsageId(email);
 
     const client = await clientPromise;
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
 
-    await hashes.deleteOne({ _id: new ObjectId(id) });
+    const result = await hashes.deleteOne({ 
+      _id: new ObjectId(id),
+      $or: [
+        { userEmail: email },
+        { userId: parentId }
+      ]
+    });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: 'Record not found or access denied' }, { status: 403 });
+    }
 
     return NextResponse.json({ message: 'Hash deleted' });
   } catch (error) {

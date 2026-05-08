@@ -6,6 +6,7 @@ import {
   Box, 
   User, 
   ShieldCheck, 
+  Shield,
   CreditCard, 
   LogOut, 
   LayoutDashboard, 
@@ -48,6 +49,7 @@ export function Sidebar() {
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', module: 'dashboard' },
     { name: 'Index Docs', icon: FileText, path: '/notarize', module: 'notarize' },
+    { name: 'Protocol Vault', icon: Shield, path: '/vault', module: 'notarize' },
     { name: 'Official Registry', icon: Archive, path: '/registry', module: 'registry' },
     { name: 'Verify Doc', icon: ShieldCheck, path: '/verify', module: 'verify' },
     { name: 'Analytics', icon: BarChart3, path: '/analytics', module: 'analytics' },
