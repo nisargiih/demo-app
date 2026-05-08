@@ -19,8 +19,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
-      <body suppressHydrationWarning className="font-sans antialiased bg-white dark:bg-zinc-950 transition-colors duration-300">
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body className="font-sans">
         <ThemeProvider>
           <NotificationProvider>
             <UserProvider>

@@ -165,7 +165,7 @@ export default function SettingsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 mb-4"
           >
-            <div className="w-12 h-12 bg-zinc-950 dark:bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-900/50 dark:border-white/10">
+            <div className="w-12 h-12 bg-zinc-100 dark:bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-200 dark:border-white/10">
               <Settings className="text-trust-green w-6 h-6" />
             </div>
             <h1 className="font-display text-4xl font-bold text-zinc-900 dark:text-white">Settings</h1>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveSection(section.id as any)}
                 className={`w-full p-4 rounded-2xl flex items-center gap-3 transition-all ${
                   activeSection === section.id 
-                    ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl shadow-zinc-900/10' 
+                    ? 'bg-trust-green text-zinc-950 shadow-xl shadow-trust-green/10' 
                     : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900'
                 }`}
               >
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                             </button>
                             <button 
                               type="submit"
-                              className="flex-1 h-12 bg-zinc-950 dark:bg-trust-green dark:text-zinc-950 text-white rounded-xl font-display font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-zinc-950/20"
+                              className="flex-1 h-12 bg-trust-green text-zinc-950 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-trust-green/20"
                             >
                               Update Credentials
                             </button>
@@ -396,7 +396,7 @@ export default function SettingsPage() {
                     <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8">Node Configuration</h3>
                     
                     <div className="space-y-6">
-                      <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl">
+                  <div className="p-6 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-3xl">
                         <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest pl-1 block mb-4">Active Node Tier</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {[
@@ -422,7 +422,7 @@ export default function SettingsPage() {
                             }}
                             className={`p-4 rounded-xl border text-left transition-all ${
                               user?.entityType === type.id 
-                                ? 'bg-zinc-950 dark:bg-trust-green border-zinc-950 dark:border-trust-green text-white dark:text-zinc-950 shadow-xl' 
+                                ? 'bg-trust-green border-trust-green text-zinc-950 shadow-xl' 
                                 : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-white/10 text-zinc-900 dark:text-zinc-400 hover:border-zinc-200 dark:hover:border-zinc-700'
                             }`}
                           >

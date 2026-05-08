@@ -141,7 +141,7 @@ export default function RegisterPage() {
             </AnimatePresence>
 
             <div className="mb-10 text-center lg:text-left relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-zinc-950 dark:bg-zinc-800 text-trust-green font-mono text-[9px] font-black uppercase tracking-widest mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-trust-green font-mono text-[9px] font-black uppercase tracking-widest mb-4">
                 <ShieldCheck className="w-3 h-3" /> System Admin Hub
               </div>
               <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900 dark:text-white">Register as Administrator</h2>
@@ -231,7 +231,7 @@ export default function RegisterPage() {
                 <button
                   disabled={isSubmitting}
                   type="submit"
-                  className="w-full h-14 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 disabled:opacity-70 transition-all active:scale-[0.98] shadow-xl dark:shadow-none transition-colors"
+                  className="w-full h-14 bg-trust-green text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 disabled:opacity-70 transition-all active:scale-[0.98] shadow-xl shadow-trust-green/20 dark:shadow-none transition-colors"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">

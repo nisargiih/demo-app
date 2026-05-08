@@ -159,7 +159,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-zinc-950 transition-colors duration-300">
         <div className="relative w-12 h-12">
           <div className="absolute inset-0 border-4 border-trust-green/20 rounded-full" />
           <div className="absolute inset-0 border-4 border-t-trust-green rounded-full animate-spin" />
@@ -212,7 +212,7 @@ export default function DashboardPage() {
             >
               <button 
                 onClick={() => router.push('/notarize')}
-                className="h-12 px-8 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-zinc-800 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
+                className="h-12 px-8 bg-trust-green text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/10 dark:shadow-none"
               >
                 <Plus className="w-4 h-4" />
                 Capture Fingerprint
@@ -240,7 +240,7 @@ export default function DashboardPage() {
               bg: 'bg-zinc-50 dark:bg-zinc-900/50',
               sub: usageStats && usageStats.verifyCount >= usageStats.verifyLimit ? 'Limit reached' : 'Resets monthly'
             },
-            { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-white', bg: 'bg-zinc-950 dark:bg-zinc-800', invert: true },
+            { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-zinc-950 dark:text-white', bg: 'bg-zinc-100 dark:bg-zinc-800' },
           ].map((stat, i) => (
             <motion.div
               key={i}
