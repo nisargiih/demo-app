@@ -142,6 +142,11 @@ export default function TeamPage() {
         return;
     }
 
+    // Optimistic Update
+    const previousMembers = [...members];
+    setMembers(prev => prev.filter(m => m.email.toLowerCase() !== targetEmail.toLowerCase()));
+    setSelectedMember(null);
+
     try {
       const res = await fetch(`/api/team/members?adminEmail=${adminEmail}&targetEmail=${targetEmail}`, {
         method: 'DELETE',
@@ -149,14 +154,15 @@ export default function TeamPage() {
 
       if (res.ok) {
         notify('Member access revoked and purged from ledger.', 'success');
-        setSelectedMember(null);
         fetchMembers();
       } else {
         const err = await res.json();
         notify(err.error || 'Revoke protocol failed', 'error');
+        setMembers(previousMembers); // Rollback
       }
     } catch (err) {
       notify('Revoke protocol failed', 'error');
+      setMembers(previousMembers); // Rollback
     }
   };
 

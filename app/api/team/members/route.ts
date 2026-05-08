@@ -17,7 +17,7 @@ export async function GET(req: Request) {
 
     const admin = await users.findOne({ email: adminEmail.toLowerCase() });
     if (!admin || admin.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 0 }); // 0 for transit logic or 403
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Fetch all users
