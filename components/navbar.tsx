@@ -90,30 +90,55 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-5 mb-16 px-1 group/logo transition-all duration-500">
-            <div className="relative w-12 h-12 flex items-center justify-center bg-zinc-950 dark:bg-white rounded-xl shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
-              {/* Technical Substrate Grid */}
-              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:4px_4px]" />
+          <Link href="/dashboard" className="flex items-center gap-6 mb-16 px-1 group/logo transition-all duration-700">
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              {/* Outer Architectural Shell */}
+              <div className="absolute inset-0 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-700 group-hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.15)] group-hover:-translate-y-1" />
               
-              {/* Core Symbol */}
-              <ShieldCheck className="w-6 h-6 text-trust-green relative z-10" strokeWidth={2.5} />
-              
-              {/* Scanning Light Flare */}
-              <motion.div 
-                animate={{ left: ["-100%", "200%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="absolute top-0 bottom-0 w-full bg-gradient-to-r from-transparent via-trust-green/20 to-transparent skew-x-20 z-20"
-              />
-              
-              {/* Corner Accents */}
-              <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-trust-green/40" />
-              <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-trust-green/40" />
+              {/* Precision Grid Layer */}
+              <div className="absolute inset-2 overflow-hidden rounded-xl opacity-0 group-hover:opacity-10 transition-opacity duration-700">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:6px_6px]" />
+              </div>
+
+              {/* The Core Mark: Abstract I+X Synthesis */}
+              <div className="relative w-9 h-9">
+                {/* Vertical Backbone (I) */}
+                <motion.div 
+                  className="absolute left-1/2 -translate-x-1/2 top-0 w-2 h-full bg-zinc-950 dark:bg-white rounded-full origin-center transition-all duration-700 group-hover:bg-trust-green"
+                  whileHover={{ scaleY: 1.1 }}
+                />
+                
+                {/* Oblique Wings (X) */}
+                <div className="absolute inset-0 transition-transform duration-1000 group-hover:rotate-180">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-[3px] bg-zinc-200 dark:bg-zinc-800 rounded-full rotate-45 origin-center transition-all group-hover:bg-trust-green/30" />
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-[3px] bg-zinc-200 dark:bg-zinc-800 rounded-full -rotate-45 origin-center transition-all group-hover:bg-trust-green/30" />
+                </div>
+
+                {/* Central Focus Node */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white dark:bg-zinc-950 rounded-full border-2 border-trust-green shadow-sm z-10" />
+                  <motion.div 
+                    animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute w-4 h-4 bg-trust-green rounded-full blur-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Corner Metadata Accents */}
+              <div className="absolute top-2 left-2 w-1 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+              <div className="absolute bottom-2 right-2 w-1 h-1 bg-trust-green rounded-full shadow-[0_0_8px_#10b981]" />
             </div>
             
             <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
-              <div className="flex items-center gap-2 mt-1.5 opacity-60">
-                <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">PROTOCOL_NODE</span>
+              <span className="font-display font-black text-2xl tracking-[-0.05em] text-zinc-950 dark:text-white leading-none uppercase transition-colors group-hover:text-trust-green">
+                IDENTIX
+              </span>
+              <div className="flex items-center gap-2 mt-2 opacity-40 group-hover:opacity-100 transition-all">
+                <div className="h-[1px] w-3 bg-trust-green" />
+                <span className="font-mono text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white">
+                  VERIFIED_TRUST
+                </span>
               </div>
             </div>
           </Link>
