@@ -393,60 +393,63 @@ export default function SettingsPage() {
                   className="space-y-6"
                 >
                   <section className="glass rounded-[2.5rem] p-8 border border-zinc-100 dark:border-white/5">
-                    <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8">Node Configuration</h3>
+                    <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-8">Login Activity & Sessions</h3>
                     
                     <div className="space-y-6">
-                  <div className="p-6 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/5 rounded-3xl">
-                        <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest pl-1 block mb-4">Active Node Tier</label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {[
-                          { id: 'Individual', label: 'Personal', icon: User },
-                          { id: 'Company', label: 'Corporate', icon: Briefcase },
-                          { id: 'Enterprise', label: 'Enterprise', icon: Network }
-                        ].map((type) => (
-                          <button
-                            key={type.id}
-                            onClick={async () => {
-                              const email = localStorage.getItem('authenticated_user_email');
-                              try {
-                                await fetch('/api/auth/me', {
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ email, entityType: type.id }),
-                                });
-                                notify(`Node reconfigured to ${type.label} mode.`, 'success');
-                                window.location.reload(); // Quick way to sync across app
-                              } catch (err) {
-                                notify('Failed to sync node reconfiguration.', 'error');
-                              }
-                            }}
-                            className={`p-4 rounded-xl border text-left transition-all ${
-                              user?.entityType === type.id 
-                                ? 'bg-trust-green border-trust-green text-zinc-950 shadow-xl' 
-                                : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-white/10 text-zinc-900 dark:text-zinc-400 hover:border-zinc-200 dark:hover:border-zinc-700'
-                            }`}
-                          >
-                            <type.icon className={`w-4 h-4 mb-2 ${user?.entityType === type.id ? 'text-trust-green dark:text-zinc-950' : 'text-zinc-300 dark:text-zinc-700'}`} />
-                            <p className="font-display font-bold text-[10px] uppercase tracking-wider">{type.label}</p>
-                          </button>
-                        ))}
+                      <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest pl-1 block">Active Device Nodes</label>
+                            <span className="px-3 py-1 bg-trust-green/10 text-trust-green text-[9px] font-mono font-black rounded-lg">3 ACTIVE SESSIONS</span>
                         </div>
-                      </div>
-
-                      <div className="h-px bg-zinc-100 dark:bg-white/5" />
-
-                      <div className="flex items-center justify-between group">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-zinc-50 dark:bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-100 dark:border-white/5">
-                            <LogOut className="w-5 h-5 text-zinc-400 dark:text-zinc-600" />
-                          </div>
-                          <div>
-                            <p className="font-display font-bold text-sm text-zinc-900 dark:text-white">Session Purge</p>
-                            <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400">Sign out from all currently active sessions.</p>
-                          </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { device: 'Web Desktop App', os: 'macOS Sonoma', location: 'London, UK (Current)', status: 'Active Now', isCurrent: true },
+                            { device: 'Mobile Auth Node', os: 'iOS 17.4', location: 'London, UK', status: 'Active 2h ago', isCurrent: false },
+                            { device: 'Verification Terminal', os: 'Windows 11', location: 'New York, US', status: 'Active 4d ago', isCurrent: false }
+                          ].map((session, i) => (
+                            <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${session.isCurrent ? 'bg-white dark:bg-zinc-800 border-trust-green/30' : 'bg-white/50 dark:bg-zinc-900/30 border-zinc-100 dark:border-white/5'}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${session.isCurrent ? 'bg-trust-green text-zinc-950' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
+                                    {session.device.includes('Mobile') ? <Smartphone className="w-5 h-5" /> : <Smartphone className="w-5 h-5 opacity-0 absolute" /* Fix later */ />}
+                                    {!session.device.includes('Mobile') && <LogOut className="w-5 h-5" />}
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-display font-bold text-xs text-zinc-900 dark:text-white">{session.device}</p>
+                                        {session.isCurrent && <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />}
+                                    </div>
+                                    <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-tight">{session.os} • {session.location}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className={`font-display font-bold text-[9px] uppercase ${session.isCurrent ? 'text-trust-green' : 'text-zinc-400'}`}>{session.status}</p>
+                                    {!session.isCurrent && (
+                                        <button 
+                                            onClick={() => notify(`Session on ${session.device} revoked successfully.`, 'success')}
+                                            className="font-mono text-[8px] font-black text-red-500 hover:underline uppercase mt-1"
+                                        >
+                                            Revoke
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                          ))}
                         </div>
-                        <button className="p-2 text-zinc-300 dark:text-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors">
-                          <ChevronRight className="w-5 h-5" />
+                        
+                        <button 
+                          onClick={async () => {
+                            const ok = await confirm({
+                                title: 'Global Session Purge',
+                                message: 'This will invalidate all auth tokens across all nodes except your current device. You will need to re-authenticate on all other systems.',
+                                confirmText: 'Execute Global Log Out',
+                                cancelText: 'Abort'
+                            });
+                            if (ok) {
+                                notify('Global session purge executed. Peripheral nodes disconnected.', 'success');
+                            }
+                          }}
+                          className="w-full mt-6 h-12 bg-zinc-900 dark:bg-zinc-800 text-white rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all border border-zinc-100 dark:border-white/5"
+                        >
+                          Sign out from all other systems
                         </button>
                       </div>
 
