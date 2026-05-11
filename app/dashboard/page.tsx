@@ -192,7 +192,7 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <h1 className="font-display text-4xl lg:text-6xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase leading-[0.85]">
+                <h1 className="font-display text-4xl lg:text-7xl font-black text-zinc-950 dark:text-white tracking-tighter leading-[0.9]">
                   Control Center
                 </h1>
                 {isVerified && (
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-              <p className="font-sans text-xs sm:text-sm text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em] mt-2">
+              <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em] mt-3">
                 Operational Status: <span className="text-trust-green">Sovereign Cluster Active</span>
               </p>
             </motion.div>
@@ -269,9 +269,9 @@ export default function DashboardPage() {
             <section className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-[2.5rem] p-6 sm:p-8 flex flex-col shadow-sm">
                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                  <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-2">
                         <Activity className="w-4 h-4 text-trust-green" />
-                        <h3 className="font-display font-black text-xl text-zinc-900 dark:text-white tracking-tight uppercase">Index Activity</h3>
+                        <h3 className="font-display font-black text-xl text-zinc-900 dark:text-white tracking-tight">Index Activity</h3>
                     </div>
                     <p className="font-sans text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Protocol Signal Tracking</p>
                  </div>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
             <section className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-[2rem] p-6 flex flex-col h-full shadow-sm">
                <div className="flex items-center gap-2 mb-6">
                   <History className="w-4 h-4 text-zinc-900 dark:text-white" />
-                  <h3 className="font-display font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tighter">Ledger</h3>
+                  <h3 className="font-display font-black text-lg text-zinc-900 dark:text-white tracking-tighter leading-none">Ledger</h3>
                </div>
                
                <div className="space-y-4 flex-1">
@@ -369,7 +369,7 @@ export default function DashboardPage() {
                           <FileText className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 transition-colors" />
                         </div>
                         <div className="min-w-0 flex-1">
-                           <p className="font-display font-bold text-[11px] text-zinc-900 dark:text-white truncate tracking-tight uppercase">{log.fileName}</p>
+                           <p className="font-display font-bold text-[11px] text-zinc-900 dark:text-white truncate tracking-tight">{log.fileName}</p>
                            <p className="font-mono text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
                              {new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                            </p>
