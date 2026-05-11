@@ -9,30 +9,30 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 
 export const metadata: Metadata = {
   title: {
-    default: 'Idenvault | Sovereign Verification Engine',
-    template: '%s | Idenvault'
+    default: 'IdenVault | Sovereign Verification Engine',
+    template: '%s | IdenVault'
   },
-  description: 'Idenvault provides immutable document validation, secure identity protocols, and cryptographic notary services for the digital sovereign age.',
+  description: 'IdenVault provides immutable document validation, secure identity protocols, and cryptographic notary services for the digital sovereign age.',
   keywords: ['document validation', 'cryptographic notary', 'biometric protocol', 'sovereign identity', 'blockchain registry'],
-  authors: [{ name: 'Idenvault Protocol' }],
-  creator: 'Idenvault Engineering',
-  publisher: 'Idenvault Lab',
+  authors: [{ name: 'IdenVault Protocol' }],
+  creator: 'IdenVault Engineering',
+  publisher: 'IdenVault Lab',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: 'Idenvault | Sovereign Verification Engine',
+    title: 'IdenVault | Sovereign Verification Engine',
     description: 'Immutable document validation and cryptographic identity protocol.',
     url: 'https://idenvault.io',
-    siteName: 'Idenvault',
+    siteName: 'IdenVault',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Idenvault | Sovereign Verification Engine',
+    title: 'IdenVault | Sovereign Verification Engine',
     description: 'Immutable document validation and cryptographic identity protocol.',
     creator: '@idenvault_protocol',
   },
@@ -64,17 +64,18 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'SoftwareApplication',
-              'name': 'Idenvault',
+              'name': 'IdenVault',
               'operatingSystem': 'Web',
               'applicationCategory': 'BusinessApplication',
-              'description': 'Idenvault is a sovereign verification engine providing immutable document validation and cryptographic identity protocols.',
+              'description': 'IdenVault is a sovereign verification engine providing immutable document validation and cryptographic identity protocols.',
               'offers': {
                 '@type': 'Offer',
                 'price': '0',
                 'priceCurrency': 'USD'
               },
               'publisher': {
-                '@type': 'Idenvault Lab'
+                '@type': 'Organization',
+                'name': 'IdenVault Lab'
               }
             })
           }}

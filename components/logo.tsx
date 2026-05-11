@@ -40,10 +40,10 @@ export function Logo({ className = '', size = 'md', showText = true }: LogoProps
       {showText && (
         <div className="flex flex-col">
           <span className={`font-display font-black ${dim.text} tracking-tighter text-zinc-950 dark:text-white leading-none uppercase`}>
-            IDENVAULT
+            IdenVault
           </span>
           <div className="flex items-center gap-1.5 mt-1.5 opacity-40">
-            <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">SOVEREIGN_CORE</span>
+            <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">VAULT_PROTOCOL</span>
           </div>
         </div>
       )}

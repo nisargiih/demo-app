@@ -467,7 +467,7 @@ export default function VerifyPage() {
                     </div>
                     <h3 className="font-display font-black text-6xl text-red-600 dark:text-red-500 mb-8 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
                     <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed text-2xl font-medium relative z-10">
-                      The cryptographic fingerprint requested is <span className="text-red-600 font-black">completely absent</span> from the Idenvault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
+                      The cryptographic fingerprint requested is <span className="text-red-600 font-black">completely absent</span> from the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
                       <button 
