@@ -13,6 +13,7 @@ import {
   Clock,
   ArrowUpRight,
   ChevronRight,
+  ChevronLeft,
   AlertCircle,
   MoreVertical,
   CheckCircle2,
@@ -51,6 +52,8 @@ export default function VaultPage() {
   const [newExpiryDate, setNewExpiryDate] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const allTags = Array.from(new Set(hashes.flatMap(h => h.tags || []))).sort();
 
@@ -81,6 +84,11 @@ export default function VaultPage() {
     fetchHashes();
   }, [user, loading, router]);
 
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedTag, sortBy]);
+
   const filteredHashes = hashes.filter(h => {
     const matchesSearch = h.fileName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           h.hash?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,12 +103,15 @@ export default function VaultPage() {
     return 0;
   });
 
+  const totalPages = Math.ceil(filteredHashes.length / itemsPerPage);
+  const paginatedHashes = filteredHashes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds(prev => prev.length === filteredHashes.length ? [] : filteredHashes.map(h => h._id));
+    setSelectedIds(prev => prev.length === paginatedHashes.length ? [] : paginatedHashes.map(h => h._id));
   };
 
   const handleBulkDelete = async () => {
@@ -114,7 +125,6 @@ export default function VaultPage() {
     if (!isConfirmed) return;
 
     try {
-      // Deleting sequentially for safety, but could be optimized to a batch API if available
       for (const id of selectedIds) {
         await fetch(`/api/hashes?id=${id}&email=${encodeURIComponent(user?.email || '')}`, { method: 'DELETE' });
       }
@@ -126,8 +136,8 @@ export default function VaultPage() {
     }
   };
 
-  // Grouping by date helper
-  const groupedHashes = filteredHashes.reduce((acc: any, h) => {
+  // Grouping by date helper for paginated view
+  const groupedHashes = paginatedHashes.reduce((acc: any, h) => {
     const date = new Date(h.createdAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     if (!acc[date]) acc[date] = [];
     acc[date].push(h);
@@ -270,113 +280,116 @@ export default function VaultPage() {
           </div>
         </header>
 
-        {/* Search & Actions Bar */}
-        <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-          <div className="flex-1 relative group w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search by filename or hash protocol..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
-            />
-          </div>
-          
-          <div className="flex items-center gap-2 p-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-2xl">
-            <button 
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-              title="List View"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-              title="Table View"
-            >
-              <List className="w-4 h-4" />
-            </button>
+        {/* Sticky Utility Section */}
+        <div className="sticky top-16 lg:top-0 z-[30] bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl pt-4 pb-2 -mx-4 px-4 lg:-mx-6 lg:px-6 mb-8 border-b border-zinc-100/50 dark:border-white/5">
+          {/* Search & Actions Bar */}
+          <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
+            <div className="flex-1 relative group w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search by filename or hash protocol..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
+              />
+            </div>
+            
+            <div className="flex items-center gap-2 p-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-2xl">
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                title="List View"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                title="Table View"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="relative group">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none h-12 pl-10 pr-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all focus:outline-none focus:border-trust-green cursor-pointer"
+              >
+                <option value="newest">Newest Genesis</option>
+                <option value="oldest">Oldest Genesis</option>
+                <option value="name">Alphabetical</option>
+                <option value="size">Record Size</option>
+              </select>
+              <SortAsc className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
+            </div>
           </div>
 
-          <div className="relative group">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none h-12 pl-10 pr-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all focus:outline-none focus:border-trust-green cursor-pointer"
-            >
-              <option value="newest">Newest Genesis</option>
-              <option value="oldest">Oldest Genesis</option>
-              <option value="name">Alphabetical</option>
-              <option value="size">Record Size</option>
-            </select>
-            <SortAsc className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Bulk Selection Header */}
-        <AnimatePresence>
-          {selectedIds.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-6 p-4 bg-zinc-950 dark:bg-trust-green rounded-2xl flex items-center justify-between shadow-2xl shadow-trust-green/20"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-white/10 dark:bg-black/10 rounded-lg flex items-center justify-center">
-                  <CheckSquare className="w-4 h-4 text-white dark:text-black" />
+          {/* Bulk Selection Header */}
+          <AnimatePresence>
+            {selectedIds.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 p-4 bg-zinc-950 dark:bg-trust-green rounded-2xl flex items-center justify-between shadow-2xl shadow-trust-green/20"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-8 h-8 bg-white/10 dark:bg-black/10 rounded-lg flex items-center justify-center">
+                    <CheckSquare className="w-4 h-4 text-white dark:text-black" />
+                  </div>
+                  <p className="font-display font-black text-xs uppercase tracking-widest text-white dark:text-black">
+                    {selectedIds.length} Records Selected
+                  </p>
                 </div>
-                <p className="font-display font-black text-xs uppercase tracking-widest text-white dark:text-black">
-                  {selectedIds.length} Records Selected
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={handleBulkDelete}
-                  className="h-10 px-6 bg-red-500 text-white rounded-xl font-display font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all flex items-center gap-2"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Purge Batch
-                </button>
-                <button 
-                  onClick={() => setSelectedIds([])}
-                  className="h-10 px-6 bg-white/10 dark:bg-black/10 text-white dark:text-black rounded-xl font-display font-black text-[10px] uppercase tracking-widest hover:bg-white/20 dark:hover:bg-black/20 transition-all"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={handleBulkDelete}
+                    className="h-10 px-6 bg-red-500 text-white rounded-xl font-display font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all flex items-center gap-2"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Purge Batch
+                  </button>
+                  <button 
+                    onClick={() => setSelectedIds([])}
+                    className="h-10 px-6 bg-white/10 dark:bg-black/10 text-white dark:text-black rounded-xl font-display font-black text-[10px] uppercase tracking-widest hover:bg-white/20 dark:hover:bg-black/20 transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Tag Filters */}
-        {allTags.length > 0 && (
-          <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
-            <button
-               onClick={() => setSelectedTag(null)}
-               className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none font-bold' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
-            >
-              <Filter className="w-3 h-3" />
-              All Assets
-            </button>
-            {allTags.map(tag => {
-              const color = getTagColor(tag);
-              const isActive = selectedTag === tag;
-              return (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(isActive ? null : tag)}
-                  className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100 dark:shadow-none` : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-100 dark:border-white/5'}`}
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
-        )}
+          {/* Tag Filters */}
+          {allTags.length > 0 && (
+            <div className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
+              <button
+                onClick={() => setSelectedTag(null)}
+                className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none font-bold' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
+              >
+                <Filter className="w-3 h-3" />
+                All Assets
+              </button>
+              {allTags.map(tag => {
+                const color = getTagColor(tag);
+                const isActive = selectedTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(isActive ? null : tag)}
+                    className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100 dark:shadow-none` : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* List Content */}
         {isLoading ? (
@@ -585,7 +598,7 @@ export default function VaultPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
                   <AnimatePresence mode="popLayout">
-                    {filteredHashes.map(h => (
+                    {paginatedHashes.map(h => (
                       <motion.tr 
                         layout
                         key={h._id} 
@@ -652,7 +665,59 @@ export default function VaultPage() {
               </table>
             </div>
           </div>
-        )}}
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-1.5 px-4 mb-10">
+            <button
+              onClick={() => {
+                setCurrentPage(p => Math.max(1, p - 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === 1}
+              className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5 disabled:opacity-30 bg-white dark:bg-zinc-900 text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-white/5"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {(() => {
+                const pages = [];
+                for (let i = 1; i <= totalPages; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setCurrentPage(i);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`h-10 w-10 rounded-xl font-display font-black text-[10px] uppercase tracking-widest transition-all border ${
+                        currentPage === i
+                          ? "bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 border-transparent shadow-lg shadow-trust-green/20"
+                          : "bg-white dark:bg-zinc-900 text-zinc-400 border-zinc-100 dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/10"
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                return pages;
+              })()}
+            </div>
+
+            <button
+              onClick={() => {
+                setCurrentPage(p => Math.min(totalPages, p + 1));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={currentPage === totalPages}
+              className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5 disabled:opacity-30 bg-white dark:bg-zinc-900 text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-white/5"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         <footer className="mt-20 p-10 bg-zinc-950 dark:bg-zinc-900 rounded-[3rem] text-white relative overflow-hidden group border border-zinc-900/50 dark:border-white/10 transition-all">
             <div className="absolute top-0 right-0 w-64 h-64 bg-trust-green/10 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-trust-green/20" />
