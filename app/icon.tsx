@@ -23,26 +23,30 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background: 'transparent',
+          position: 'relative',
         }}
       >
-        {/* Bold Hexagon Substrate */}
+        {/* Hexagon Substrate - Filling the space with a thick green stroke */}
         <svg
           width="32"
           height="32"
           viewBox="0 0 24 24"
-          fill="#10b981"
+          fill="rgba(16, 185, 129, 0.1)"
+          stroke="#10b981"
+          strokeWidth="3"
+          strokeLinejoin="round"
           style={{ position: 'absolute' }}
         >
           <path d="M12 2L20.6603 7V17L12 22L3.33975 17V7L12 2Z" />
         </svg>
 
-        {/* Central Vault Symbol - High Contrast */}
+        {/* Central Vault Box - Bold white interior for contrast */}
         <svg
           width="16"
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#0a0a0a"
+          stroke="white"
           strokeWidth="3.5"
           strokeLinecap="round"
           strokeLinejoin="round"
