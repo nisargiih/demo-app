@@ -17,19 +17,17 @@ export default function Icon() {
     (
       <div
         style={{
-          background: '#0a0a0a',
+          background: 'transparent',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '20%',
-          border: '2px solid #10b981',
         }}
       >
         <svg
-          width="24"
-          height="24"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -38,16 +36,26 @@ export default function Icon() {
           <path
             d="M12 2L20.6603 7V17L12 22L3.33975 17V7L12 2Z"
             stroke="#10b981"
-            strokeWidth="2"
-            fill="rgba(16, 185, 129, 0.1)"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            fill="#0a0a0a"
           />
-          {/* Inner Vault Box */}
+          {/* Central Vault Symbol (Simplified Box) */}
           <rect
-            x="8.5"
-            y="8.5"
-            width="7"
-            height="7"
-            fill="#ffffff"
+            x="9"
+            y="9"
+            width="6"
+            height="6"
+            stroke="#10b981"
+            strokeWidth="1.5"
+            fill="none"
+          />
+          <rect
+            x="11.5"
+            y="11.5"
+            width="1"
+            height="1"
+            fill="#10b981"
           />
         </svg>
       </div>
