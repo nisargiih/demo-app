@@ -125,7 +125,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // NEW: Usage Logic - 10 Free hashes per month
+    // NEW: Usage Logic - Dynamic hashing limits
     const parentId = await UsageService.resolveUsageId(email);
     const canUseFree = await UsageService.canUseFree(email, 'hash');
     

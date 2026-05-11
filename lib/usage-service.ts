@@ -17,8 +17,11 @@ export class UsageService {
     const systemConfig = db.collection('system_config');
     let config = await systemConfig.findOne({ type: 'usage_limits' });
     
-    if (!config) {
-      // Lazy initialization of system-wide defaults if not present
+    // Hardcoded absolute defaults as requested by user
+    const absoluteDefaults = { hash: 5, verify: 15, registry: 5 };
+
+    // If config is missing, has zeros, or has the old '10' default for hashes, force update to 5
+    if (!config || config.hash === 0 || config.hash === 10 || config.verify === 0) {
       const defaultConfig = {
         type: 'usage_limits',
         hash: 5,
@@ -26,14 +29,19 @@ export class UsageService {
         registry: 5,
         updatedAt: new Date()
       };
-      await systemConfig.insertOne(defaultConfig);
-      return { hash: defaultConfig.hash, verify: defaultConfig.verify, registry: defaultConfig.registry };
+      
+      if (!config) {
+        await systemConfig.insertOne(defaultConfig);
+      } else {
+        await systemConfig.updateOne({ type: 'usage_limits' }, { $set: defaultConfig });
+      }
+      return { hash: 5, verify: 15, registry: 5 };
     }
 
     return {
-      hash: config.hash ?? 5,
-      verify: config.verify ?? 15,
-      registry: config.registry ?? 5
+      hash: config.hash || absoluteDefaults.hash,
+      verify: config.verify || absoluteDefaults.verify,
+      registry: config.registry || absoluteDefaults.registry
     };
   }
 
@@ -56,13 +64,31 @@ export class UsageService {
 
   static async getUserLimits(email: string) {
     const user = await this.resolveUser(email);
-    if (!user) return { hash: 0, verify: 0, registry: 0 };
+    const systemLimits = await this.getSystemLimits();
+    
+    if (!user) return systemLimits;
 
-    // Limits can be directly on user object for easy management
-    if (user.limits) return user.limits;
+    // Use user-specific overrides if they exist and are non-zero. 
+    // We also force a heal if any limit is 0 or matches the old 10-limit default.
+    const userLimits = user.limits || {};
+    const needsHeal = !user.limits || userLimits.hash === 0 || userLimits.hash === 10 || userLimits.verify === 0;
 
-    // Fallback to system-wide defaults from database
-    return await this.getSystemLimits();
+    if (needsHeal) {
+      // Self-heal: Update user record with system defaults
+      const client = await clientPromise;
+      const db = client.db('tech-core');
+      await db.collection('users').updateOne(
+        { _id: user._id },
+        { $set: { limits: systemLimits } }
+      );
+      return systemLimits;
+    }
+
+    return {
+      hash: userLimits.hash || systemLimits.hash,
+      verify: userLimits.verify || systemLimits.verify,
+      registry: userLimits.registry || systemLimits.registry
+    };
   }
 
   static async getMonthlyUsage(email: string) {

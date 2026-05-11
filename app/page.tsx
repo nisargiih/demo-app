@@ -87,7 +87,7 @@ export default function RegisterPage() {
         </div>
       </nav>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 flex flex-col lg:flex-row items-center gap-12 lg:gap-24 mb-24">
         <div className="flex-1 text-center lg:text-left space-y-6 lg:space-y-8 max-w-xl">
           <motion.div
             initial={{ opacity: 0, x: -30 }}

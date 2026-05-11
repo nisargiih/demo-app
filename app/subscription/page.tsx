@@ -70,7 +70,7 @@ export default function SubscriptionPage() {
           </motion.div>
 
           <p className="mt-12 font-sans text-xs text-zinc-400 dark:text-zinc-600 max-w-xs mx-auto leading-loose italic">
-            Existing free-tier monthly quotas (10 index/15 verify) remain active on the IdenVault substrate during this maintenance pulse.
+            Existing free-tier monthly quotas (5 index/15 verify) remain active on the IdenVault substrate during this maintenance pulse.
           </p>
         </div>
       </div>
