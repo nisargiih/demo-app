@@ -49,18 +49,54 @@ export async function GET(req: Request) {
     const email = rawEmail.trim().toLowerCase();
     const parentId = await UsageService.resolveUsageId(email);
 
-    const history = await hashes.find({ 
+    // -- Server-side Pagination & Filtering --
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '8');
+    const searchTerm = searchParams.get('search') || '';
+    const tagFilter = searchParams.get('tag') || '';
+    const sortBy = searchParams.get('sort') || 'newest';
+
+    const query: any = { 
       $or: [
         { userEmail: email },
         { userId: parentId }
       ]
-    }).sort({ createdAt: -1 }).toArray();
+    };
+
+    if (searchTerm) {
+      query.$and = [
+        { 
+          $or: [
+            { fileName: { $regex: searchTerm, $options: 'i' } },
+            { hash: { $regex: searchTerm, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+
+    if (tagFilter) {
+      if (!query.$and) query.$and = [];
+      query.$and.push({ tags: tagFilter });
+    }
+
+    let sortObj: any = { createdAt: -1 };
+    if (sortBy === 'oldest') sortObj = { createdAt: 1 };
+    if (sortBy === 'name') sortObj = { fileName: 1 };
+    if (sortBy === 'size') sortObj = { fileSize: -1 };
+
+    const totalRecords = await hashes.countDocuments(query);
+    const history = await hashes.find(query)
+      .sort(sortObj)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
     
     // Also include usage stats
     const usage = await UsageService.getMonthlyUsage(email);
     
     return NextResponse.json(SecurityService.prepareForTransit({
       history,
+      totalRecords,
       usage: {
         hashCount: usage.hashCount || 0,
         verifyCount: usage.verifyCount || 0,

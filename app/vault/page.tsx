@@ -42,6 +42,7 @@ export default function VaultPage() {
   const { notify, confirm } = useNotification();
   const { user, loading } = useUser();
   const [hashes, setHashes] = useState<any[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -55,17 +56,30 @@ export default function VaultPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
+  // We still derive tags from the visible hashes for now, or we could fetch all tags once.
+  // For a better UX, fetchHashes could return a unique list of all tags.
   const allTags = Array.from(new Set(hashes.flatMap(h => h.tags || []))).sort();
 
   const fetchHashes = async () => {
     if (!user?.email) return;
+    setIsLoading(true);
 
     try {
-      const res = await fetch(`/api/hashes?email=${encodeURIComponent(user.email)}`);
+      const params = new URLSearchParams({
+        email: user.email,
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+        search: searchTerm,
+        sort: sortBy,
+      });
+      if (selectedTag) params.append('tag', selectedTag);
+
+      const res = await fetch(`/api/hashes?${params.toString()}`);
       if (res.ok) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
         setHashes(Array.isArray(data.history) ? data.history : []);
+        setTotalRecords(data.totalRecords || 0);
       }
     } catch (err) {
       console.error('Fetch Vault Error:', err);
@@ -82,29 +96,20 @@ export default function VaultPage() {
       return;
     }
     fetchHashes();
-  }, [user, loading, router]);
+  }, [user, loading, router, currentPage, selectedTag, sortBy]);
 
-  // Reset to first page when filters change
+  // Debounced search
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedTag, sortBy]);
+    if (loading || !user) return;
+    const timeout = setTimeout(() => {
+      setCurrentPage(1);
+      fetchHashes();
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [searchTerm]);
 
-  const filteredHashes = hashes.filter(h => {
-    const matchesSearch = h.fileName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          h.hash?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (h.tags || []).some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesTag = !selectedTag || (h.tags || []).includes(selectedTag);
-    return matchesSearch && matchesTag;
-  }).sort((a, b) => {
-    if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    if (sortBy === 'name') return (a.fileName || '').localeCompare(b.fileName || '');
-    if (sortBy === 'size') return b.fileSize - a.fileSize;
-    return 0;
-  });
-
-  const totalPages = Math.ceil(filteredHashes.length / itemsPerPage);
-  const paginatedHashes = filteredHashes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
+  const paginatedHashes = hashes; // They are already paginated from server
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -398,19 +403,27 @@ export default function VaultPage() {
               <div key={i} className="h-28 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl animate-pulse" />
             ))}
           </div>
-        ) : filteredHashes.length === 0 ? (
+        ) : hashes.length === 0 ? (
           <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-[3rem] p-20 text-center border border-zinc-100 dark:border-white/5">
             <div className="w-20 h-20 bg-white dark:bg-zinc-900 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm border border-zinc-100 dark:border-white/5">
               <Shield className="w-8 h-8 text-zinc-200 dark:text-zinc-800" />
             </div>
-            <h3 className="font-display text-2xl font-bold text-zinc-950 dark:text-white mb-2">Vault is Empty</h3>
-            <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">You haven't notarized any documents yet. Head to the Indexer to begin.</p>
-            <button 
-                onClick={() => router.push('/notarize')}
-                className="mt-8 h-12 px-8 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-lg dark:shadow-none"
-            >
-                Go to Indexer
-            </button>
+            <h3 className="font-display text-2xl font-bold text-zinc-950 dark:text-white mb-2">
+              {searchTerm || selectedTag ? 'No Protocol Matches' : 'Vault is Empty'}
+            </h3>
+            <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
+              {searchTerm || selectedTag 
+                ? 'Refine your search parameters or explore other security indices.' 
+                : "You haven't notarized any documents yet. Head to the Indexer to begin."}
+            </p>
+            {!searchTerm && !selectedTag && (
+              <button 
+                  onClick={() => router.push('/notarize')}
+                  className="mt-8 h-12 px-8 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-xs uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-lg dark:shadow-none"
+              >
+                  Go to Indexer
+              </button>
+            )}
           </div>
         ) : viewMode === 'list' ? (
           <div className="space-y-12">
@@ -584,9 +597,9 @@ export default function VaultPage() {
                     <th className="px-6 py-4 w-12 text-center">
                       <button 
                         onClick={toggleSelectAll}
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.length === filteredHashes.length ? 'bg-trust-green border-trust-green text-zinc-950' : 'border-zinc-200 dark:border-zinc-800'}`}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${selectedIds.length === paginatedHashes.length && paginatedHashes.length > 0 ? 'bg-trust-green border-trust-green text-zinc-950' : 'border-zinc-200 dark:border-zinc-800'}`}
                       >
-                         {selectedIds.length === filteredHashes.length && <CheckCircle2 className="w-3 h-3" />}
+                         {selectedIds.length === paginatedHashes.length && paginatedHashes.length > 0 && <CheckCircle2 className="w-3 h-3" />}
                       </button>
                     </th>
                     <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Protocol Artifact</th>
