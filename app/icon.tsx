@@ -17,47 +17,60 @@ export default function Icon() {
     (
       <div
         style={{
-          background: 'transparent',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          position: 'relative',
+          background: 'transparent',
         }}
       >
+        {/* Hexagon Substrate - Matches Lucide Hexagon */}
         <svg
           width="32"
           height="32"
           viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          fill="rgba(16, 185, 129, 0.05)"
+          stroke="#10b981"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ position: 'absolute' }}
         >
-          {/* Hexagon Outline */}
-          <path
-            d="M12 2L20.6603 7V17L12 22L3.33975 17V7L12 2Z"
-            stroke="#10b981"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
-            fill="#0a0a0a"
-          />
-          {/* Central Vault Symbol (Simplified Box) */}
-          <rect
-            x="9"
-            y="9"
-            width="6"
-            height="6"
-            stroke="#10b981"
-            strokeWidth="1.5"
-            fill="none"
-          />
-          <rect
-            x="11.5"
-            y="11.5"
-            width="1"
-            height="1"
-            fill="#10b981"
-          />
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
         </svg>
+
+        {/* Central Asset: Protocol Box - Matches Lucide Box */}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ position: 'absolute' }}
+        >
+          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          <path d="m3.3 7 8.7 5 8.7-5" />
+          <path d="M12 22V12" />
+        </svg>
+
+        {/* Precision Pulse Dot */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: '4px',
+            right: '4px',
+            width: '6px',
+            height: '6px',
+            background: '#10b981',
+            borderRadius: '50%',
+            border: '1.5px solid #0a0a0a',
+          }}
+        />
       </div>
     ),
     {
