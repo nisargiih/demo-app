@@ -90,18 +90,21 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-[1.02] active:scale-95">
-            <div className="relative">
-              <div className="w-10 h-10 bg-trust-green rounded-xl flex items-center justify-center shadow-lg shadow-trust-green/20">
-                <ShieldCheck className="w-6 h-6 text-zinc-950" />
+          <Link href="/dashboard" className="flex items-center gap-4 mb-12 px-2 group/logo transition-transform active:scale-95">
+            <div className="relative flex items-center justify-center">
+              <Hexagon className="w-12 h-12 text-trust-green fill-trust-green/5 transition-all group-hover/logo:scale-110 group-hover/logo:rotate-[30deg] duration-700" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                 <div className="w-7 h-7 bg-zinc-950 dark:bg-zinc-900 border border-trust-green/30 rounded-lg flex items-center justify-center shadow-2xl shadow-trust-green/20 group-hover/logo:border-trust-green transition-colors">
+                    <Box className="w-4 h-4 text-trust-green" />
+                 </div>
               </div>
-              <div className="absolute -right-1 -bottom-1 w-4 h-4 bg-zinc-950 dark:bg-white rounded-md flex items-center justify-center shadow-sm border border-trust-green/20">
-                <Fingerprint className="w-2.5 h-2.5 text-trust-green" />
+              <div className="absolute -right-0.5 -bottom-0.5 w-5 h-5 bg-trust-green rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-zinc-950 transition-transform group-hover/logo:scale-110">
+                 <ShieldCheck className="w-3 h-3 text-zinc-950" />
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="font-display font-black text-xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
-              <span className="font-mono text-[9px] text-trust-green font-bold uppercase tracking-widest mt-1">Trust Protocol</span>
+              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
+              <span className="font-mono text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.25em] mt-1.5 transition-colors group-hover/logo:text-trust-green">Trust Protocol</span>
             </div>
           </Link>
 

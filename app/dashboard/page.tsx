@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Activity,
   History,
+  Archive,
   Zap
 } from 'lucide-react';
 import { 
