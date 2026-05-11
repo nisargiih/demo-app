@@ -22,32 +22,33 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'transparent',
           position: 'relative',
+          background: 'transparent',
         }}
       >
-        {/* Hexagon Substrate - Filling the space with a thick green stroke */}
+        {/* Hexagon Substrate - Filling more space */}
         <svg
           width="32"
           height="32"
           viewBox="0 0 24 24"
-          fill="rgba(16, 185, 129, 0.1)"
+          fill="rgba(16, 185, 129, 0.15)"
           stroke="#10b981"
-          strokeWidth="3"
+          strokeWidth="2"
+          strokeLinecap="round"
           strokeLinejoin="round"
           style={{ position: 'absolute' }}
         >
-          <path d="M12 2L20.6603 7V17L12 22L3.33975 17V7L12 2Z" />
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
         </svg>
 
-        {/* Central Vault Box - Bold white interior for contrast */}
+        {/* Central Asset: Protocol Box - Scaled for better visibility in tabs */}
         <svg
           width="16"
           height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="white"
-          strokeWidth="3.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ position: 'absolute' }}
@@ -56,6 +57,20 @@ export default function Icon() {
           <path d="m3.3 7 8.7 5 8.7-5" />
           <path d="M12 22V12" />
         </svg>
+
+        {/* Pulse Dot - Moved slightly and resized to not crowd the edges */}
+        <div 
+          style={{
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            width: '8px',
+            height: '8px',
+            background: '#10b981',
+            borderRadius: '50%',
+            border: '2px solid #0a0a0a',
+          }}
+        />
       </div>
     ),
     {
