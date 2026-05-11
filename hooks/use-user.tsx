@@ -25,12 +25,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
-  const fetchUser = useCallback(async () => {
+  const fetchUser = useCallback(async (isInitial = false) => {
     const email = localStorage.getItem('authenticated_user_email');
     if (!email) {
       setLoading(false);
       return;
     }
+
+    if (isInitial) setLoading(true);
 
     try {
       const res = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
@@ -42,17 +44,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error('Context Fetch Error:', err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchUser();
+    fetchUser(true);
     
-    // Refresh on focus
-    window.addEventListener('focus', fetchUser);
-    return () => window.removeEventListener('focus', fetchUser);
-  }, [fetchUser, pathname]); // Added pathname here
+    // Refresh on focus but don't show loading spinner
+    const onFocus = () => fetchUser(false);
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [fetchUser]); 
 
   return (
     <UserContext.Provider value={{ 

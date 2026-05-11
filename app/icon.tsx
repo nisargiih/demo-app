@@ -15,30 +15,44 @@ export const contentType = 'image/png';
 export default function Icon() {
   return new ImageResponse(
     (
-      // ImageResponse RGB element
       <div
         style={{
-          fontSize: 24,
           background: '#0a0a0a',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#10b981',
           borderRadius: '20%',
           border: '2px solid #10b981',
         }}
       >
-        <div style={{ display: 'flex', position: 'relative' }}>
-          V
-        </div>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          {/* Hexagon Outline */}
+          <path
+            d="M12 2L20.6603 7V17L12 22L3.33975 17V7L12 2Z"
+            stroke="#10b981"
+            strokeWidth="2"
+            fill="rgba(16, 185, 129, 0.1)"
+          />
+          {/* Inner Vault Box */}
+          <rect
+            x="8.5"
+            y="8.5"
+            width="7"
+            height="7"
+            fill="#ffffff"
+          />
+        </svg>
       </div>
     ),
-    // ImageResponse options
     {
-      // For convenience, we can re-use the exported icons size metadata
-      // config to also set the ImageResponse's width and height.
       ...size,
     }
   );

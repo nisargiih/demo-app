@@ -9,22 +9,27 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mon
 
 export const metadata: Metadata = {
   title: {
-    default: 'IdenVault | Sovereign Verification Engine',
-    template: '%s | IdenVault'
+    default: 'IdenVault - Secure Identity',
+    template: '%s - IdenVault'
   },
-  description: 'IdenVault provides immutable document validation, secure identity protocols, and cryptographic notary services for the digital sovereign age.',
-  keywords: ['document validation', 'cryptographic notary', 'biometric protocol', 'sovereign identity', 'blockchain registry'],
-  authors: [{ name: 'IdenVault Protocol' }],
-  creator: 'IdenVault Engineering',
-  publisher: 'IdenVault Lab',
+  description: 'IdenVault provides immutable document validation and secure identity protocols for a digital safe haven.',
+  keywords: ['identity vault', 'document validation', 'secure notary', 'identity security'],
+  authors: [{ name: 'IdenVault' }],
+  creator: 'IdenVault Team',
+  publisher: 'IdenVault',
+  icons: {
+    icon: '/icon',
+    shortcut: '/icon',
+    apple: '/icon',
+  },
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: 'IdenVault | Sovereign Verification Engine',
-    description: 'Immutable document validation and cryptographic identity protocol.',
+    title: 'IdenVault - Secure Identity',
+    description: 'Immutable document validation and cryptographic identity.',
     url: 'https://idenvault.io',
     siteName: 'IdenVault',
     locale: 'en_US',
@@ -32,14 +37,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IdenVault | Sovereign Verification Engine',
-    description: 'Immutable document validation and cryptographic identity protocol.',
-    creator: '@idenvault_protocol',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
+    title: 'IdenVault - Secure Identity',
+    description: 'Immutable document validation and cryptographic identity.',
+    creator: '@idenvault',
   },
   robots: {
     index: true,
@@ -56,6 +56,23 @@ import { ThemeSynchronizer } from '@/components/theme-synchronizer';
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+                  if (!theme && supportDarkMode) theme = 'dark';
+                  if (!theme) theme = 'light';
+                  document.documentElement.classList.add(theme);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans">
         <Script
           id="structured-data"
