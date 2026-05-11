@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
+import { Logo } from '@/components/logo';
 
 const registerSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -72,10 +73,21 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
+    <main className="relative min-h-screen w-full flex flex-col items-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
       <BackgroundAnimation />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+      {/* Header */}
+      <nav className="relative z-20 w-full max-w-7xl mx-auto flex items-center justify-between py-6 mb-12">
+        <Link href="/">
+          <Logo size="sm" />
+        </Link>
+        <div className="flex items-center gap-6">
+           <Link href="/login" className="font-mono text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-colors">SignIn</Link>
+           <Link href="/dashboard" className="h-10 px-5 bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 rounded-xl font-mono text-[10px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95">Access Node</Link>
+        </div>
+      </nav>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
         <div className="flex-1 text-center lg:text-left space-y-6 lg:space-y-8 max-w-xl">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -157,7 +169,7 @@ export default function RegisterPage() {
                     <input
                       {...register('firstName')}
                       type="text"
-                      placeholder="Alan"
+                      placeholder="Jane"
                       className={`w-full h-13 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-900/50 border ${errors.firstName ? 'border-red-500' : 'border-zinc-100 dark:border-white/5'} rounded-2xl font-sans text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700`}
                     />
                   </div>
@@ -170,7 +182,7 @@ export default function RegisterPage() {
                     <input
                       {...register('lastName')}
                       type="text"
-                      placeholder="Turing"
+                      placeholder="Smith"
                       className={`w-full h-13 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-900/50 border ${errors.lastName ? 'border-red-500' : 'border-zinc-100 dark:border-white/5'} rounded-2xl font-sans text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700`}
                     />
                   </div>
@@ -185,7 +197,7 @@ export default function RegisterPage() {
                   <input
                     {...register('email')}
                     type="email"
-                    placeholder="alan@turing.io"
+                    placeholder="email@example.com"
                     className={`w-full h-13 pl-12 pr-4 bg-zinc-50 dark:bg-zinc-900/50 border ${errors.email ? 'border-red-500' : 'border-zinc-100 dark:border-white/5'} rounded-2xl font-sans text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-trust-green/50 focus:ring-4 focus:ring-trust-green/5 hover:border-trust-green/30 transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700`}
                   />
                 </div>

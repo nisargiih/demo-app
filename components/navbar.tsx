@@ -28,6 +28,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { SecurityService } from '@/lib/security-service';
 import { useUser } from '@/hooks/use-user';
 
+import { Logo } from '@/components/logo';
+
 export function Sidebar() {
   const { user, loading, role, permissions } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,26 +92,8 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-4 mb-16 px-1 group/logo transition-all duration-300">
-            <div className="relative w-12 h-12 flex items-center justify-center">
-              {/* The Foundation: Hexagon Substrate */}
-              <Hexagon className="w-10 h-10 text-trust-green fill-trust-green/5 transition-all duration-500 group-hover:rotate-[30deg] group-hover:scale-110" strokeWidth={1.5} />
-              
-              {/* The Central Asset: Protocol Box */}
-              <Box className="absolute inset-0 m-auto w-4 h-4 text-zinc-950 dark:text-white group-hover:text-trust-green transition-colors duration-500" strokeWidth={2.5} />
-              
-              {/* Precision Pulse */}
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-trust-green rounded-full border-2 border-white dark:border-zinc-950 animate-pulse shadow-[0_0_8px_#10b981]" />
-            </div>
-            
-            <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">
-                IDENTIX
-              </span>
-              <div className="flex items-center gap-1.5 mt-1.5 opacity-40">
-                <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">SOVEREIGN_CORE</span>
-              </div>
-            </div>
+          <Link href="/dashboard" className="mb-16 px-1">
+            <Logo />
           </Link>
 
           {/* Nav Section */}
