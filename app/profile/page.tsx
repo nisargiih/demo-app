@@ -289,7 +289,7 @@ export default function ProfilePage() {
                                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-600" />
                                     <input 
                                       type="text" 
-                                      placeholder="e.g. Identix Labs Inc."
+                                      placeholder="e.g. Idenvault Labs Inc."
                                       value={user?.companyName || ''}
                                       onChange={(e) => setUser({...user, companyName: e.target.value})}
                                       className="w-full h-12 pl-11 pr-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green dark:text-white font-sans text-sm transition-all"
@@ -413,7 +413,7 @@ export default function ProfilePage() {
                             </h4>
                             <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-xs leading-relaxed font-medium">
                               {isVerified 
-                                ? 'Your identifiers have been notarized on the Identix ledger. You have full access to L2 operations.' 
+                                ? 'Your identifiers have been notarized on the Idenvault ledger. You have full access to L2 operations.' 
                                 : isPending 
                                   ? 'Our technical compliance team is manually validating your provided identifiers. This typically resolves in 2-3 days.'
                                   : 'To unlock advanced notarization features, please complete the identity synchronization protocol.'}
