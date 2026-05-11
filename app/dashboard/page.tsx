@@ -228,7 +228,7 @@ export default function DashboardPage() {
               { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-white dark:bg-zinc-900' },
               { 
                 label: 'Registry Quota', 
-                value: usageStats ? `${usageStats.registryCount || 0}/${usageStats.registryLimit || 5}` : '0/5', 
+                value: usageStats ? `${usageStats.registryCount || 0}/${usageStats.registryLimit || 5}` : '—/5', 
                 icon: Archive, 
                 color: 'text-trust-green', 
                 bg: 'bg-white dark:bg-zinc-900',
@@ -236,7 +236,7 @@ export default function DashboardPage() {
               },
               { 
                 label: 'Verify Credits', 
-                value: usageStats ? `${usageStats.verifyCount || 0}/${usageStats.verifyLimit || 15}` : '0/15', 
+                value: usageStats ? `${usageStats.verifyCount || 0}/${usageStats.verifyLimit || 15}` : '—/15', 
                 icon: ShieldCheck, 
                 color: 'text-zinc-900 dark:text-white', 
                 bg: 'bg-white dark:bg-zinc-900',
@@ -244,7 +244,7 @@ export default function DashboardPage() {
               },
               { 
                 label: 'Index Limit', 
-                value: usageStats ? `${usageStats.hashCount || 0}/${usageStats.hashLimit || 10}` : '0/10', 
+                value: usageStats ? `${usageStats.hashCount || 0}/${usageStats.hashLimit || 5}` : '—/5', 
                 icon: Zap, 
                 color: 'text-zinc-900 dark:text-white', 
                 bg: 'bg-zinc-50 dark:bg-zinc-950 border-zinc-100 dark:border-white/5' 

@@ -14,8 +14,27 @@ export class UsageService {
   static async getSystemLimits() {
     const client = await clientPromise;
     const db = client.db('tech-core');
-    const config = await db.collection('system_config').findOne({ type: 'usage_limits' });
-    return config || { hash: 0, verify: 0, registry: 0 };
+    const systemConfig = db.collection('system_config');
+    let config = await systemConfig.findOne({ type: 'usage_limits' });
+    
+    if (!config) {
+      // Lazy initialization of system-wide defaults if not present
+      const defaultConfig = {
+        type: 'usage_limits',
+        hash: 5,
+        verify: 15,
+        registry: 5,
+        updatedAt: new Date()
+      };
+      await systemConfig.insertOne(defaultConfig);
+      return { hash: defaultConfig.hash, verify: defaultConfig.verify, registry: defaultConfig.registry };
+    }
+
+    return {
+      hash: config.hash ?? 5,
+      verify: config.verify ?? 15,
+      registry: config.registry ?? 5
+    };
   }
 
   static async resolveUsageId(email: string): Promise<string> {
