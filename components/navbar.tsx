@@ -92,52 +92,42 @@ export function Sidebar() {
           {/* Brand */}
           <Link href="/dashboard" className="flex items-center gap-6 mb-16 px-1 group/logo transition-all duration-700">
             <div className="relative w-14 h-14 flex items-center justify-center">
-              {/* Outer Architectural Shell */}
-              <div className="absolute inset-0 bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-100 dark:border-zinc-900 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-700 group-hover:shadow-[0_20px_50px_-12px_rgba(16,185,129,0.15)] group-hover:-translate-y-1" />
+              {/* The "Obsidian" Shield Base */}
+              <div className="absolute inset-0 bg-zinc-950 dark:bg-white rounded-[20px] rounded-b-[45px] shadow-[0_15px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-700 group-hover:scale-105 group-hover:shadow-trust-green/20" />
               
-              {/* Precision Grid Layer */}
-              <div className="absolute inset-2 overflow-hidden rounded-xl opacity-0 group-hover:opacity-10 transition-opacity duration-700">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:6px_6px]" />
-              </div>
+              {/* Technical Precision Cut (The 'Glass' Overlay) */}
+              <div className="absolute inset-[1.5px] bg-zinc-900/50 dark:bg-zinc-100/50 rounded-[19px] rounded-b-[43px] border border-white/5 dark:border-black/5" />
 
-              {/* The Core Mark: Abstract I+X Synthesis */}
-              <div className="relative w-9 h-9">
-                {/* Vertical Backbone (I) */}
-                <motion.div 
-                  className="absolute left-1/2 -translate-x-1/2 top-0 w-2 h-full bg-zinc-950 dark:bg-white rounded-full origin-center transition-all duration-700 group-hover:bg-trust-green"
-                  whileHover={{ scaleY: 1.1 }}
-                />
-                
-                {/* Oblique Wings (X) */}
-                <div className="absolute inset-0 transition-transform duration-1000 group-hover:rotate-180">
-                  <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-[3px] bg-zinc-200 dark:bg-zinc-800 rounded-full rotate-45 origin-center transition-all group-hover:bg-trust-green/30" />
-                  <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-[3px] bg-zinc-200 dark:bg-zinc-800 rounded-full -rotate-45 origin-center transition-all group-hover:bg-trust-green/30" />
-                </div>
-
-                {/* Central Focus Node */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-3 h-3 bg-white dark:bg-zinc-950 rounded-full border-2 border-trust-green shadow-sm z-10" />
+              {/* The Biometric Matrix (Fingerprint/Iris Icon) */}
+              <div className="relative z-10 flex flex-col items-center gap-1">
+                <div className="relative">
+                  <Fingerprint className="w-7 h-7 text-trust-green transition-transform duration-700 group-hover:scale-110" strokeWidth={1.5} />
+                  
+                  {/* Real-time Scanning Line */}
                   <motion.div 
-                    animate={{ scale: [1, 2, 1], opacity: [0.3, 0, 0.3] }}
+                    animate={{ top: ["-10%", "110%", "-10%"] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute w-4 h-4 bg-trust-green rounded-full blur-sm"
+                    className="absolute left-0 right-0 h-[1.5px] bg-trust-green/80 shadow-[0_0_12px_#10b981] z-20 hidden group-hover:block"
                   />
                 </div>
+                
+                {/* Protocol Verification Mark */}
+                <div className="w-1.5 h-1.5 bg-trust-green rounded-full shadow-[0_0_8px_#10b981] animate-pulse" />
               </div>
 
-              {/* Corner Metadata Accents */}
-              <div className="absolute top-2 left-2 w-1 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
-              <div className="absolute bottom-2 right-2 w-1 h-1 bg-trust-green rounded-full shadow-[0_0_8px_#10b981]" />
+              {/* Decorative Geometric Details */}
+              <div className="absolute top-3 right-3 w-1.5 h-1.5 border-t border-r border-trust-green/50" />
+              <div className="absolute bottom-6 left-3 w-1.5 h-1.5 border-b border-l border-trust-green/50" />
             </div>
             
             <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-[-0.05em] text-zinc-950 dark:text-white leading-none uppercase transition-colors group-hover:text-trust-green">
+              <span className="font-display font-black text-2xl tracking-[-0.05em] text-zinc-950 dark:text-white leading-none uppercase transition-all duration-500 group-hover:tracking-tight group-hover:text-trust-green">
                 IDENTIX
               </span>
-              <div className="flex items-center gap-2 mt-2 opacity-40 group-hover:opacity-100 transition-all">
-                <div className="h-[1px] w-3 bg-trust-green" />
-                <span className="font-mono text-[7px] font-black uppercase tracking-[0.5em] text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white">
-                  VERIFIED_TRUST
+              <div className="flex items-center gap-1.5 mt-2 transition-all duration-500 group-hover:translate-x-1">
+                <div className="h-[2px] w-3 bg-trust-green rounded-full" />
+                <span className="font-mono text-[7px] font-black uppercase tracking-[0.6em] text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white">
+                  SOVEREIGN
                 </span>
               </div>
             </div>
