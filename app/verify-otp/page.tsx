@@ -58,6 +58,9 @@ export default function VerifyOtpPage() {
           localStorage.setItem('authenticated_user_email', result.user.email);
           localStorage.setItem('authenticated_user_id', result.user.id);
           localStorage.setItem('user_first_name', result.user.firstName);
+          if (result.sessionId) {
+            localStorage.setItem('current_session_id', result.sessionId);
+          }
           localStorage.removeItem('pending_verification_email');
           // Refresh context
           await refresh();

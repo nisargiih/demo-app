@@ -17,8 +17,11 @@ export async function POST(req: Request) {
     const { email: rawEmail, password } = loginSchema.parse(data);
     const email = rawEmail.trim().toLowerCase();
 
+    const sessionId = crypto.randomUUID();
+    const userAgent = req.headers.get('user-agent') || 'Unknown Device';
     const client = await clientPromise;
     const db = client.db('tech-core');
+    const sessions = db.collection('sessions');
     const users = db.collection('users');
 
     const user = await users.findOne({ email });
@@ -55,9 +58,19 @@ export async function POST(req: Request) {
       }));
     }
 
+    // Create real session
+    await sessions.insertOne({
+      sessionId,
+      email,
+      userAgent,
+      createdAt: new Date(),
+      lastActive: new Date()
+    });
+
     const response = { 
       message: 'Login successful',
-      user: { id: user._id, email: user.email, firstName: user.firstName }
+      user: { id: user._id, email: user.email, firstName: user.firstName },
+      sessionId
     };
     
     return NextResponse.json(SecurityService.prepareForTransit(response));

@@ -34,6 +34,8 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<'security' | 'preferences' | 'account'>('security');
   const [user, setUser] = useState<any>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [isFetchingSessions, setIsFetchingSessions] = useState(false);
   
   // State: Security
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -43,6 +45,24 @@ export default function SettingsPage() {
 
   // State: Preferences
   const [notifications, setNotifications] = useState({ email: true, push: false, alerts: true });
+
+  const fetchSessions = async () => {
+    const email = localStorage.getItem('authenticated_user_email');
+    if (!email) return;
+    setIsFetchingSessions(true);
+    try {
+      const res = await fetch(`/api/auth/sessions?email=${email}`);
+      if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
+        setSessions(data.sessions || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsFetchingSessions(false);
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -61,6 +81,7 @@ export default function SettingsPage() {
       }
     };
     fetchSettings();
+    fetchSessions();
   }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -399,40 +420,66 @@ export default function SettingsPage() {
                       <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-3xl">
                         <div className="flex items-center justify-between mb-6">
                             <label className="font-display font-bold text-[10px] text-zinc-400 dark:text-zinc-600 uppercase tracking-widest pl-1 block">Active Device Nodes</label>
-                            <span className="px-3 py-1 bg-trust-green/10 text-trust-green text-[9px] font-mono font-black rounded-lg">3 ACTIVE SESSIONS</span>
+                            <span className="px-3 py-1 bg-trust-green/10 text-trust-green text-[9px] font-mono font-black rounded-lg">{sessions.length} ACTIVE {sessions.length === 1 ? 'SESSION' : 'SESSIONS'}</span>
                         </div>
                         
                         <div className="space-y-4">
-                          {[
-                            { device: 'Web Desktop App', os: 'macOS Sonoma', location: 'London, UK (Current)', status: 'Active Now', isCurrent: true },
-                            { device: 'Mobile Auth Node', os: 'iOS 17.4', location: 'London, UK', status: 'Active 2h ago', isCurrent: false },
-                            { device: 'Verification Terminal', os: 'Windows 11', location: 'New York, US', status: 'Active 4d ago', isCurrent: false }
-                          ].map((session, i) => (
-                            <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${session.isCurrent ? 'bg-white dark:bg-zinc-800 border-trust-green/30' : 'bg-white/50 dark:bg-zinc-900/30 border-zinc-100 dark:border-white/5'}`}>
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${session.isCurrent ? 'bg-trust-green text-zinc-950' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
-                                    {session.device.includes('Mobile') ? <Smartphone className="w-5 h-5" /> : <Smartphone className="w-5 h-5 opacity-0 absolute" /* Fix later */ />}
-                                    {!session.device.includes('Mobile') && <LogOut className="w-5 h-5" />}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-display font-bold text-xs text-zinc-900 dark:text-white">{session.device}</p>
-                                        {session.isCurrent && <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />}
-                                    </div>
-                                    <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-tight">{session.os} • {session.location}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className={`font-display font-bold text-[9px] uppercase ${session.isCurrent ? 'text-trust-green' : 'text-zinc-400'}`}>{session.status}</p>
-                                    {!session.isCurrent && (
-                                        <button 
-                                            onClick={() => notify(`Session on ${session.device} revoked successfully.`, 'success')}
-                                            className="font-mono text-[8px] font-black text-red-500 hover:underline uppercase mt-1"
-                                        >
-                                            Revoke
-                                        </button>
-                                    )}
-                                </div>
+                          {sessions.map((session) => {
+                            const currentId = typeof window !== 'undefined' ? localStorage.getItem('current_session_id') : null;
+                            const isCurrent = session.sessionId === currentId;
+                            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(session.userAgent);
+                            
+                            return (
+                              <div key={session.sessionId} className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${isCurrent ? 'bg-white dark:bg-zinc-800 border-trust-green/30' : 'bg-white/50 dark:bg-zinc-900/30 border-zinc-100 dark:border-white/5'}`}>
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isCurrent ? 'bg-trust-green text-zinc-950' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
+                                      {isMobile ? <Smartphone className="w-5 h-5" /> : <LogOut className="w-5 h-5" />}
+                                  </div>
+                                  <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                          <p className="font-display font-bold text-xs text-zinc-900 dark:text-white">
+                                            {isMobile ? 'Mobile Auth Node' : 'Web Desktop App'}
+                                          </p>
+                                          {isCurrent && <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />}
+                                      </div>
+                                      <p className="font-mono text-[9px] text-zinc-400 uppercase tracking-tight truncate max-w-[200px]">
+                                        {session.userAgent.split(')')[0].split('(')[1] || session.userAgent.split(' ')[0]} • Genesis: {new Date(session.createdAt).toLocaleDateString()}
+                                      </p>
+                                  </div>
+                                  <div className="text-right">
+                                      <p className={`font-display font-bold text-[9px] uppercase ${isCurrent ? 'text-trust-green' : 'text-zinc-400'}`}>
+                                        {isCurrent ? 'Active Now' : `Last Seen ${new Date(session.lastActive).toLocaleDateString()}`}
+                                      </p>
+                                      {!isCurrent && (
+                                          <button 
+                                              onClick={async () => {
+                                                const ok = await confirm({
+                                                  title: 'Revoke Node Session',
+                                                  message: 'This will instantly disconnect this device from the network. Re-authentication will be required.',
+                                                  confirmText: 'Revoke Access',
+                                                  cancelText: 'Abort'
+                                                });
+                                                if (ok) {
+                                                  const email = localStorage.getItem('authenticated_user_email');
+                                                  await fetch(`/api/auth/sessions?email=${email}&sessionId=${session.sessionId}`, { method: 'DELETE' });
+                                                  notify(`Session revoked successfully.`, 'success');
+                                                  fetchSessions();
+                                                }
+                                              }}
+                                              className="font-mono text-[8px] font-black text-red-500 hover:underline uppercase mt-1"
+                                          >
+                                              Revoke
+                                          </button>
+                                      )}
+                                  </div>
+                              </div>
+                            );
+                          })}
+
+                          {sessions.length === 0 && !isFetchingSessions && (
+                            <div className="text-center py-8">
+                              <p className="text-zinc-500 text-sm italic">No active sessions found. Please login again.</p>
                             </div>
-                          ))}
+                          )}
                         </div>
                         
                         <button 
@@ -444,7 +491,11 @@ export default function SettingsPage() {
                                 cancelText: 'Abort'
                             });
                             if (ok) {
+                                const email = localStorage.getItem('authenticated_user_email');
+                                const currentId = localStorage.getItem('current_session_id');
+                                await fetch(`/api/auth/sessions?email=${email}&all=true&currentSessionId=${currentId}`, { method: 'DELETE' });
                                 notify('Global session purge executed. Peripheral nodes disconnected.', 'success');
+                                fetchSessions();
                             }
                           }}
                           className="w-full mt-6 h-12 bg-zinc-900 dark:bg-zinc-800 text-white rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all border border-zinc-100 dark:border-white/5"

@@ -56,6 +56,9 @@ export default function LoginPage() {
         localStorage.setItem('user_first_name', result.user.firstName);
         localStorage.setItem('authenticated_user_email', result.user.email.toLowerCase());
         localStorage.setItem('authenticated_user_id', result.user.id);
+        if (result.sessionId) {
+          localStorage.setItem('current_session_id', result.sessionId);
+        }
         setIsSuccess(true);
         notify('Authentication successful.', 'success');
         setTimeout(() => {

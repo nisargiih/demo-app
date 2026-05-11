@@ -15,9 +15,12 @@ export async function POST(req: Request) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Missing parameters' }), { status: 400 });
     }
 
+    const sessionId = crypto.randomUUID();
+    const userAgent = req.headers.get('user-agent') || 'Unknown Device';
     const client = await clientPromise;
     const db = client.db('tech-core');
     const users = db.collection('users');
+    const sessions = db.collection('sessions');
 
     const user = await users.findOne({ email, otp });
 
@@ -29,6 +32,15 @@ export async function POST(req: Request) {
       { _id: user._id },
       { $set: { isVerified: true, verificationStatus: 'verified', onboardingCompleted: true, entityType: 'individual' }, $unset: { otp: "" } }
     );
+
+    // Create real session
+    await sessions.insertOne({
+      sessionId,
+      email,
+      userAgent,
+      createdAt: new Date(),
+      lastActive: new Date()
+    });
 
     // Fetch the updated user for the response
     const updatedUser = await users.findOne({ _id: user._id });
@@ -47,7 +59,8 @@ export async function POST(req: Request) {
         lastName: safeUser.lastName,
         role: safeUser.role,
         permissions: safeUser.permissions
-      }
+      },
+      sessionId
     };
     return NextResponse.json(SecurityService.prepareForTransit(response));
   } catch (error) {
