@@ -90,42 +90,53 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-4 mb-16 px-2 group/logo transition-all duration-500">
-            <div className="relative w-12 h-12 flex items-center justify-center">
-              {/* Technical Core Container */}
-              <div className="absolute inset-0 bg-zinc-950 dark:bg-white rounded-xl shadow-2xl transition-all duration-500 group-hover/logo:rounded-[18px] group-hover/logo:rotate-[5deg]" />
+          <Link href="/dashboard" className="flex items-center gap-5 mb-16 px-1 group/logo transition-all duration-500">
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              {/* Technical Aura / Glow */}
+              <div className="absolute inset-0 bg-trust-green/10 blur-2xl rounded-full scale-0 group-hover/logo:scale-150 transition-transform duration-700 opacity-0 group-hover/logo:opacity-100" />
               
-              <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
-                {/* Fingerprint Icon - The Identity Mark */}
-                <Fingerprint className="w-6 h-6 text-trust-green dark:text-zinc-950" strokeWidth={2} />
+              {/* Main Structural Frame */}
+              <div className="relative z-10 w-12 h-12 flex items-center justify-center border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 rounded-[18px] group-hover/logo:rounded-xl group-hover:border-trust-green/50 transition-all duration-500 overflow-hidden shadow-2xl shadow-zinc-200/50 dark:shadow-none">
                 
-                {/* Real-time Scanning Line Effect */}
+                {/* Technical Substrate Grid (Subtle dot pattern) */}
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.07] bg-[radial-gradient(#808080_1px,transparent_1px)] [background-size:6px_6px]" />
+                
+                {/* Core Binary/Identity Mark */}
+                <Fingerprint 
+                  className="w-7 h-7 text-zinc-950 dark:text-white transition-all duration-500 group-hover/logo:text-trust-green group-hover/logo:scale-110" 
+                  strokeWidth={1.5} 
+                />
+                
+                {/* High-Precision Scan Beam */}
                 <motion.div 
-                  animate={{ 
-                    top: ["-10%", "110%", "-10%"]
-                  }}
+                  initial={{ top: "-20%" }}
+                  animate={{ top: "120%" }}
                   transition={{ 
                     duration: 2.5, 
                     repeat: Infinity, 
-                    ease: "easeInOut" 
+                    ease: "linear",
+                    repeatDelay: 0.5
                   }}
-                  className="absolute left-0 right-0 h-px bg-trust-green/60 dark:bg-zinc-950/40 shadow-[0_0_10px_rgba(16,185,129,0.8)] z-20"
+                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-trust-green to-transparent shadow-[0_0_12px_#10b981] z-20"
                 />
 
-                {/* Substrate Grid Overlay (Subtle) */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:4px_4px]" />
+                {/* Progress Indicators (Aesthetic detail) */}
+                <div className="absolute top-1 left-1 flex gap-0.5">
+                  <div className="w-1 h-1 bg-trust-green rounded-full opacity-40 shrink-0" />
+                  <div className="w-1 h-1 bg-zinc-400 rounded-full opacity-20 shrink-0" />
+                </div>
               </div>
 
-              {/* Status Indicator (Aesthetic Detail) */}
-              <div className="absolute -right-1 -top-1 w-3 h-3 bg-zinc-950 dark:bg-white rounded-full flex items-center justify-center shadow-lg">
-                <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />
-              </div>
+              {/* Corner Brackets (The "Professional" touch) */}
+              <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-trust-green/30 rounded-tl-lg group-hover/logo:border-trust-green transition-colors" />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-trust-green/30 rounded-br-lg group-hover/logo:border-trust-green transition-colors" />
             </div>
             
             <div className="flex flex-col">
               <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <span className="font-mono text-[8px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em]">VERIFIED_CORE</span>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />
+                <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em]">SOVEREIGN</span>
               </div>
             </div>
           </Link>
