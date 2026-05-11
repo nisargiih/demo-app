@@ -91,52 +91,29 @@ export function Sidebar() {
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
           <Link href="/dashboard" className="flex items-center gap-5 mb-16 px-1 group/logo transition-all duration-500">
-            <div className="relative w-14 h-14 flex items-center justify-center">
-              {/* Technical Aura / Glow */}
-              <div className="absolute inset-0 bg-trust-green/10 blur-2xl rounded-full scale-0 group-hover/logo:scale-150 transition-transform duration-700 opacity-0 group-hover/logo:opacity-100" />
+            <div className="relative w-12 h-12 flex items-center justify-center bg-zinc-950 dark:bg-white rounded-xl shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
+              {/* Technical Substrate Grid */}
+              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:4px_4px]" />
               
-              {/* Main Structural Frame */}
-              <div className="relative z-10 w-12 h-12 flex items-center justify-center border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 rounded-[18px] group-hover/logo:rounded-xl group-hover:border-trust-green/50 transition-all duration-500 overflow-hidden shadow-2xl shadow-zinc-200/50 dark:shadow-none">
-                
-                {/* Technical Substrate Grid (Subtle dot pattern) */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.07] bg-[radial-gradient(#808080_1px,transparent_1px)] [background-size:6px_6px]" />
-                
-                {/* Core Binary/Identity Mark */}
-                <Fingerprint 
-                  className="w-7 h-7 text-zinc-950 dark:text-white transition-all duration-500 group-hover/logo:text-trust-green group-hover/logo:scale-110" 
-                  strokeWidth={1.5} 
-                />
-                
-                {/* High-Precision Scan Beam */}
-                <motion.div 
-                  initial={{ top: "-20%" }}
-                  animate={{ top: "120%" }}
-                  transition={{ 
-                    duration: 2.5, 
-                    repeat: Infinity, 
-                    ease: "linear",
-                    repeatDelay: 0.5
-                  }}
-                  className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-trust-green to-transparent shadow-[0_0_12px_#10b981] z-20"
-                />
-
-                {/* Progress Indicators (Aesthetic detail) */}
-                <div className="absolute top-1 left-1 flex gap-0.5">
-                  <div className="w-1 h-1 bg-trust-green rounded-full opacity-40 shrink-0" />
-                  <div className="w-1 h-1 bg-zinc-400 rounded-full opacity-20 shrink-0" />
-                </div>
-              </div>
-
-              {/* Corner Brackets (The "Professional" touch) */}
-              <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-trust-green/30 rounded-tl-lg group-hover/logo:border-trust-green transition-colors" />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-trust-green/30 rounded-br-lg group-hover/logo:border-trust-green transition-colors" />
+              {/* Core Symbol */}
+              <ShieldCheck className="w-6 h-6 text-trust-green relative z-10" strokeWidth={2.5} />
+              
+              {/* Scanning Light Flare */}
+              <motion.div 
+                animate={{ left: ["-100%", "200%"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                className="absolute top-0 bottom-0 w-full bg-gradient-to-r from-transparent via-trust-green/20 to-transparent skew-x-20 z-20"
+              />
+              
+              {/* Corner Accents */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-trust-green/40" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-trust-green/40" />
             </div>
             
             <div className="flex flex-col">
               <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="w-1.5 h-1.5 bg-trust-green rounded-full animate-pulse" />
-                <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.4em]">SOVEREIGN</span>
+              <div className="flex items-center gap-2 mt-1.5 opacity-60">
+                <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">PROTOCOL_NODE</span>
               </div>
             </div>
           </Link>
