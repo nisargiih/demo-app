@@ -90,45 +90,24 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-6 mb-16 px-1 group/logo transition-all duration-700">
-            <div className="relative w-14 h-14 flex items-center justify-center">
-              {/* The "Obsidian" Shield Base */}
-              <div className="absolute inset-0 bg-zinc-950 dark:bg-white rounded-[20px] rounded-b-[45px] shadow-[0_15px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-700 group-hover:scale-105 group-hover:shadow-trust-green/20" />
+          <Link href="/dashboard" className="flex items-center gap-4 mb-16 px-1 group/logo transition-all duration-300">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              {/* The Foundation: Hexagon Substrate */}
+              <Hexagon className="w-10 h-10 text-trust-green fill-trust-green/5 transition-all duration-500 group-hover:rotate-[30deg] group-hover:scale-110" strokeWidth={1.5} />
               
-              {/* Technical Precision Cut (The 'Glass' Overlay) */}
-              <div className="absolute inset-[1.5px] bg-zinc-900/50 dark:bg-zinc-100/50 rounded-[19px] rounded-b-[43px] border border-white/5 dark:border-black/5" />
-
-              {/* The Biometric Matrix (Fingerprint/Iris Icon) */}
-              <div className="relative z-10 flex flex-col items-center gap-1">
-                <div className="relative">
-                  <Fingerprint className="w-7 h-7 text-trust-green transition-transform duration-700 group-hover:scale-110" strokeWidth={1.5} />
-                  
-                  {/* Real-time Scanning Line */}
-                  <motion.div 
-                    animate={{ top: ["-10%", "110%", "-10%"] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute left-0 right-0 h-[1.5px] bg-trust-green/80 shadow-[0_0_12px_#10b981] z-20 hidden group-hover:block"
-                  />
-                </div>
-                
-                {/* Protocol Verification Mark */}
-                <div className="w-1.5 h-1.5 bg-trust-green rounded-full shadow-[0_0_8px_#10b981] animate-pulse" />
-              </div>
-
-              {/* Decorative Geometric Details */}
-              <div className="absolute top-3 right-3 w-1.5 h-1.5 border-t border-r border-trust-green/50" />
-              <div className="absolute bottom-6 left-3 w-1.5 h-1.5 border-b border-l border-trust-green/50" />
+              {/* The Central Asset: Protocol Box */}
+              <Box className="absolute inset-0 m-auto w-4 h-4 text-zinc-950 dark:text-white group-hover:text-trust-green transition-colors duration-500" strokeWidth={2.5} />
+              
+              {/* Precision Pulse */}
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-trust-green rounded-full border-2 border-white dark:border-zinc-950 animate-pulse shadow-[0_0_8px_#10b981]" />
             </div>
             
             <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-[-0.05em] text-zinc-950 dark:text-white leading-none uppercase transition-all duration-500 group-hover:tracking-tight group-hover:text-trust-green">
+              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">
                 IDENTIX
               </span>
-              <div className="flex items-center gap-1.5 mt-2 transition-all duration-500 group-hover:translate-x-1">
-                <div className="h-[2px] w-3 bg-trust-green rounded-full" />
-                <span className="font-mono text-[7px] font-black uppercase tracking-[0.6em] text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white">
-                  SOVEREIGN
-                </span>
+              <div className="flex items-center gap-1.5 mt-1.5 opacity-40">
+                <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em]">SOVEREIGN_CORE</span>
               </div>
             </div>
           </Link>
