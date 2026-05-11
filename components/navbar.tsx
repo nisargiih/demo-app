@@ -90,21 +90,47 @@ export function Sidebar() {
       `}>
         <div className="flex flex-col h-full p-6">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-4 mb-12 px-2 group/logo transition-transform active:scale-95">
-            <div className="relative flex items-center justify-center">
-              <Hexagon className="w-12 h-12 text-trust-green fill-trust-green/5 transition-all group-hover/logo:scale-110 group-hover/logo:rotate-[30deg] duration-700" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                 <div className="w-7 h-7 bg-zinc-950 dark:bg-zinc-900 border border-trust-green/30 rounded-lg flex items-center justify-center shadow-2xl shadow-trust-green/20 group-hover/logo:border-trust-green transition-colors">
-                    <Box className="w-4 h-4 text-trust-green" />
-                 </div>
-              </div>
-              <div className="absolute -right-0.5 -bottom-0.5 w-5 h-5 bg-trust-green rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-zinc-950 transition-transform group-hover/logo:scale-110">
-                 <ShieldCheck className="w-3 h-3 text-zinc-950" />
+          <Link href="/dashboard" className="flex items-center gap-4 mb-12 px-2 group/logo transition-all duration-500">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              {/* Outer Glow / Pulse */}
+              <div className="absolute inset-0 bg-trust-green/20 blur-xl rounded-full animate-pulse group-hover/logo:bg-trust-green/40 transition-colors" />
+              
+              {/* Main Geometric Logo */}
+              <div className="relative z-10 w-full h-full flex items-center justify-center">
+                <motion.div 
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0"
+                >
+                  <Hexagon className="w-12 h-12 text-trust-green opacity-20" strokeWidth={1} />
+                </motion.div>
+                
+                <div className="w-10 h-10 bg-zinc-950 dark:bg-white rounded-[14px] flex items-center justify-center shadow-2xl transition-all group-hover/logo:rounded-[10px] duration-500">
+                  <div className="relative">
+                    <Fingerprint className="w-6 h-6 text-trust-green dark:text-zinc-950" strokeWidth={2.5} />
+                    <motion.div 
+                      animate={{ 
+                        top: ["0%", "100%", "0%"],
+                        opacity: [0, 1, 0]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute left-0 right-0 h-0.5 bg-trust-green/50 dark:bg-zinc-950/30 blur-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Status Dot */}
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-trust-green rounded-full border-2 border-white dark:border-zinc-950 shadow-lg shadow-trust-green/40" />
               </div>
             </div>
+            
             <div className="flex flex-col">
-              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none">IDENTIX</span>
-              <span className="font-mono text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-[0.25em] mt-1.5 transition-colors group-hover/logo:text-trust-green">Trust Protocol</span>
+              <span className="font-display font-black text-2xl tracking-tighter text-zinc-950 dark:text-white leading-none group-hover/logo:tracking-tight transition-all duration-500">IDENTIX</span>
+              <div className="flex items-center gap-1.5 mt-1">
+                <div className="w-1 h-1 bg-trust-green rounded-full animate-ping" />
+                <span className="font-mono text-[7px] text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.3em]">SECURE_NODE</span>
+              </div>
             </div>
           </Link>
 

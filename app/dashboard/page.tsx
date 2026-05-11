@@ -178,25 +178,32 @@ export default function DashboardPage() {
       <Sidebar />
  
       <div className="relative z-10 w-full max-w-6xl mx-auto py-8 lg:py-12">
-        <header className="mb-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <header className="mb-10 relative overflow-hidden group">
+          {/* Decorative scanning line in header */}
+          <motion.div 
+            animate={{ left: ["-10%", "110%"] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute top-0 bottom-0 w-px bg-trust-green/20 blur-sm pointer-events-none"
+          />
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <h1 className="font-display text-4xl font-bold text-zinc-900 dark:text-white tracking-tighter uppercase">
+                <h1 className="font-display text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase leading-none">
                   Control Center
                 </h1>
                 {isVerified && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-trust-green/10 border border-trust-green/20 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.1)]">
                     <ShieldCheck className="w-3.5 h-3.5 text-trust-green" />
-                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-trust-green">L2 Verified</span>
+                    <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-trust-green">L2_VERIFIED</span>
                   </div>
                 )}
               </div>
-              <p className="font-sans text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                Identity: <span className="text-zinc-900 dark:text-zinc-100 font-bold">{user?.firstName} {user?.lastName}</span> — {user?.entityType || 'Standard'} authority node.
+              <p className="font-sans text-xs sm:text-sm text-zinc-500 dark:text-zinc-500 font-bold uppercase tracking-widest">
+                Node ID: <span className="text-zinc-900 dark:text-zinc-100">{user?.firstName} {user?.lastName}</span> <span className="mx-2 opacity-20">|</span> {user?.entityType || 'Standard'} Substrate
               </p>
             </motion.div>
 
