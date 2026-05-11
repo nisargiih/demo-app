@@ -2,12 +2,6 @@ import clientPromise from './mongodb';
 
 export type UsageType = 'hash' | 'verify' | 'registry';
 
-export const DEFAULT_LIMITS = {
-  hash: 10,
-  verify: 15,
-  registry: 5
-};
-
 export class UsageService {
   static async resolveUser(email: string) {
     const cleanEmail = email.toLowerCase().trim();
@@ -15,6 +9,13 @@ export class UsageService {
     const db = client.db('tech-core');
     const users = db.collection('users');
     return await users.findOne({ email: cleanEmail });
+  }
+
+  static async getSystemLimits() {
+    const client = await clientPromise;
+    const db = client.db('tech-core');
+    const config = await db.collection('system_config').findOne({ type: 'usage_limits' });
+    return config || { hash: 0, verify: 0, registry: 0 };
   }
 
   static async resolveUsageId(email: string): Promise<string> {
@@ -36,12 +37,13 @@ export class UsageService {
 
   static async getUserLimits(email: string) {
     const user = await this.resolveUser(email);
-    const customLimits = user?.customLimits || {};
-    return {
-      hash: customLimits.hash ?? DEFAULT_LIMITS.hash,
-      verify: customLimits.verify ?? DEFAULT_LIMITS.verify,
-      registry: customLimits.registry ?? DEFAULT_LIMITS.registry
-    };
+    if (!user) return { hash: 0, verify: 0, registry: 0 };
+
+    // Limits can be directly on user object for easy management
+    if (user.limits) return user.limits;
+
+    // Fallback to system-wide defaults from database
+    return await this.getSystemLimits();
   }
 
   static async getMonthlyUsage(email: string) {
@@ -78,8 +80,8 @@ export class UsageService {
   static async canUseFree(email: string, type: UsageType): Promise<boolean> {
     const usage = await this.getMonthlyUsage(email);
     const count = type === 'hash' ? (usage.hashCount || 0) : type === 'verify' ? (usage.verifyCount || 0) : (usage.registryCount || 0);
-    const limits = usage.limits || DEFAULT_LIMITS;
-    return count < limits[type];
+    const limits = usage.limits;
+    return count < (limits[type] || 0);
   }
 
   static async incrementUsage(email: string, type: UsageType) {

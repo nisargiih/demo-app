@@ -3,6 +3,7 @@ import clientPromise from '@/lib/mongodb';
 import * as z from 'zod';
 import { SecurityService } from '@/lib/security-service';
 import bcrypt from 'bcryptjs';
+import { UsageService } from '@/lib/usage-service';
 
 const registerSchema = z.object({
   firstName: z.string().min(2),
@@ -45,6 +46,9 @@ export async function POST(req: Request) {
       ? ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings']
       : ['dashboard']);
 
+    // Fetch initial limits from database (no hardcoding)
+    const initialLimits = await UsageService.getSystemLimits();
+
     const newUser = {
       firstName: validatedData.firstName,
       lastName: validatedData.lastName,
@@ -58,6 +62,7 @@ export async function POST(req: Request) {
       role,
       permissions,
       credits: 0,
+      limits: initialLimits,
       otp, 
       invitedBy: data.invitedBy || null,
       createdAt: new Date(),
