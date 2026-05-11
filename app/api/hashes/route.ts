@@ -64,8 +64,10 @@ export async function GET(req: Request) {
       usage: {
         hashCount: usage.hashCount || 0,
         verifyCount: usage.verifyCount || 0,
-        hashLimit: 10,
-        verifyLimit: 15
+        registryCount: usage.registryCount || 0,
+        hashLimit: usage.limits.hash,
+        verifyLimit: usage.limits.verify,
+        registryLimit: usage.limits.registry
       }
     }));
   } catch (error) {
