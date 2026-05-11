@@ -12,8 +12,8 @@ export function Header() {
 
 export function Footer() {
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block">
-      <div className="flex items-center gap-8 opacity-20 hover:opacity-100 transition-opacity">
+    <div className="w-full py-12 hidden md:block relative z-10">
+      <div className="flex items-center justify-center gap-8 opacity-20 hover:opacity-100 transition-opacity">
          <div className="h-px w-24 bg-gradient-to-r from-transparent to-zinc-400" />
          <p className="font-mono text-[10px] tracking-widest text-zinc-500 font-bold uppercase">
            SECURE_ENCLAVE_ESTABLISHED // {new Date().getFullYear()}

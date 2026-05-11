@@ -84,10 +84,10 @@ export default function VerifyOtpPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
+    <main className="relative min-h-screen w-full flex flex-col items-center p-6 overflow-hidden bg-white dark:bg-zinc-950 selection:bg-trust-green/20 transition-colors duration-300">
       <BackgroundAnimation />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col items-center gap-8">
+      <div className="relative z-10 w-full max-w-7xl mx-auto flex-1 flex flex-col items-center justify-center gap-8">
         <motion.div
   initial={{ opacity: 0, scale: 0.9, y: 40 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
