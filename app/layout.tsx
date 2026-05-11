@@ -16,6 +16,7 @@ import { NotificationProvider } from '@/hooks/use-notification';
 import { AuthGuard } from '@/components/auth-guard';
 import { UserProvider } from '@/hooks/use-user';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeSynchronizer } from '@/components/theme-synchronizer';
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
@@ -24,6 +25,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <ThemeProvider>
           <NotificationProvider>
             <UserProvider>
+              <ThemeSynchronizer />
               <AuthGuard>
                 {children}
               </AuthGuard>

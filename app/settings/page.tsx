@@ -363,7 +363,20 @@ export default function SettingsPage() {
                           </div>
                         </div>
                         <button 
-                          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                          onClick={async () => {
+                            const newTheme = theme === 'light' ? 'dark' : 'light';
+                            setTheme(newTheme);
+                            const email = localStorage.getItem('authenticated_user_email');
+                            try {
+                              await fetch('/api/auth/me', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email, theme: newTheme }),
+                              });
+                            } catch (err) {
+                              console.error('Failed to sync theme', err);
+                            }
+                          }}
                           className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl"
                         >
                           <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${theme === 'light' ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>

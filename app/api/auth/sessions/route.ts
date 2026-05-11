@@ -6,6 +6,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email')?.toLowerCase();
+    const checkSessionId = searchParams.get('checkSessionId');
 
     if (!email) {
       return NextResponse.json({ error: 'Email required' }, { status: 400 });
@@ -14,6 +15,11 @@ export async function GET(req: Request) {
     const client = await clientPromise;
     const db = client.db('tech-core');
     const sessions = db.collection('sessions');
+
+    if (checkSessionId) {
+      const session = await sessions.findOne({ email, sessionId: checkSessionId });
+      return NextResponse.json(SecurityService.prepareForTransit({ isValid: !!session }));
+    }
 
     const userSessions = await sessions.find({ email }).sort({ lastActive: -1 }).toArray();
 

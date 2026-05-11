@@ -10,7 +10,7 @@ import { BackgroundAnimation } from '@/components/background-animation';
 import { FormError } from '@/components/form-error';
 import { Footer } from '@/components/layout-shared';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useNotification } from '@/hooks/use-notification';
 import { SecurityService } from '@/lib/security-service';
 
@@ -23,10 +23,18 @@ type LoginInputs = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { notify } = useNotification();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  React.useEffect(() => {
+    const message = searchParams.get('message');
+    if (message === 'session_revoked') {
+      notify('Security Protocol: Your session was revoked from another device.', 'error');
+    }
+  }, [searchParams, notify]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema)

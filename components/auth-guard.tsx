@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
+import { SecurityService } from '@/lib/security-service';
 
 const PUBLIC_ROUTES = ['/', '/login', '/verify-otp', '/verify'];
 
@@ -25,7 +26,28 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (loading) return;
 
     const email = localStorage.getItem('authenticated_user_email');
+    const sessionId = localStorage.getItem('current_session_id');
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+
+    const verifySession = async () => {
+      if (email && sessionId && !isPublicRoute) {
+        try {
+          const res = await fetch(`/api/auth/sessions?email=${email}&checkSessionId=${sessionId}`);
+          if (res.ok) {
+            const body = await res.json();
+            const data = SecurityService.processFromTransit(body);
+            if (data.isValid === false) {
+              // Session revoked!
+              localStorage.clear();
+              router.push('/login?message=session_revoked');
+              window.location.reload();
+            }
+          }
+        } catch (err) {
+          console.error('Session verification failed', err);
+        }
+      }
+    };
 
     if (!email && !isPublicRoute) {
       router.push('/login');
@@ -37,12 +59,20 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Permission Check
-    // We no longer redirect to /dashboard?error=unauthorized here
-    // because the user wants content to be displayed based on permission
-    // rather than a hard redirect.
+    // Verify session on route change if not a public route
+    verifySession();
+
+    // Check periodically (every 30 seconds)
+    const interval = setInterval(verifySession, 30000);
+    
+    // Check on focus
+    window.addEventListener('focus', verifySession);
     
     setIsAuthorized(true);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', verifySession);
+    };
   }, [pathname, router, loading, role, permissions]);
 
   if (loading) {
