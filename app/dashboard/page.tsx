@@ -192,18 +192,18 @@ export default function DashboardPage() {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <h1 className="font-display text-4xl lg:text-5xl font-black text-zinc-900 dark:text-white tracking-tighter uppercase leading-none">
+                <h1 className="font-display text-4xl lg:text-6xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase leading-[0.85]">
                   Control Center
                 </h1>
                 {isVerified && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-trust-green/10 border border-trust-green/20 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                    <ShieldCheck className="w-3.5 h-3.5 text-trust-green" />
-                    <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-trust-green">L2_VERIFIED</span>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-trust-green text-white dark:text-zinc-950 rounded-full shadow-lg shadow-trust-green/20">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span className="font-mono text-[10px] font-black uppercase tracking-widest">Protocol Verified</span>
                   </div>
                 )}
               </div>
-              <p className="font-sans text-xs sm:text-sm text-zinc-500 dark:text-zinc-500 font-bold uppercase tracking-widest">
-                Node ID: <span className="text-zinc-900 dark:text-zinc-100">{user?.firstName} {user?.lastName}</span> <span className="mx-2 opacity-20">|</span> {user?.entityType || 'Standard'} Substrate
+              <p className="font-sans text-xs sm:text-sm text-zinc-400 dark:text-zinc-500 font-black uppercase tracking-[0.2em] mt-2">
+                Operational Status: <span className="text-trust-green">Sovereign Cluster Active</span>
               </p>
             </motion.div>
 
