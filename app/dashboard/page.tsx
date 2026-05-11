@@ -176,43 +176,37 @@ export default function DashboardPage() {
       <BackgroundAnimation />
       <Sidebar />
  
-      <div className="relative z-10 w-full max-w-6xl mx-auto py-8 sm:py-12 lg:py-20">
-        <header className="mb-12">
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-8 lg:py-12">
+        <header className="mb-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="flex flex-wrap items-center gap-3 mb-2">
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-zinc-900 dark:text-white tracking-tight">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h1 className="font-display text-4xl font-bold text-zinc-900 dark:text-white tracking-tighter uppercase">
                   Control Center
                 </h1>
                 {isVerified && (
                   <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 border border-trust-green/20 rounded-full">
-                    <ShieldCheck className="w-4 h-4 text-trust-green" />
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-trust-green">L2 Verified</span>
-                  </div>
-                )}
-                {isPending && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-full">
-                    <Clock className="w-4 h-4 text-zinc-400" />
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Under Review</span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-trust-green" />
+                    <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-trust-green">L2 Verified</span>
                   </div>
                 )}
               </div>
-              <p className="font-sans text-sm sm:text-base text-zinc-500 dark:text-zinc-400">
-                Logged as <span className="text-zinc-900 dark:text-zinc-100 font-semibold">{user?.firstName} {user?.lastName}</span> — {user?.entityType} node.
+              <p className="font-sans text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                Identity: <span className="text-zinc-900 dark:text-zinc-100 font-bold">{user?.firstName} {user?.lastName}</span> — {user?.entityType || 'Standard'} authority node.
               </p>
             </motion.div>
 
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex gap-4"
+              className="flex gap-3"
             >
               <button 
                 onClick={() => router.push('/notarize')}
-                className="h-12 px-8 bg-trust-green text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/10 dark:shadow-none"
+                className="h-11 px-6 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-xl font-display font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-zinc-900/10"
               >
                 <Plus className="w-4 h-4" />
                 Capture Fingerprint
@@ -221,174 +215,173 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {[
-              { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-100 dark:bg-zinc-900/50' },
+              { label: 'Total Index', value: stats.total, icon: Fingerprint, color: 'text-zinc-900 dark:text-white', bg: 'bg-white dark:bg-zinc-900' },
               { 
-                label: 'Free Index Quota', 
-                value: usageStats ? `${usageStats.hashCount}/${usageStats.hashLimit}` : '0/10', 
-                icon: Zap, 
+                label: 'Registry Quota', 
+                value: usageStats ? `${usageStats.registryCount || 0}/5` : '0/5', 
+                icon: Archive, 
                 color: 'text-trust-green', 
-                bg: 'bg-trust-green/5 dark:bg-trust-green/10',
-                sub: usageStats && usageStats.hashCount >= usageStats.hashLimit ? 'Limit reached' : 'Resets monthly'
+                bg: 'bg-white dark:bg-zinc-900',
+                sub: 'Monthly'
               },
               { 
-                label: 'Free Verify Quota', 
+                label: 'Verify Credits', 
                 value: usageStats ? `${usageStats.verifyCount}/${usageStats.verifyLimit}` : '0/15', 
                 icon: ShieldCheck, 
                 color: 'text-zinc-900 dark:text-white', 
-                bg: 'bg-zinc-100 dark:bg-zinc-900/50',
-                sub: usageStats && usageStats.verifyCount >= usageStats.verifyLimit ? 'Limit reached' : 'Resets monthly'
+                bg: 'bg-white dark:bg-zinc-900',
+                sub: 'Active'
               },
-              { label: 'Period Activity', value: stats.periodCount, icon: TrendingUp, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-200 dark:bg-zinc-800' },
+              { label: 'Uptime', value: `${stats.uptime}%`, icon: Zap, color: 'text-zinc-900 dark:text-white', bg: 'bg-zinc-50 dark:bg-zinc-950 border-zinc-100 dark:border-white/5' },
             ].map((stat, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              onClick={stat.action}
-              className={`${stat.invert ? 'bg-zinc-950 dark:bg-zinc-800 text-white' : `${stat.bg} ${stat.color}`} p-7 rounded-[2.5rem] border border-zinc-100 dark:border-white/5 flex flex-col justify-between h-44 shadow-sm transition-all hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none group relative overflow-hidden ${stat.action ? 'cursor-pointer' : ''}`}
+              transition={{ delay: i * 0.05 }}
+              className={`${stat.bg} ${stat.color} p-5 rounded-3xl border border-zinc-100 dark:border-white/5 flex flex-col justify-between h-36 shadow-sm group relative overflow-hidden transition-all hover:border-trust-green/30`}
             >
-              <stat.icon className={`absolute -right-4 -bottom-4 w-24 h-24 opacity-5 transition-transform group-hover:scale-125 ${stat.invert ? 'text-white' : 'text-zinc-950 dark:text-white'}`} />
+              <stat.icon className="absolute -right-2 -bottom-2 w-16 h-16 opacity-5 group-hover:scale-110 transition-transform text-current" />
               <div className="relative z-10">
-                <h4 className={`font-mono text-[10px] font-bold uppercase tracking-widest ${stat.invert ? 'text-zinc-500' : 'opacity-60'}`}>{stat.label}</h4>
+                <h4 className="font-mono text-[8px] font-black uppercase tracking-widest opacity-60 mb-0.5">{stat.label}</h4>
                 {stat.sub && (
-                  <p className="font-mono text-[8px] opacity-40 uppercase tracking-tighter mt-0.5">{stat.sub}</p>
+                  <p className="font-mono text-[7px] opacity-40 uppercase tracking-tighter">{stat.sub}</p>
                 )}
               </div>
-              <p className="font-display text-4xl font-bold relative z-10">{stat.value}</p>
+              <p className="font-display text-2xl font-black relative z-10">{stat.value}</p>
             </motion.div>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
             {/* Activity Chart Area */}
-            <section className="glass rounded-[3rem] p-8 sm:p-10 flex flex-col min-h-[500px]">
-               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+            <section className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-[2.5rem] p-6 sm:p-8 flex flex-col shadow-sm">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                  <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <Activity className="w-5 h-5 text-trust-green" />
-                        <h3 className="font-display font-bold text-2xl text-zinc-900 dark:text-white tracking-tight">Index Activity</h3>
+                        <Activity className="w-4 h-4 text-trust-green" />
+                        <h3 className="font-display font-black text-xl text-zinc-900 dark:text-white tracking-tight uppercase">Index Activity</h3>
                     </div>
-                    <p className="font-sans text-xs text-zinc-400 font-medium">Real-time cryptographic fingerprint tracking</p>
+                    <p className="font-sans text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Protocol Signal Tracking</p>
                  </div>
                  
-                 <div className="bg-zinc-100/50 dark:bg-zinc-900/50 p-1.5 rounded-2xl flex gap-1 border border-zinc-100 dark:border-white/5 self-start">
+                 <div className="bg-zinc-100 dark:bg-zinc-950 p-1 rounded-xl flex gap-1 self-start">
                     {(['day', 'week', 'month', '3month'] as const).map((p) => (
                         <button
                             key={p}
                             onClick={() => setStatsPeriod(p)}
-                            className={`px-4 py-2 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${
-                            statsPeriod === p ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-md' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
+                            className={`px-3 py-1.5 rounded-lg font-display font-black text-[9px] uppercase tracking-widest transition-all ${
+                            statsPeriod === p ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
                             }`}
                         >
-                            {p === '3month' ? '90 Days' : p}
+                            {p === '3month' ? '90D' : p}
                         </button>
                     ))}
                 </div>
                </div>
 
-               <div className="h-[350px] w-full">
+               <div className="h-[280px] w-full">
                   {isMounted ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <AreaChart data={stats.chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                           <defs>
                               <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
                                   <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                               </linearGradient>
                           </defs>
-                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" className="dark:opacity-10" />
+                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f4f4f5" className="dark:opacity-5" />
                           <XAxis 
                               dataKey="name" 
                               axisLine={false} 
                               tickLine={false} 
-                              tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
+                              tick={{ fontSize: 9, fill: '#a1a1aa', fontWeight: 800 }}
                               dy={10}
                           />
                           <YAxis 
                               axisLine={false} 
                               tickLine={false} 
-                              tick={{ fontSize: 10, fill: '#a1a1aa', fontWeight: 600 }}
-                              width={30}
+                              tick={{ fontSize: 9, fill: '#a1a1aa', fontWeight: 800 }}
                           />
                           <Tooltip 
                               contentStyle={{ 
-                                  borderRadius: '24px', 
+                                  borderRadius: '16px', 
                                   border: 'none',
-                                  backgroundColor: 'var(--tooltip-bg, rgba(9, 9, 11, 0.9))',
-                                  color: 'var(--tooltip-text, #fff)',
-                                  boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.5)',
+                                  backgroundColor: 'rgba(9, 9, 11, 0.95)',
+                                  color: '#fff',
+                                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                   fontFamily: 'var(--font-sans)',
-                                  fontSize: '12px',
+                                  fontSize: '11px',
                                   fontWeight: 'bold',
                                   backdropFilter: 'blur(8px)'
                               }}
-                              itemStyle={{ color: '#10b981' }}
                           />
                           <Area 
                               type="monotone" 
                               dataKey="count" 
                               name="Indexed"
                               stroke="#10b981" 
-                              strokeWidth={3}
+                              strokeWidth={2}
                               fillOpacity={1} 
                               fill="url(#colorCount)" 
-                              animationDuration={1500}
                           />
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-8 h-8 border-2 border-zinc-100 dark:border-white/5 border-t-zinc-900 dark:border-t-trust-green rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-zinc-100 dark:border-white/5 border-t-trust-green rounded-full animate-spin" />
                     </div>
                   )}
                </div>
             </section>
           </div>
 
-          <div className="space-y-8">
-            <section className="glass rounded-[2.5rem] p-8 flex flex-col h-full">
-               <div className="flex items-center gap-3 mb-8">
-                  <History className="w-5 h-5 text-zinc-900 dark:text-white" />
-                  <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white">Recent Ledger</h3>
+          <div>
+            <section className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-[2rem] p-6 flex flex-col h-full shadow-sm">
+               <div className="flex items-center gap-2 mb-6">
+                  <History className="w-4 h-4 text-zinc-900 dark:text-white" />
+                  <h3 className="font-display font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tighter">Ledger</h3>
                </div>
                
-               <div className="space-y-6 flex-1">
+               <div className="space-y-4 flex-1">
                  {allHashes.length > 0 ? (
-                    allHashes.slice(0, 6).map((log, i) => (
+                    allHashes.slice(0, 5).map((log, i) => (
                       <motion.div 
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
                         key={i} 
-                        className="flex gap-4 group cursor-pointer"
+                        className="flex gap-3 group cursor-pointer items-center"
                         onClick={() => router.push('/notarize')}
                       >
-                        <div className="w-10 h-10 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:bg-zinc-900 dark:group-hover:bg-trust-green transition-colors">
-                          <FileText className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-white dark:group-hover:text-zinc-950 transition-colors" />
+                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-white/5 flex items-center justify-center shrink-0 group-hover:border-trust-green transition-colors">
+                          <FileText className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 transition-colors" />
                         </div>
                         <div className="min-w-0 flex-1">
-                           <p className="font-display font-bold text-sm text-zinc-900 dark:text-white truncate tracking-tight">{log.fileName}</p>
-                           <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
+                           <p className="font-display font-bold text-[11px] text-zinc-900 dark:text-white truncate tracking-tight uppercase">{log.fileName}</p>
+                           <p className="font-mono text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
                              {new Date(log.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                            </p>
                         </div>
                       </motion.div>
                     ))
                  ) : (
-                    <div className="py-20 text-center flex flex-col items-center justify-center h-full">
-                        <Fingerprint className="w-12 h-12 text-zinc-100 dark:text-zinc-800 mb-4" />
-                        <p className="font-sans text-[11px] text-zinc-400 dark:text-zinc-600 font-bold uppercase tracking-widest">No activity reported</p>
+                    <div className="py-12 text-center flex flex-col items-center justify-center h-full">
+                        <Fingerprint className="w-10 h-10 text-zinc-200 dark:text-zinc-800 mb-3" />
+                        <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 font-black uppercase tracking-widest">Empty Ledger</p>
                     </div>
                  )}
                </div>
                
-               {allHashes.length > 6 && (
-                 <button className="w-full mt-8 py-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] text-zinc-900 dark:text-white uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-                    View Full Inventory
+               {allHashes.length > 5 && (
+                 <button 
+                  onClick={() => router.push('/notarize')}
+                  className="w-full mt-6 py-3 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-white/5 rounded-xl font-display font-black text-[9px] text-zinc-900 dark:text-white uppercase tracking-widest hover:border-trust-green transition-all"
+                 >
+                    Full Inventory
                  </button>
                )}
             </section>

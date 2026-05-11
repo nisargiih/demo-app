@@ -248,49 +248,40 @@ export default function RegistryPage() {
       <BackgroundAnimation />
       <Sidebar />
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto py-12 lg:py-20">
-        <header className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-8 lg:py-12">
+        <header className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 mb-4"
+                className="flex items-center gap-2 mb-2"
               >
-                <div className="w-10 h-10 bg-zinc-950 dark:bg-zinc-900 rounded-xl flex items-center justify-center border border-white/5">
-                  <Archive className="w-5 h-5 text-trust-green" />
+                <div className="w-8 h-8 bg-zinc-950 dark:bg-zinc-900 rounded-lg flex items-center justify-center border border-white/5">
+                  <Archive className="w-4 h-4 text-trust-green" />
                 </div>
-                <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Node_Protocol_v2.0</span>
+                <span className="font-mono text-[8px] font-black uppercase tracking-[0.4em] text-zinc-400">Registry_v2.0</span>
               </motion.div>
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="font-display text-5xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase"
+                className="font-display text-4xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase"
               >
                 Official Registry
               </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="font-sans text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl font-medium"
-              >
-                Manage your authenticated identity records and notarized protocol identifiers on the decentralized ledger.
-              </motion.p>
             </div>
 
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-4"
             >
                 <button 
                   onClick={() => setShowAddModal(true)}
-                  className="h-14 px-8 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl shadow-zinc-200 dark:shadow-none"
+                  className="h-11 px-6 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-xl font-display font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-zinc-900/10"
                 >
-                  <Plus className="w-4 h-4 text-trust-green dark:text-zinc-950" />
-                  Official Registration
+                  <Plus className="w-4 h-4" />
+                  Enroll Artifact
                 </button>
             </motion.div>
           </div>
@@ -461,43 +452,39 @@ export default function RegistryPage() {
         </AnimatePresence>
 
         {/* Search & Filter Bar */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4 items-stretch">
+        <div className="mb-6 flex flex-col md:flex-row gap-3 items-stretch">
           <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600 group-focus-within:text-trust-green transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
             <input 
               type="text" 
-              placeholder="Filter by ID, Title or Statement..."
+              placeholder="Filter ledger..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium dark:text-white"
+              className="w-full h-11 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none focus:border-trust-green transition-all font-sans text-xs font-bold dark:text-white"
             />
           </div>
           <div className="flex gap-2">
             <select 
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="h-12 px-6 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none font-display text-[10px] font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 appearance-none cursor-pointer hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
+                className="h-11 px-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl focus:outline-none font-display text-[9px] font-black uppercase tracking-widest text-zinc-400 appearance-none cursor-pointer hover:border-trust-green transition-all"
             >
-                <option value="all">Global Filter</option>
-                <option value="identity">Identity Records</option>
-                <option value="corporate">Corporate Data</option>
-                <option value="asset">Digital Assets</option>
+                <option value="all">Global</option>
+                <option value="identity">Identity</option>
+                <option value="corporate">Corporate</option>
+                <option value="asset">Digital</option>
             </select>
-            <button className="h-12 w-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all group">
-                <Filter className="w-4 h-4 text-zinc-400 group-hover:text-trust-green transition-colors" />
-            </button>
           </div>
         </div>
 
         {/* Tag Filters */}
         {allTags.length > 0 && (
-          <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
+          <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={() => setSelectedTag(null)}
-              className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl dark:shadow-none' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-100 dark:border-white/5'}`}
+              className={`h-8 px-4 rounded-lg font-display font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950' : 'bg-transparent text-zinc-400 border-zinc-100 dark:border-white/5'}`}
             >
-              <Filter className="w-3 h-3" />
-              All Artifacts
+              All
             </button>
             {allTags.map(tag => {
               const color = getTagColor(tag);
@@ -506,9 +493,9 @@ export default function RegistryPage() {
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(isActive ? null : tag)}
-                  className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg dark:shadow-none` : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-100 dark:border-white/5'}`}
+                  className={`h-8 px-4 rounded-lg font-display font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border}` : 'bg-transparent text-zinc-400 border-zinc-100 dark:border-white/5'}`}
                 >
-                  <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                  <div className={`w-1 h-1 rounded-full ${color.dot}`} />
                   {tag}
                 </button>
               );
@@ -520,67 +507,54 @@ export default function RegistryPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-24 bg-zinc-50 dark:bg-zinc-900 rounded-3xl animate-pulse" />
+              <div key={i} className="h-20 bg-zinc-50 dark:bg-zinc-900 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : filteredRecords.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[3rem] p-20 text-center border border-zinc-100 dark:border-white/5 transition-all">
+          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-[2.5rem] p-20 text-center border border-zinc-100 dark:border-white/5 transition-all">
             <div className="w-20 h-20 bg-white dark:bg-zinc-950 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm border border-zinc-100 dark:border-white/5">
               <Archive className="w-8 h-8 text-zinc-200 dark:text-zinc-800" />
             </div>
-            <h3 className="font-display text-2xl font-bold text-zinc-950 dark:text-white mb-2">No Records Detected</h3>
-            <p className="font-sans text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">Your registry queue is currently empty. Authenticate artifacts to populate the ledger.</p>
+            <h3 className="font-display text-2xl font-bold text-zinc-950 dark:text-white mb-2 uppercase tracking-tighter">No Records</h3>
+            <p className="font-sans text-xs text-zinc-400 max-w-sm mx-auto">Your registry queue is currently empty.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3">
             <AnimatePresence mode="popLayout">
               {filteredRecords.map((record) => (
                 <motion.div
                   layout
                   key={record._id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 p-6 rounded-[2.5rem] hover:border-trust-green/30 dark:hover:border-trust-green/50 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none transition-all"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 p-4 rounded-[2rem] hover:border-trust-green/30 dark:hover:border-trust-green/50 transition-all shadow-sm"
                 >
-                  <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-12">
-                    <div className="flex items-center gap-6 flex-1 min-w-0">
-                      <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-white/5 group-hover:bg-trust-green/10 dark:group-hover:bg-trust-green/20 group-hover:border-trust-green/20 dark:group-hover:border-trust-green/30 transition-all">
-                        <FileText className="w-6 h-6 text-zinc-400 dark:text-zinc-600 group-hover:text-trust-green" />
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center shrink-0 border border-zinc-100 dark:border-white/5 group-hover:bg-trust-green/10 transition-all">
+                        <FileText className="w-5 h-5 text-zinc-400 group-hover:text-trust-green" />
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-display font-black text-xl text-zinc-950 dark:text-white truncate uppercase tracking-tight">{record.docName}</h3>
-                          <span className="px-2 py-0.5 bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 font-mono text-[8px] font-black uppercase rounded-lg tracking-widest">{record.type || 'Identity'}</span>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h3 className="font-display font-black text-base text-zinc-950 dark:text-white truncate uppercase tracking-tight">{record.docName}</h3>
+                          <span className="px-1.5 py-0.5 bg-zinc-900 dark:bg-trust-green/20 text-white dark:text-trust-green font-mono text-[7px] font-black uppercase rounded-md tracking-widest">{record.type || 'ID'}</span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                          <div className="flex items-center gap-2">
-                             <Fingerprint className="w-3.5 h-3.5 text-trust-green" />
-                             <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 font-bold tracking-widest uppercase">{record.registryId}</p>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                             <Fingerprint className="w-3 h-3 text-trust-green/50" />
+                             <p className="font-mono text-[8px] text-zinc-400 font-bold tracking-widest uppercase">{record.registryId}</p>
                           </div>
-                          <div className="flex items-center gap-2">
-                             <Calendar className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700" />
-                             <p className="font-sans text-[10px] text-zinc-400 dark:text-zinc-600 font-medium">Genesis: {new Date(record.createdAt).toLocaleDateString()}</p>
-                          </div>
+                          <p className="font-sans text-[9px] text-zinc-400 font-bold uppercase tracking-widest">{new Date(record.createdAt).toLocaleDateString()}</p>
                         </div>
 
                         {/* Tags Display */}
-                        <div className="flex flex-wrap items-center gap-2 mt-4">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
                            {(record.tags || []).map((tag: string) => {
                              const color = getTagColor(tag);
                              return (
-                               <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl group/tag transition-all hover:scale-105`}>
-                                 <div className={`w-1 h-1 rounded-full ${color.dot}`} />
-                                 <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
-                                 <button 
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     handleRemoveTag(record._id, tag, record.tags);
-                                   }}
-                                   className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
-                                 >
-                                   <X className="w-2.5 h-2.5" />
-                                 </button>
+                               <span key={tag} className={`flex items-center gap-1 px-2 py-0.5 ${color.bg} ${color.text} border ${color.border} rounded-lg text-[8px] font-black uppercase tracking-widest`}>
+                                 {tag}
                                </span>
                              );
                            })}
@@ -593,13 +567,13 @@ export default function RegistryPage() {
                                  value={tagInput}
                                  onChange={e => setTagInput(e.target.value)}
                                  onKeyDown={e => e.key === 'Enter' && handleUpdateTags(record._id, record.tags || [])}
-                                 className="h-8 px-3 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/5 rounded-xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green dark:text-white font-sans text-[10px] w-28 font-bold"
+                                 className="h-7 px-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-white/5 rounded-lg focus:outline-none focus:border-trust-green dark:text-white font-sans text-[9px] w-24 font-bold"
                                />
                                <button 
                                  onClick={() => setEditingTagsId(null)}
-                                 className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-950 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-100 dark:border-white/5"
+                                 className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-zinc-950 bg-zinc-50 dark:bg-zinc-950 rounded-lg border border-zinc-100 dark:border-white/5"
                                >
-                                 <X className="w-3.5 h-3.5" />
+                                 <X className="w-3 h-3" />
                                </button>
                              </div>
                            ) : (
@@ -608,44 +582,37 @@ export default function RegistryPage() {
                                  e.stopPropagation();
                                  setEditingTagsId(record._id);
                                }}
-                               className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 dark:bg-zinc-950 border border-dashed border-zinc-200 dark:border-white/10 rounded-xl text-zinc-400 dark:text-zinc-600 hover:text-zinc-950 dark:hover:text-white hover:border-zinc-300 dark:hover:border-trust-green/50 transition-all font-display font-bold text-[9px] uppercase tracking-widest"
+                               className="flex items-center gap-1 px-2 py-0.5 bg-zinc-50 dark:bg-zinc-950 border border-dashed border-zinc-200 dark:border-white/10 rounded-lg text-zinc-400 hover:text-zinc-950 dark:hover:text-white transition-all font-display font-black text-[8px] uppercase tracking-widest"
                              >
-                               <Plus className="w-2.5 h-2.5" />
-                               Add Tag
+                               + Tag
                              </button>
                            )}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between lg:justify-end gap-8 pt-4 lg:pt-0 border-t lg:border-t-0 border-zinc-50 dark:border-white/5">
-                      <div className="text-right hidden sm:block">
-                        <p className="font-mono text-[9px] text-trust-green font-black uppercase tracking-widest mb-1">Status: Active</p>
-                        <div className="flex items-center gap-1.5 justify-end">
-                            <span className="w-1 h-1 bg-trust-green rounded-full animate-ping" />
-                            <p className="font-mono text-[8px] text-zinc-400 dark:text-zinc-600 font-bold uppercase">Linked to Substrate</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between lg:justify-end gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-zinc-50 dark:border-white/5">
+                      <div className="flex items-center gap-1.5">
                         {record.fileKey && (
                           <button 
                             onClick={() => handleDownload(record.fileKey, record.docName)}
-                            className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-600 hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 transition-all border border-zinc-100 dark:border-white/5"
-                            title="Download Official Document"
+                            className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-trust-green/10 hover:text-trust-green transition-all"
+                            title="Download Artifact"
                           >
                             <Download className="w-4 h-4" />
                           </button>
                         )}
                         <button 
                           onClick={() => router.push(`/verify?id=${record.registryId}`)}
-                          className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-600 hover:bg-zinc-950 dark:hover:bg-white hover:text-white dark:hover:text-zinc-950 transition-all border border-zinc-100 dark:border-white/5"
+                          className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-zinc-900 dark:hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 transition-all"
+                          title="Verify Status"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(record._id)}
-                          className="w-12 h-12 bg-zinc-50 dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-600 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 transition-all border border-zinc-100 dark:border-white/5"
+                          className="w-10 h-10 bg-zinc-50 dark:bg-zinc-950 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                          title="Purge Record"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -654,8 +621,8 @@ export default function RegistryPage() {
                   </div>
 
                   {record.description && (
-                    <div className="mt-6 p-4 bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-white/5 rounded-2xl lg:ml-20">
-                      <p className="font-sans text-[11px] text-zinc-500 dark:text-zinc-400 italic leading-relaxed">
+                    <div className="mt-4 p-3 bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-white/5 rounded-xl lg:ml-16">
+                      <p className="font-sans text-[10px] text-zinc-500 italic leading-relaxed">
                         &quot;{record.description}&quot;
                       </p>
                     </div>
@@ -666,21 +633,18 @@ export default function RegistryPage() {
           </div>
         )}
 
-        <footer className="mt-20 p-10 bg-zinc-950 dark:bg-zinc-900 rounded-[3rem] text-white relative overflow-hidden group border dark:border-white/5">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-trust-green/10 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-trust-green/20" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="max-w-md">
-                    <h3 className="font-display font-black text-2xl uppercase tracking-tighter mb-2">Immutable Protocol</h3>
-                    <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">
-                        Registry records are secured by TechCore L2 consensus. Any manual modification to the database substrate will trigger an integrity alert and revoke the record status immediately.
-                    </p>
+        <footer className="mt-12 p-8 bg-zinc-950 dark:bg-zinc-900 rounded-[2.5rem] border dark:border-white/5 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-trust-green/10 blur-[80px] rounded-full -mr-24 -mt-24" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h3 className="font-display font-black text-xl text-white uppercase tracking-tighter mb-1">Substrate Integrity</h3>
+                    <p className="font-sans text-[10px] text-zinc-500 uppercase font-black tracking-widest">L2 Consensus Multi-Node Verification Active</p>
                 </div>
                 <button 
                    onClick={() => router.push('/notarize')}
-                   className="h-14 px-10 bg-trust-green text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] flex items-center gap-3 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/20 dark:shadow-none"
+                   className="h-11 px-8 bg-trust-green text-zinc-950 rounded-xl font-display font-black text-[10px] uppercase tracking-widest flex items-center gap-2 hover:bg-trust-green/90 transition-all shadow-xl shadow-trust-green/20"
                 >
-                    Expand Registry <ArrowUpRight className="w-5 h-5" />
+                    Expand Registry <ArrowUpRight className="w-4 h-4" />
                 </button>
             </div>
         </footer>
