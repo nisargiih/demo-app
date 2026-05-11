@@ -101,7 +101,7 @@ export default function LoginPage() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 lg:mb-8 text-zinc-900 dark:text-white">
-              Welcome back to <span className="text-gradient">TechCore.</span>
+              Welcome back to <span className="text-gradient">Identix.</span>
             </h1>
             <p className="font-sans text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-md mx-auto lg:mx-0">
               Your cryptographic identity is ready. Access your secure documents with absolute certainty.
