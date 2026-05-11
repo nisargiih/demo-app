@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Invalid credentials' }), { status: 401 });
     }
 
-    if (!user.isVerified) {
+    if (!user.emailVerified) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Please verify your email first', redirect: '/verify-otp' }), { status: 403 });
     }
 

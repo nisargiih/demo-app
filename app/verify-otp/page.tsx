@@ -97,8 +97,8 @@ export default function VerifyOtpPage() {
             {isSuccess && (
                <div className="absolute inset-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-zinc-900 dark:text-white font-display">
                 <CheckCircle2 className="text-trust-green w-16 h-16 mb-4" />
-                <h2 className="text-2xl font-bold">Verification Complete</h2>
-                <p className="font-sans text-zinc-500 dark:text-zinc-400">Redirecting to setup...</p>
+                <h2 className="text-2xl font-bold">Email Verified</h2>
+                <p className="font-sans text-zinc-500 dark:text-zinc-400">Identity established. Redirecting to dashboard...</p>
                </div>
             )}
 

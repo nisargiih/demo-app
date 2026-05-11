@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       ...validatedData,
       email, // Indexable
       isVerified: false,
+      emailVerified: false,
       onboardingCompleted: true,
       entityType: 'individual',
       verificationStatus: 'unverified',

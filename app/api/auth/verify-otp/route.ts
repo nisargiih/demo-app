@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     await users.updateOne(
       { _id: user._id },
-      { $set: { isVerified: true, verificationStatus: 'verified', onboardingCompleted: true, entityType: 'individual' }, $unset: { otp: "" } }
+      { $set: { emailVerified: true, onboardingCompleted: true, entityType: 'individual' }, $unset: { otp: "" } }
     );
 
     // Create real session
