@@ -6,8 +6,8 @@ export const runtime = 'edge';
 // Image metadata
 export const alt = 'IdenVault Logo';
 export const size = {
-  width: 48,
-  height: 48,
+  width: 32,
+  height: 32,
 };
 export const contentType = 'image/png';
 
@@ -26,14 +26,14 @@ export default function Icon() {
           background: 'transparent',
         }}
       >
-        {/* Hexagon Substrate - Matches Lucide Hexagon - Scaled up */}
+        {/* Hexagon Substrate - Filling more space */}
         <svg
-          width="44"
-          height="44"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
-          fill="rgba(16, 185, 129, 0.1)"
+          fill="rgba(16, 185, 129, 0.15)"
           stroke="#10b981"
-          strokeWidth="1.8"
+          strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ position: 'absolute' }}
@@ -41,10 +41,10 @@ export default function Icon() {
           <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
         </svg>
 
-        {/* Central Asset: Protocol Box - Matches Lucide Box - Scaled up */}
+        {/* Central Asset: Protocol Box - Scaled for better visibility in tabs */}
         <svg
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="white"
@@ -58,14 +58,14 @@ export default function Icon() {
           <path d="M12 22V12" />
         </svg>
 
-        {/* Precision Pulse Dot */}
+        {/* Pulse Dot - Moved slightly and resized to not crowd the edges */}
         <div 
           style={{
             position: 'absolute',
-            top: '6px',
-            right: '6px',
-            width: '10px',
-            height: '10px',
+            top: '2px',
+            right: '2px',
+            width: '8px',
+            height: '8px',
             background: '#10b981',
             borderRadius: '50%',
             border: '2px solid #0a0a0a',
