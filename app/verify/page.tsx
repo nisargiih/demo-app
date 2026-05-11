@@ -336,46 +336,49 @@ export default function VerifyPage() {
           )}
 
           <div className="flex justify-center">
-            <div className="bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-[2rem] flex gap-1 shadow-inner dark:shadow-none transition-all">
+            <div className="bg-zinc-100/80 dark:bg-zinc-900/80 backdrop-blur-xl p-1.5 rounded-3xl flex gap-1 shadow-2xl shadow-zinc-200/50 dark:shadow-none border border-zinc-200/50 dark:border-white/5 transition-all">
               <button 
                 onClick={() => { setActiveTab('file'); setResult(null); setVerificationStatus(null); }}
-                className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'file' ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                className={`px-10 py-4 rounded-[1.25rem] font-display font-black text-[11px] uppercase tracking-[0.25em] transition-all duration-500 relative overflow-hidden group ${
+                  activeTab === 'file' ? 'bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                Artifact Analysis
+                {activeTab === 'file' && <motion.div layoutId="tab-pill" className="absolute inset-0 bg-zinc-900 dark:bg-trust-green -z-10" />}
+                <span className="relative z-10">Artifact Analysis</span>
               </button>
               <button 
                 onClick={() => { setActiveTab('id'); setResult(null); setVerificationStatus(null); }}
-                className={`px-8 py-3 rounded-[1.5rem] font-display font-bold text-[10px] uppercase tracking-[0.2em] transition-all duration-300 ${
-                  activeTab === 'id' ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl scale-[1.02]' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                className={`px-10 py-4 rounded-[1.25rem] font-display font-black text-[11px] uppercase tracking-[0.25em] transition-all duration-500 relative overflow-hidden group ${
+                  activeTab === 'id' ? 'bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 shadow-xl' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                Record Retrieval
+                {activeTab === 'id' && <motion.div layoutId="tab-pill" className="absolute inset-0 bg-zinc-900 dark:bg-trust-green -z-10" />}
+                <span className="relative z-10">Record Retrieval</span>
               </button>
             </div>
           </div>
 
-          <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-[4rem] p-10 lg:p-16 shadow-2xl shadow-zinc-200/50 dark:shadow-none relative overflow-hidden group transition-all">
-            {/* Ambient Glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-trust-green/[0.02] to-transparent pointer-events-none" />
+          <section className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-3xl border border-zinc-200 dark:border-white/5 rounded-[4rem] p-10 lg:p-16 shadow-2xl shadow-zinc-200/50 dark:shadow-none relative overflow-hidden group transition-all">
+            {/* Ambient Animated Glow */}
+            <div className={`absolute -top-24 -right-24 w-96 h-96 blur-[120px] rounded-full transition-colors duration-1000 ${activeTab === 'file' ? 'bg-trust-green/10' : 'bg-blue-500/10'}`} />
+            <div className={`absolute -bottom-24 -left-24 w-96 h-96 blur-[120px] rounded-full transition-colors duration-1000 ${activeTab === 'file' ? 'bg-trust-green/5' : 'bg-blue-500/5'}`} />
 
             
             {error && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8 p-5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-4"
+                className="mb-10 p-6 bg-red-500/5 border border-red-500/20 text-red-500 rounded-3xl text-[11px] font-black uppercase tracking-[0.25em] flex items-center gap-5 shadow-sm"
               >
-                <div className="w-6 h-6 bg-red-500/20 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-3.5 h-3.5" />
+                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center border border-red-500/20">
+                  <AlertTriangle className="w-5 h-5" />
                 </div>
-                {error}
+                <span>{error}</span>
               </motion.div>
             )}
 
             {!result && !isVerifying ? (
-              <div className="space-y-10">
+              <div className="space-y-12">
                 {activeTab === 'file' ? (
                   <div className="relative group/upload">
                     <input 
@@ -383,33 +386,35 @@ export default function VerifyPage() {
                       onChange={onFileChange}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="border-2 border-dashed border-zinc-200 dark:border-white/10 group-hover/upload:border-trust-green/50 rounded-[3.5rem] py-24 px-10 transition-all duration-500 bg-zinc-50/50 dark:bg-zinc-950/50 flex flex-col items-center justify-center group-hover/upload:bg-trust-green/[0.03]">
-                      <div className="w-24 h-24 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl group-hover/upload:scale-110 transition-transform duration-500">
-                        <Upload className="w-10 h-10 text-zinc-400 dark:text-zinc-600 group-hover/upload:text-trust-green transition-colors" />
+                    <div className="border-2 border-dashed border-zinc-200 dark:border-white/10 group-hover/upload:border-trust-green/40 group-hover/upload:bg-trust-green/[0.02] rounded-[3.5rem] py-32 px-10 transition-all duration-700 bg-zinc-50/50 dark:bg-zinc-950/30 flex flex-col items-center justify-center relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-trust-green/[0.01] to-transparent opacity-0 group-hover/upload:opacity-100 transition-opacity duration-1000" />
+                      <div className="w-28 h-28 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-[2.5rem] flex items-center justify-center mb-10 shadow-2xl group-hover/upload:scale-110 group-hover/upload:rotate-6 transition-all duration-700 relative z-10">
+                        <Upload className="w-12 h-12 text-zinc-400 dark:text-zinc-600 group-hover/upload:text-trust-green transition-colors" />
                       </div>
-                      <p className="font-display font-bold text-3xl text-zinc-900 dark:text-white mb-3">
+                      <p className="font-display font-black text-4xl text-zinc-900 dark:text-white mb-4 relative z-10 uppercase tracking-tighter">
                         {file ? file.name : 'Ingest Artifact'}
                       </p>
-                      <p className="font-sans text-base text-zinc-600 dark:text-zinc-400 max-w-xs text-center leading-relaxed">
-                        {file ? `${(file.size / 1024).toFixed(1)} KB identified. Awaiting consensus.` : 'Drop cryptographic asset to verify its immutable signature.'}
+                      <p className="font-sans text-lg text-zinc-600 dark:text-zinc-400 max-w-sm text-center leading-relaxed font-medium relative z-10">
+                        {file ? `Signature payload: ${(file.size / 1024).toFixed(1)} KB. Awaiting authorization.` : 'Transmit cryptographic asset for substrate consensus evaluation.'}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-8">
-                    <div className="p-16 bg-zinc-50 dark:bg-zinc-950/50 rounded-[3.5rem] border border-zinc-100 dark:border-white/5 flex flex-col items-center justify-center text-center">
-                       <div className="w-24 h-24 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/10 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-xl">
-                          <Fingerprint className="w-12 h-12 text-trust-green" />
+                    <div className="p-20 bg-zinc-50/50 dark:bg-zinc-950/30 rounded-[3.5rem] border border-zinc-100 dark:border-white/10 flex flex-col items-center justify-center text-center relative overflow-hidden group/id">
+                       <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/[0.02] to-transparent pointer-events-none" />
+                       <div className="w-28 h-28 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/10 rounded-[2.5rem] flex items-center justify-center mb-10 shadow-2xl relative z-10 group-hover/id:scale-110 transition-transform duration-700">
+                          <Fingerprint className="w-14 h-14 text-trust-green" />
                        </div>
-                       <h3 className="font-display font-bold text-3xl text-zinc-900 dark:text-white mb-6 uppercase tracking-tight">Access Identifier</h3>
-                       <div className="w-full max-w-md relative group/input">
-                          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-7 h-7 text-zinc-400 dark:text-zinc-600 group-focus-within/input:text-trust-green transition-colors" />
+                       <h3 className="font-display font-black text-4xl text-zinc-900 dark:text-white mb-10 uppercase tracking-tight relative z-10">Network Address</h3>
+                       <div className="w-full max-w-lg relative group/input z-10">
+                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-8 h-8 text-zinc-400 dark:text-zinc-600 group-focus-within/input:text-trust-green transition-all" />
                           <input 
                             type="text" 
-                            placeholder="TC-PROTOCOL-0000"
+                            placeholder="TC-PROTOCOL-ALPHA-V1"
                             value={registryId}
                             onChange={(e) => setRegistryId(e.target.value.toUpperCase())}
-                            className="w-full h-20 pl-16 pr-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-3xl focus:outline-none focus:border-trust-green text-zinc-900 dark:text-white font-mono text-xl tracking-[0.2em] transition-all"
+                            className="w-full h-24 pl-20 pr-8 bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-white/10 rounded-[2rem] focus:outline-none focus:border-trust-green text-zinc-900 dark:text-white font-mono text-2xl tracking-[0.25em] shadow-xl transition-all"
                           />
                        </div>
                     </div>
@@ -419,26 +424,33 @@ export default function VerifyPage() {
                 <button 
                   onClick={activeTab === 'file' ? handleVerify : handleVerifyId}
                   disabled={activeTab === 'file' ? !file : !registryId}
-                  className="w-full h-24 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-[2.5rem] font-display font-black text-2xl uppercase tracking-[0.2em] flex items-center justify-center gap-6 hover:bg-zinc-200 dark:hover:bg-trust-green/90 disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:text-zinc-300 dark:disabled:text-zinc-700 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl dark:shadow-none relative overflow-hidden group/btn"
+                  className={`w-full h-28 rounded-[2.5rem] font-display font-black text-3xl uppercase tracking-[0.25em] flex items-center justify-center gap-8 transition-all duration-700 shadow-2xl dark:shadow-none relative overflow-hidden group/btn active:scale-[0.98] ${
+                    (activeTab === 'file' ? !file : !registryId)
+                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-300 dark:text-zinc-700 cursor-not-allowed'
+                    : 'bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 hover:shadow-trust-green/20'
+                  }`}
                 >
-                  {activeTab === 'file' ? 'Begin Authentication' : 'Query Substrate'}
-                  <ArrowRight className="w-8 h-8 group-hover/btn:translate-x-2 transition-transform" />
+                  <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 scale-x-0 group-hover/btn:scale-x-100 transition-transform origin-left duration-700" />
+                  {activeTab === 'file' ? 'Analyze Pattern' : 'Query Registry'}
+                  <ArrowRight className="w-10 h-10 group-hover/btn:translate-x-3 transition-transform duration-500" />
                 </button>
               </div>
             ) : isVerifying ? (
-              <div className="py-24 text-center space-y-12">
-                <div className="relative w-40 h-40 mx-auto">
-                   <div className="absolute inset-0 border-[6px] border-zinc-100 dark:border-white/5 border-t-trust-green rounded-full animate-spin" />
-                   <div className="absolute inset-8 border-[6px] border-zinc-50 dark:border-white/5 border-b-zinc-200 dark:border-zinc-800 rounded-full animate-spin-reverse" />
+              <div className="py-32 text-center space-y-16">
+                <div className="relative w-48 h-48 mx-auto">
+                   <div className="absolute inset-0 border-[8px] border-zinc-100 dark:border-white/5 border-t-trust-green rounded-full animate-spin" />
+                   <div className="absolute inset-10 border-[8px] border-zinc-50 dark:border-white/5 border-b-zinc-200 dark:border-zinc-800 rounded-full animate-spin-reverse" />
                    <div className="absolute inset-0 flex items-center justify-center">
-                      <ShieldCheck className="w-14 h-14 text-trust-green opacity-40 animate-pulse" />
+                      <ShieldCheck className="w-20 h-20 text-trust-green opacity-50 animate-pulse" />
                    </div>
                 </div>
-                <div>
-                  <h3 className="font-display font-black text-4xl text-zinc-950 dark:text-white tracking-widest uppercase">Validating Protocol</h3>
-                  <div className="flex items-center justify-center gap-3 mt-6">
-                    <span className="w-1.5 h-1.5 bg-trust-green rounded-full animate-ping" />
-                    <p className="font-mono text-xs text-zinc-500 dark:text-zinc-500 tracking-[0.4em] font-black uppercase">Consensus Synchronization In Progress</p>
+                <div className="space-y-4">
+                  <h3 className="font-display font-black text-5xl text-zinc-950 dark:text-white tracking-widest uppercase">Analyzing</h3>
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="w-2 h-2 bg-trust-green rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <div className="w-2 h-2 bg-trust-green rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="w-2 h-2 bg-trust-green rounded-full animate-bounce" />
+                    <p className="font-mono text-xs text-zinc-500 dark:text-zinc-500 tracking-[0.5em] font-black uppercase ml-4">Grid Consensus Check</p>
                   </div>
                 </div>
               </div>
@@ -452,22 +464,22 @@ export default function VerifyPage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-amber-500/[0.03] dark:bg-amber-500/[0.02] border-2 border-amber-500/20 rounded-[4rem] p-16 lg:p-24 text-center relative overflow-hidden"
+                    className="bg-red-500/[0.04] dark:bg-red-500/[0.02] border-4 border-red-500/20 rounded-[4rem] p-16 lg:p-24 text-center relative overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/[0.05] via-transparent to-transparent pointer-events-none" />
-                    <div className="w-32 h-32 bg-white dark:bg-zinc-900 border border-amber-500/30 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl relative z-10">
-                      <Archive className="w-14 h-14 text-amber-500" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-500/[0.08] via-transparent to-transparent pointer-events-none" />
+                    <div className="w-36 h-36 bg-white dark:bg-zinc-900 border-2 border-red-500/30 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl relative z-10 rotate-12">
+                      <Archive className="w-16 h-16 text-red-500" />
                     </div>
-                    <h3 className="font-display font-black text-5xl text-amber-600 dark:text-amber-500 mb-6 uppercase tracking-tighter relative z-10">Signature Unbound</h3>
-                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-12 max-w-lg mx-auto leading-relaxed text-xl font-medium relative z-10">
-                      The cryptographic fingerprint requested is <span className="text-amber-600 font-bold">not indexed</span> in the TechCore substrate. This asset has no official registrar or has been modified post-issuance.
+                    <h3 className="font-display font-black text-6xl text-red-600 dark:text-red-500 mb-8 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
+                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed text-2xl font-medium relative z-10">
+                      The cryptographic fingerprint requested is <span className="text-red-600 font-black">completely absent</span> from the TechCore sovereign substrate. This asset has no recorded origin or has been structurally compromised.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-white dark:bg-amber-500 text-zinc-900 dark:text-zinc-950 border border-amber-500/20 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-amber-50 dark:hover:bg-amber-400 transition-all shadow-xl dark:shadow-none"
+                        className="h-20 px-16 bg-red-600 text-white border border-red-500/20 rounded-3xl font-display font-black text-sm uppercase tracking-[0.3em] hover:bg-red-700 transition-all shadow-2xl shadow-red-500/20 active:scale-95"
                       >
-                        Reset Protocol
+                        Reset Authority Gateway
                       </button>
                     </div>
                   </motion.div>
@@ -497,24 +509,55 @@ export default function VerifyPage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.98, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="bg-trust-green/[0.01] dark:bg-trust-green/[0.02] border-2 border-trust-green/10 rounded-[4rem] p-10 lg:p-16 relative overflow-hidden shadow-xl dark:shadow-none transition-all"
+                    className={`border-2 rounded-[4rem] p-10 lg:p-16 relative overflow-hidden shadow-xl dark:shadow-none transition-all ${
+                      (result?.expiryDate && new Date(result.expiryDate) < new Date()) 
+                        ? 'bg-red-500/[0.02] border-red-500/20' 
+                        : 'bg-trust-green/[0.01] dark:bg-trust-green/[0.02] border-trust-green/10'
+                    }`}
                   >
                     {/* Decorative Background Elements */}
-                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-trust-green/[0.03] blur-[120px] rounded-full -mr-[250px] -mt-[250px]" />
+                    <div className={`absolute top-0 right-0 w-[500px] h-[500px] blur-[120px] rounded-full -mr-[250px] -mt-[250px] ${
+                      (result?.expiryDate && new Date(result.expiryDate) < new Date()) 
+                        ? 'bg-red-500/[0.05]' 
+                        : 'bg-trust-green/[0.03]'
+                    }`} />
                     <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-zinc-50 dark:bg-zinc-950 blur-[100px] rounded-full -ml-[200px] -mb-[200px]" />
                     
                     <div className="relative z-10 flex flex-col lg:flex-row gap-16 lg:items-start">
                       <div className="shrink-0 flex flex-col items-center lg:items-start">
-                        <div className="w-40 h-40 bg-white dark:bg-zinc-900 rounded-[3.5rem] flex items-center justify-center shadow-xl ring-[16px] ring-zinc-50 dark:ring-zinc-950/50 mb-8 group overflow-hidden border border-zinc-100 dark:border-white/5">
+                        <div className={`w-40 h-40 bg-white dark:bg-zinc-900 rounded-[3.5rem] flex items-center justify-center shadow-xl ring-[16px] mb-8 group overflow-hidden border ${
+                          (result?.expiryDate && new Date(result.expiryDate) < new Date())
+                            ? 'ring-red-500/[0.05] border-red-500/20'
+                            : 'ring-zinc-50 dark:ring-zinc-950/50 border-zinc-100 dark:border-white/5'
+                        }`}>
                           {result.type === 'registry' ? 
-                            <Archive className="w-16 h-16 text-trust-green transition-transform duration-700 group-hover:scale-110" /> : 
-                            <ShieldCheck className="w-16 h-16 text-trust-green transition-transform duration-700 group-hover:scale-110" />
+                            <Archive className={`w-16 h-16 transition-transform duration-700 group-hover:scale-110 ${
+                              (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green'
+                            }`} /> : 
+                            <ShieldCheck className={`w-16 h-16 transition-transform duration-700 group-hover:scale-110 ${
+                              (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green'
+                            }`} />
                           }
                         </div>
                         <div className="w-full text-center space-y-4">
-                          <div className={`px-6 py-2 rounded-2xl font-mono text-[10px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 shadow-lg ${result.registrar?.verificationStatus === 'verified' ? 'bg-trust-green text-zinc-950 shadow-trust-green/20' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 shadow-none'}`}>
-                             {result.registrar?.verificationStatus === 'verified' ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-                             {result.registrar?.verificationStatus === 'verified' ? 'TRUSTED AUTH' : 'UNVERIFIED NODE'}
+                          <div className={`px-6 py-2 rounded-2xl font-mono text-[10px] font-black uppercase tracking-[0.4em] flex items-center justify-center gap-3 shadow-lg ${
+                            (result?.expiryDate && new Date(result.expiryDate) < new Date())
+                              ? 'bg-red-500 text-white shadow-red-500/20'
+                              : result.registrar?.verificationStatus === 'verified' 
+                                ? 'bg-trust-green text-zinc-950 shadow-trust-green/20' 
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 shadow-none'
+                          }`}>
+                             {(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? (
+                               <>
+                                 <AlertTriangle className="w-4 h-4" />
+                                 DECOMMISSIONED
+                               </>
+                             ) : (
+                               <>
+                                 {result.registrar?.verificationStatus === 'verified' ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+                                 {result.registrar?.verificationStatus === 'verified' ? 'TRUSTED AUTH' : 'UNVERIFIED NODE'}
+                               </>
+                             )}
                           </div>
 
                           {result.fileKey && (
@@ -522,7 +565,9 @@ export default function VerifyPage() {
                               onClick={() => handleDownload(result.fileKey, result.docName || result.fileName)}
                               className="w-full h-14 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl flex items-center justify-center gap-3 font-display font-black text-[10px] uppercase tracking-[0.2em] text-zinc-950 dark:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm dark:shadow-none group/dl"
                             >
-                              <Archive className="w-4 h-4 text-trust-green group-hover/dl:scale-110 transition-transform" />
+                              <Archive className={`w-4 h-4 group-hover/dl:scale-110 transition-transform ${
+                                (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green'
+                              }`} />
                               Fetch Artifact
                             </button>
                           )}
@@ -532,93 +577,122 @@ export default function VerifyPage() {
                       <div className="flex-1 space-y-8">
                         <div>
                           <div className="flex items-center gap-4 mb-4">
-                            <span className="font-mono text-[9px] font-black uppercase tracking-[0.4em] px-3 py-1 bg-trust-green/10 text-trust-green rounded-lg border border-trust-green/20">Protocol.Alpha</span>
+                            <span className={`font-mono text-[9px] font-black uppercase tracking-[0.4em] px-3 py-1 rounded-lg border ${
+                              (result?.expiryDate && new Date(result.expiryDate) < new Date())
+                                ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                                : 'bg-trust-green/10 text-trust-green border-trust-green/20'
+                            }`}>Protocol.Alpha</span>
                             <div className="h-[1px] flex-1 bg-zinc-100 dark:bg-white/10" />
                           </div>
-                          <h3 className="font-display font-black text-5xl lg:text-6xl text-zinc-900 dark:text-white tracking-tighter leading-[0.9] uppercase mb-2">
-                            Authentic<br />Artifact Identified
+                          <h3 className="font-display font-black text-5xl lg:text-7xl text-zinc-900 dark:text-white tracking-tighter leading-[0.85] uppercase mb-2">
+                            {(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'Invalid' : 'Authentic'}<br />Artifact {result.type === 'registry' ? 'Record' : 'Pulse'}
                           </h3>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {[
                             { 
-                              label: 'Asset Name', 
+                              label: 'Asset Title', 
                               value: result.docName || result.name || result.fileName || 'Archive Data', 
                               icon: FileText,
-                              color: 'text-zinc-950 dark:text-white'
+                              color: 'text-zinc-900 dark:text-white font-bold text-lg'
                             },
                             { 
-                              label: 'Origin Authority', 
+                              label: 'Authority Node', 
                               value: result.registrar?.companyName || `${result.registrar?.firstName} ${result.registrar?.lastName}` || result.userEmail, 
                               icon: Building2,
-                              color: 'text-trust-green font-bold'
+                              color: (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green font-bold'
                             },
                             { 
-                              label: 'Reference ID', 
+                              label: 'Fingerprint ID', 
                               value: result.registryId || 'NOTARIZED_LOG', 
                               icon: Fingerprint,
-                              color: 'font-mono text-xs text-zinc-500'
+                              color: 'font-mono text-xs text-zinc-500 uppercase tracking-widest'
                             },
                             { 
-                              label: 'Identity Status', 
-                              value: result.registrar?.verificationStatus === 'verified' ? 'Verified Partner' : 'Standard Node', 
-                              icon: ShieldCheck,
-                              color: result.registrar?.verificationStatus === 'verified' ? 'text-trust-green' : 'text-zinc-500'
+                              label: 'Persistence Status', 
+                              value: (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'EXPIRED / REVOKED' : (result.expiryDate ? 'TEMPORAL' : 'PERMANENT'), 
+                              icon: Clock,
+                              color: (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500 font-black' : 'text-zinc-500'
                             }
                           ].map((card, i) => (
-                            <div key={i} className="p-5 bg-white dark:bg-zinc-800/30 border border-zinc-100 dark:border-white/5 rounded-3xl shadow-sm group hover:border-trust-green/30 transition-all">
-                              <div className="flex items-center gap-2 mb-2 text-zinc-400 dark:text-zinc-600">
-                                <card.icon className="w-3.5 h-3.5" />
-                                <span className="font-mono text-[8px] font-black uppercase tracking-[0.2em]">{card.label}</span>
+                            <div key={i} className="p-6 bg-white dark:bg-zinc-800/20 border border-zinc-100 dark:border-white/5 rounded-[2rem] shadow-sm group hover:border-trust-green/30 transition-all flex flex-col justify-between h-full">
+                              <div className="flex items-center gap-2 mb-3 text-zinc-400 dark:text-zinc-600">
+                                <card.icon className="w-4 h-4" />
+                                <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em]">{card.label}</span>
                               </div>
-                              <p className={`font-display text-sm ${card.color} truncate`}>
+                              <p className={`font-display ${card.color} break-words line-clamp-2`}>
                                 {card.value}
                               </p>
                             </div>
                           ))}
                         </div>
 
-                        <div className="p-6 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-white/5 rounded-3xl">
-                          <div className="flex items-center gap-3 mb-4">
-                            <User className="w-4 h-4 text-trust-green" />
-                            <span className="font-mono text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">Authority Metadata</span>
+                        <div className="p-8 bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-white/5 rounded-[2.5rem] relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <ShieldCheck className="w-16 h-16 text-trust-green" />
                           </div>
-                          <div className="space-y-2">
-                             <p className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">Uploader: <span className="text-zinc-900 dark:text-zinc-200">{result.registrar?.firstName} {result.registrar?.lastName}</span></p>
-                             <p className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">Email: <span className="text-zinc-900 dark:text-zinc-200">{result.userEmail}</span></p>
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-8 h-8 bg-trust-green/10 rounded-xl flex items-center justify-center border border-trust-green/20">
+                              <User className="w-4 h-4 text-trust-green" />
+                            </div>
+                            <span className="font-mono text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">Node Administrator</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div>
+                               <p className="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-1">Identity</p>
+                               <p className="text-zinc-900 dark:text-zinc-100 font-display font-bold">{result.registrar?.firstName} {result.registrar?.lastName}</p>
+                               <p className="text-zinc-500 text-[11px] font-mono mt-1">{result.userEmail}</p>
+                             </div>
                              {result.registrar?.companyName && (
-                               <p className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">Network Node: <span className="text-trust-green font-bold">{result.registrar?.companyName}</span></p>
+                               <div>
+                                 <p className="text-zinc-500 text-[10px] uppercase font-black tracking-widest mb-1">Affiliation</p>
+                                 <p className={`font-display font-black text-sm uppercase tracking-wider ${
+                                   (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green'
+                                 }`}>
+                                   {result.registrar?.companyName}
+                                 </p>
+                               </div>
                              )}
                           </div>
                         </div>
 
                         {result.type === 'registry' && result.description && (
-                          <div className="p-8 bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-white/5 rounded-[3rem] shadow-sm relative overflow-hidden group/quote">
-                            <Quote className="absolute top-4 right-4 w-12 h-12 text-trust-green/5 group-hover/quote:text-trust-green/10 transition-colors" />
-                            <div className="flex items-center gap-2 mb-4 relative z-10">
-                              <span className="font-mono text-[9px] text-zinc-500 uppercase tracking-[0.3em] font-black">Attestation</span>
+                          <div className="p-10 bg-white dark:bg-zinc-800/40 border border-zinc-100 dark:border-white/5 rounded-[3rem] shadow-sm relative overflow-hidden group/quote">
+                            <Quote className="absolute top-6 right-6 w-16 h-16 text-trust-green/5 group-hover/quote:text-trust-green/10 transition-colors" />
+                            <div className="flex items-center gap-3 mb-6 relative z-10">
+                              <div className="w-1 h-8 bg-trust-green rounded-full" />
+                              <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-black">Official Attestation</span>
                             </div>
-                            <p className="font-sans text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed relative z-10 font-medium">
+                            <p className="font-sans text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed relative z-10 font-medium italic">
                               &quot;{result.description}&quot;
                             </p>
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between pt-8 border-t border-zinc-100 dark:border-white/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-trust-green/10 rounded-full flex items-center justify-center border border-trust-green/20">
-                              <ShieldCheck className="w-6 h-6 text-trust-green" />
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-10 border-t border-zinc-100 dark:border-white/5">
+                          <div className="flex items-center gap-5">
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center border-2 ${
+                              (result?.expiryDate && new Date(result.expiryDate) < new Date())
+                                ? 'bg-red-500/10 border-red-500/20 text-red-500' 
+                                : 'bg-trust-green/10 border-trust-green/20 text-trust-green'
+                            }`}>
+                              { (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? <AlertTriangle className="w-7 h-7" /> : <ShieldCheck className="w-7 h-7" /> }
                             </div>
-                            <p className="font-sans text-xs text-zinc-500 dark:text-zinc-500 font-black uppercase tracking-[0.3em]">
-                              Audit Complete
-                            </p>
+                            <div>
+                               <p className={`font-display font-black text-sm uppercase tracking-[0.2em] ${
+                                 (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-zinc-900 dark:text-white'
+                               }`}>
+                                 { (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'Validity Expired' : 'Protocol Secured' }
+                               </p>
+                               <p className="font-mono text-[9px] text-zinc-500 uppercase tracking-widest mt-1">Genesis: {new Date(result.createdAt).toLocaleDateString()} {new Date(result.createdAt).toLocaleTimeString()}</p>
+                            </div>
                           </div>
                           <button 
                             onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); setError(null); }}
-                            className="h-14 px-10 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl font-display font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all flex items-center gap-3"
+                            className="h-16 px-12 bg-zinc-900 dark:bg-zinc-800 text-white rounded-[2rem] font-display font-black text-[11px] uppercase tracking-[0.4em] hover:bg-zinc-800 dark:hover:bg-zinc-700 transition-all flex items-center gap-4 group/close active:scale-95"
                           >
-                             Terminate Session <X className="w-5 h-5" />
+                             Terminate Analysis <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                           </button>
                         </div>
 
