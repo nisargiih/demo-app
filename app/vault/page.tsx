@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Shield, 
@@ -19,11 +19,7 @@ import {
   X,
   RefreshCw,
   Tag,
-  Plus,
-  LayoutGrid,
-  List as ListIcon,
-  Folder as FolderIcon,
-  ChevronDown
+  Plus
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -43,38 +39,10 @@ export default function VaultPage() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTagsId, setEditingTagsId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'folder'>('list');
-  const [expandedFolders, setExpandedFolders] = useState<string[]>([]);
   const [newExpiryDate, setNewExpiryDate] = useState('');
   const [tagInput, setTagInput] = useState('');
 
   const allTags = Array.from(new Set(hashes.flatMap(h => h.tags || []))).sort();
-
-  // Grouping for Folder View
-  const folderGroups = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    const uncategorized: any[] = [];
-
-    hashes.forEach(h => {
-      if (!h.tags || h.tags.length === 0) {
-        uncategorized.push(h);
-      } else {
-        // A file can appear in multiple folders if it has multiple tags
-        h.tags.forEach((tag: string) => {
-          if (!groups[tag]) groups[tag] = [];
-          groups[tag].push(h);
-        });
-      }
-    });
-
-    return { groups, uncategorized };
-  }, [hashes]);
-
-  const toggleFolder = (folder: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folder) ? prev.filter(f => f !== folder) : [...prev, folder]
-    );
-  };
 
   const fetchHashes = async () => {
     if (!user?.email) return;
@@ -247,41 +215,20 @@ export default function VaultPage() {
           </div>
         </header>
 
-        {/* View Switcher & Search Bar */}
-        <div className="mb-8 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative group flex-1 w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search by filename or hash protocol..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
-              />
-            </div>
-            
-            <div className="flex bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 p-1 rounded-2xl shrink-0 self-end sm:self-auto">
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`flex items-center gap-2 px-6 h-10 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm border border-zinc-100 dark:border-white/5' : 'text-zinc-400 hover:text-zinc-900'}`}
-              >
-                <ListIcon className="w-3.5 h-3.5" />
-                List
-              </button>
-              <button 
-                onClick={() => setViewMode('folder')}
-                className={`flex items-center gap-2 px-6 h-10 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest transition-all ${viewMode === 'folder' ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-sm border border-zinc-100 dark:border-white/5' : 'text-zinc-400 hover:text-zinc-900'}`}
-              >
-                <FolderIcon className="w-3.5 h-3.5" />
-                Folders
-              </button>
-            </div>
-          </div>
+        {/* Search Bar */}
+        <div className="mb-8 relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
+          <input 
+            type="text" 
+            placeholder="Search by filename or hash protocol..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
+          />
         </div>
 
-        {/* Tag Filters (Only show in List View) */}
-        {viewMode === 'list' && allTags.length > 0 && (
+        {/* Tag Filters */}
+        {allTags.length > 0 && (
           <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-4 scrollbar-none">
             <button
                onClick={() => setSelectedTag(null)}
@@ -307,7 +254,7 @@ export default function VaultPage() {
           </div>
         )}
 
-        {/* Content Area */}
+        {/* List Content */}
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
@@ -328,38 +275,149 @@ export default function VaultPage() {
                 Go to Indexer
             </button>
           </div>
-        ) : viewMode === 'list' ? (
+        ) : (
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {filteredHashes.map((h) => (
-                <HashItem h={h} key={h._id} />
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          /* Folder View */
-          <div className="space-y-6">
-            <AnimatePresence mode="popLayout">
-              {/* Uncategorized Folder */}
-              {folderGroups.uncategorized.length > 0 && (
-                <FolderSection 
-                  title="Uncategorized" 
-                  hashes={folderGroups.uncategorized} 
-                  isExpanded={expandedFolders.includes('uncategorized')}
-                  onToggle={() => toggleFolder('uncategorized')}
-                />
-              )}
-              
-              {/* Tag Folders */}
-              {Object.entries(folderGroups.groups).map(([tag, tagHashes]) => (
-                <FolderSection 
-                  key={tag}
-                  title={tag} 
-                  hashes={tagHashes} 
-                  isExpanded={expandedFolders.includes(tag)}
-                  onToggle={() => toggleFolder(tag)}
-                  tagColor={getTagColor(tag)}
-                />
+                <motion.div
+                  layout
+                  key={h._id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="group bg-white dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 p-6 rounded-[2.5rem] hover:border-trust-green/30 dark:hover:border-trust-green/50 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none transition-all"
+                >
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-12">
+                    <div className="flex items-center gap-6 flex-1 min-w-0">
+                      <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-900 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-white/5 group-hover:bg-trust-green/10 dark:group-hover:bg-trust-green border-zinc-100 dark:border-white/5 transition-all">
+                        <FileText className="w-6 h-6 text-zinc-400 dark:text-zinc-600 group-hover:text-trust-green dark:group-hover:text-zinc-950" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="font-display font-black text-xl text-zinc-950 dark:text-white truncate uppercase tracking-tight">{h.fileName}</h3>
+                          <span className="px-2 py-0.5 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 font-mono text-[8px] font-black uppercase rounded-lg tracking-widest border border-zinc-100 dark:border-white/5">{(h.fileSize / 1024).toFixed(1)} KB</span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4">
+                          <div className="flex items-center gap-2">
+                             <Fingerprint className="w-3.5 h-3.5 text-trust-green" />
+                             <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-bold tracking-widest uppercase truncate max-w-[200px]">{h.hash}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <Calendar className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700" />
+                             <p className="font-sans text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Genesis: {new Date(h.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <Clock className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700" />
+                             <p className={`font-sans text-[10px] font-medium ${h.expiryDate ? 'text-amber-600 dark:text-amber-500' : 'text-trust-green'}`}>
+                               Expiry: {h.expiryDate ? new Date(h.expiryDate).toLocaleDateString() : 'Infinite Protocol'}
+                             </p>
+                          </div>
+                        </div>
+
+                        {/* Tags Display */}
+                        <div className="flex flex-wrap items-center gap-2 mt-4">
+                           {(h.tags || []).map((tag: string) => {
+                             const color = getTagColor(tag);
+                             return (
+                               <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl group/tag transition-all hover:scale-105`}>
+                                 <div className={`w-1 h-1 rounded-full ${color.dot}`} />
+                                 <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
+                                 <button 
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleRemoveTag(h._id, tag, h.tags);
+                                   }}
+                                   className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
+                                 >
+                                   <X className="w-2.5 h-2.5" />
+                                 </button>
+                               </span>
+                             );
+                           })}
+                           {editingTagsId === h._id ? (
+                             <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1" onClick={e => e.stopPropagation()}>
+                               <input 
+                                 autoFocus
+                                 type="text"
+                                 placeholder="Add tag..."
+                                 value={tagInput}
+                                 onChange={e => setTagInput(e.target.value)}
+                                 onKeyDown={e => e.key === 'Enter' && handleUpdateTags(h._id, h.tags || [])}
+                                 className="h-8 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 rounded-xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green font-sans text-[10px] w-28 font-bold dark:text-white"
+                               />
+                               <button 
+                                 onClick={() => setEditingTagsId(null)}
+                                 className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-950 dark:hover:text-white bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-white/5"
+                               >
+                                 <X className="w-3.5 h-3.5" />
+                               </button>
+                             </div>
+                           ) : (
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setEditingTagsId(h._id);
+                               }}
+                               className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-white/10 rounded-xl text-zinc-400 dark:text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-300 hover:border-zinc-300 transition-all font-display font-medium"
+                             >
+                               <Plus className="w-2.5 h-2.5" />
+                               <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>
+                             </button>
+                           )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {editingId === h._id ? (
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
+                                <input 
+                                    type="date"
+                                    value={newExpiryDate}
+                                    onChange={(e) => setNewExpiryDate(e.target.value)}
+                                    className="h-10 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-xl font-sans text-xs focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green dark:text-white"
+                                />
+                                <button 
+                                    onClick={() => handleUpdateExpiry(h._id)}
+                                    className="h-10 px-4 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-lg dark:shadow-none"
+                                >
+                                    Confirm
+                                </button>
+                                <button 
+                                    onClick={() => setEditingId(null)}
+                                    className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-950 dark:text-zinc-600 dark:hover:text-white transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <button 
+                                    onClick={() => {
+                                        setEditingId(h._id);
+                                        setNewExpiryDate(h.expiryDate ? new Date(h.expiryDate).toISOString().split('T')[0] : '');
+                                    }}
+                                    className="h-10 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-950 dark:hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 hover:border-zinc-950 transition-all"
+                                >
+                                    Update Expiry
+                                </button>
+                                <button 
+                                    onClick={() => router.push(`/verify?hash=${h.hash}`)}
+                                    className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl text-zinc-400 dark:text-zinc-600 hover:bg-zinc-950 dark:hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 hover:border-zinc-950 transition-all"
+                                >
+                                    <ArrowUpRight className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(h._id, h.fileName)}
+                                    className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl text-zinc-300 dark:text-zinc-700 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:border-red-100 transition-all"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                  </div>
+                </motion.div>
               ))}
             </AnimatePresence>
           </div>
@@ -394,189 +452,4 @@ export default function VaultPage() {
       </div>
     </main>
   );
-
-  // Sub-components for cleaner organization
-  function FolderSection({ title, hashes, isExpanded, onToggle, tagColor }: any) {
-    return (
-      <div className="border border-zinc-100 dark:border-white/5 rounded-[2.5rem] overflow-hidden bg-zinc-50/50 dark:bg-zinc-900/20">
-        <button 
-          onClick={onToggle}
-          className="w-full flex items-center justify-between p-6 hover:bg-white dark:hover:bg-zinc-900/50 transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tagColor ? `${tagColor.bg} ${tagColor.text}` : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
-              <FolderIcon className="w-6 h-6" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-display font-black text-lg text-zinc-950 dark:text-white uppercase tracking-tight">{title}</h3>
-              <p className="font-mono text-[10px] text-zinc-400 dark:text-zinc-600 uppercase font-black">{hashes.length} Protocol Entities</p>
-            </div>
-          </div>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-            <ChevronDown className="w-5 h-5 text-zinc-400" />
-          </div>
-        </button>
-        
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="p-6 pt-0 space-y-4">
-                {hashes.map((h: any) => (
-                  <HashItem h={h} key={h._id} />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-
-  function HashItem({ h }: { h: any }) {
-    return (
-      <motion.div
-        layout
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="group bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 p-6 rounded-[2rem] hover:border-trust-green/30 dark:hover:border-trust-green/50 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none transition-all"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-12">
-          <div className="flex items-center gap-6 flex-1 min-w-0">
-            <div className="w-14 h-14 bg-zinc-50 dark:bg-zinc-950 rounded-[1.25rem] flex items-center justify-center shrink-0 border border-zinc-100 dark:border-white/5 group-hover:bg-trust-green/10 dark:group-hover:bg-trust-green border-zinc-100 dark:border-white/5 transition-all">
-              <FileText className="w-6 h-6 text-zinc-400 dark:text-zinc-600 group-hover:text-trust-green dark:group-hover:text-zinc-950" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 mb-1">
-                <h3 className="font-display font-black text-xl text-zinc-950 dark:text-white truncate uppercase tracking-tight">{h.fileName}</h3>
-                <span className="px-2 py-0.5 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 font-mono text-[8px] font-black uppercase rounded-lg tracking-widest border border-zinc-100 dark:border-white/5">{(h.fileSize / 1024).toFixed(1)} KB</span>
-              </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                   <Fingerprint className="w-3.5 h-3.5 text-trust-green" />
-                   <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-500 font-bold tracking-widest uppercase truncate max-w-[200px]">{h.hash}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                   <Calendar className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700" />
-                   <p className="font-sans text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Genesis: {new Date(h.createdAt).toLocaleDateString()}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                   <Clock className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-700" />
-                   <p className={`font-sans text-[10px] font-medium ${h.expiryDate ? 'text-amber-600 dark:text-amber-500' : 'text-trust-green'}`}>
-                     Expiry: {h.expiryDate ? new Date(h.expiryDate).toLocaleDateString() : 'Infinite Protocol'}
-                   </p>
-                </div>
-              </div>
-
-              {/* Tags Display */}
-              <div className="flex flex-wrap items-center gap-2 mt-4">
-                 {(h.tags || []).map((tag: string) => {
-                   const color = getTagColor(tag);
-                   return (
-                     <span key={tag} className={`flex items-center gap-1.5 px-3 py-1 ${color.bg} ${color.text} border ${color.border} rounded-xl group/tag transition-all hover:scale-105`}>
-                       <div className={`w-1 h-1 rounded-full ${color.dot}`} />
-                       <span className="font-display font-bold text-[9px] uppercase tracking-widest">{tag}</span>
-                       <button 
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           handleRemoveTag(h._id, tag, h.tags);
-                         }}
-                         className="opacity-0 group-hover/tag:opacity-100 transition-opacity hover:text-red-500"
-                       >
-                         <X className="w-2.5 h-2.5" />
-                       </button>
-                     </span>
-                   );
-                 })}
-                 {editingTagsId === h._id ? (
-                   <div className="flex items-center gap-1.5 animate-in fade-in slide-in-from-left-1" onClick={e => e.stopPropagation()}>
-                     <input 
-                       autoFocus
-                       type="text"
-                       placeholder="Add tag..."
-                       value={tagInput}
-                       onChange={e => setTagInput(e.target.value)}
-                       onKeyDown={e => e.key === 'Enter' && handleUpdateTags(h._id, h.tags || [])}
-                       className="h-8 px-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-white/5 rounded-xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green font-sans text-[10px] w-28 font-bold dark:text-white"
-                     />
-                     <button 
-                       onClick={() => setEditingTagsId(null)}
-                       className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-950 dark:hover:text-white bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-white/5"
-                     >
-                       <X className="w-3.5 h-3.5" />
-                     </button>
-                   </div>
-                 ) : (
-                   <button 
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       setEditingTagsId(h._id);
-                     }}
-                     className="flex items-center gap-1.5 px-3 py-1 bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-white/10 rounded-xl text-zinc-400 dark:text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-300 hover:border-zinc-300 transition-all font-display font-medium"
-                   >
-                     <Plus className="w-2.5 h-2.5" />
-                     <span className="font-display font-bold text-[9px] uppercase tracking-widest">Add Tag</span>
-                   </button>
-                 )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-              {editingId === h._id ? (
-                  <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
-                      <input 
-                          type="date"
-                          value={newExpiryDate}
-                          onChange={(e) => setNewExpiryDate(e.target.value)}
-                          className="h-10 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-xl font-sans text-xs focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green dark:text-white"
-                      />
-                      <button 
-                          onClick={() => handleUpdateExpiry(h._id)}
-                          className="h-10 px-4 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-200 transition-all shadow-lg dark:shadow-none"
-                      >
-                          Confirm
-                      </button>
-                      <button 
-                          onClick={() => setEditingId(null)}
-                          className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-950 dark:text-zinc-600 dark:hover:text-white transition-colors"
-                      >
-                          <X className="w-4 h-4" />
-                      </button>
-                  </div>
-              ) : (
-                  <>
-                      <button 
-                          onClick={() => {
-                              setEditingId(h._id);
-                              setNewExpiryDate(h.expiryDate ? new Date(h.expiryDate).toISOString().split('T')[0] : '');
-                          }}
-                          className="h-10 px-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:bg-zinc-950 dark:hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 hover:border-zinc-950 transition-all text-xs"
-                      >
-                          Expiry
-                      </button>
-                      <button 
-                          onClick={() => router.push(`/verify?hash=${h.hash}`)}
-                          className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl text-zinc-400 dark:text-zinc-600 hover:bg-zinc-950 dark:hover:bg-trust-green hover:text-white dark:hover:text-zinc-950 hover:border-zinc-950 transition-all"
-                      >
-                          <ArrowUpRight className="w-4 h-4" />
-                      </button>
-                      <button 
-                          onClick={() => handleDelete(h._id, h.fileName)}
-                          className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-xl text-zinc-300 dark:text-zinc-700 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:border-red-100 transition-all"
-                      >
-                          <Trash2 className="w-4 h-4" />
-                      </button>
-                  </>
-              )}
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
 }
