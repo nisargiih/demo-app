@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import * as z from 'zod';
 import { SecurityService } from '@/lib/security-service';
+import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
   firstName: z.string().min(2),
@@ -41,8 +42,12 @@ export async function POST(req: Request) {
       ? ['dashboard', 'notarize', 'registry', 'verify', 'analytics', 'settings']
       : ['dashboard']);
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
     const newUser = {
       ...validatedData,
+      password: hashedPassword,
       email, // Indexable
       isVerified: false,
       onboardingCompleted: true,
