@@ -20,7 +20,8 @@ import {
   AlertCircle,
   User,
   Briefcase,
-  Network
+  Network,
+  Loader2
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { FormError } from '@/components/form-error';
@@ -36,6 +37,8 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [isFetchingSessions, setIsFetchingSessions] = useState(false);
+  const [revokingSessionIds, setRevokingSessionIds] = useState<Set<string>>(new Set());
+  const [isPurgingAll, setIsPurgingAll] = useState(false);
   
   // State: Security
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -464,6 +467,7 @@ export default function SettingsPage() {
                                       </p>
                                       {!isCurrent && (
                                           <button 
+                                              disabled={revokingSessionIds.has(session.sessionId)}
                                               onClick={async () => {
                                                 const ok = await confirm({
                                                   title: 'Revoke Node Session',
@@ -472,14 +476,26 @@ export default function SettingsPage() {
                                                   cancelText: 'Abort'
                                                 });
                                                 if (ok) {
-                                                  const email = localStorage.getItem('authenticated_user_email');
-                                                  await fetch(`/api/auth/sessions?email=${email}&sessionId=${session.sessionId}`, { method: 'DELETE' });
-                                                  notify(`Session revoked successfully.`, 'success');
-                                                  fetchSessions();
+                                                  setRevokingSessionIds(prev => new Set(prev).add(session.sessionId));
+                                                  try {
+                                                    const email = localStorage.getItem('authenticated_user_email');
+                                                    await fetch(`/api/auth/sessions?email=${email}&sessionId=${session.sessionId}`, { method: 'DELETE' });
+                                                    notify(`Session revoked successfully.`, 'success');
+                                                    await fetchSessions();
+                                                  } catch (err) {
+                                                    notify('Failed to revoke session.', 'error');
+                                                  } finally {
+                                                    setRevokingSessionIds(prev => {
+                                                      const next = new Set(prev);
+                                                      next.delete(session.sessionId);
+                                                      return next;
+                                                    });
+                                                  }
                                                 }
                                               }}
-                                              className="font-mono text-[8px] font-black text-red-500 hover:underline uppercase mt-1"
+                                              className="font-mono text-[8px] font-black text-red-500 hover:underline uppercase mt-1 flex items-center justify-end gap-1 disabled:opacity-50 disabled:no-underline"
                                           >
+                                              {revokingSessionIds.has(session.sessionId) && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
                                               Revoke
                                           </button>
                                       )}
@@ -496,6 +512,7 @@ export default function SettingsPage() {
                         </div>
                         
                         <button 
+                          disabled={isPurgingAll}
                           onClick={async () => {
                             const ok = await confirm({
                                 title: 'Global Session Purge',
@@ -504,15 +521,23 @@ export default function SettingsPage() {
                                 cancelText: 'Abort'
                             });
                             if (ok) {
-                                const email = localStorage.getItem('authenticated_user_email');
-                                const currentId = localStorage.getItem('current_session_id');
-                                await fetch(`/api/auth/sessions?email=${email}&all=true&currentSessionId=${currentId}`, { method: 'DELETE' });
-                                notify('Global session purge executed. Peripheral nodes disconnected.', 'success');
-                                fetchSessions();
+                                setIsPurgingAll(true);
+                                try {
+                                  const email = localStorage.getItem('authenticated_user_email');
+                                  const currentId = localStorage.getItem('current_session_id');
+                                  await fetch(`/api/auth/sessions?email=${email}&all=true&currentSessionId=${currentId}`, { method: 'DELETE' });
+                                  notify('Global session purge executed. Peripheral nodes disconnected.', 'success');
+                                  await fetchSessions();
+                                } catch (err) {
+                                  notify('Global purge failed.', 'error');
+                                } finally {
+                                  setIsPurgingAll(false);
+                                }
                             }
                           }}
-                          className="w-full mt-6 h-12 bg-zinc-900 dark:bg-zinc-800 text-white rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all border border-zinc-100 dark:border-white/5"
+                          className="w-full mt-6 h-12 bg-zinc-900 dark:bg-zinc-800 text-white rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest hover:bg-zinc-800 transition-all border border-zinc-100 dark:border-white/5 flex items-center justify-center gap-2 disabled:opacity-50"
                         >
+                          {isPurgingAll && <Loader2 className="w-4 h-4 animate-spin" />}
                           Sign out from all other systems
                         </button>
                       </div>
