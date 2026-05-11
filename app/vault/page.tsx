@@ -41,6 +41,7 @@ export default function VaultPage() {
   const router = useRouter();
   const { notify, confirm } = useNotification();
   const { user, loading } = useUser();
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const [hashes, setHashes] = useState<any[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -229,117 +230,151 @@ export default function VaultPage() {
   };
 
   return (
-    <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-6 transition-colors duration-300">
+    <main className="relative h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 flex flex-col transition-colors duration-300 overflow-hidden">
       <BackgroundAnimation />
       <Sidebar />
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto py-12 lg:py-20">
-        <header className="mb-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div>
+      {/* Top Header & Sticky Utilities (Non-Scrolling) */}
+      <div className="relative z-20 w-full bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-white/5 pt-12 lg:pt-16 pb-0 px-6">
+        <div className="w-full max-w-6xl mx-auto">
+          <header className="mb-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-3 mb-4"
+                >
+                  <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-xl flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-trust-green" />
+                  </div>
+                  <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Vault_Protocol_v4.2</span>
+                </motion.div>
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="font-display text-4xl lg:text-5xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase"
+                >
+                  Protocol Vault
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="hidden md:block font-sans text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl font-medium text-sm"
+                >
+                  Manage your cryptographically signed document fingerprints. Control expiry and monitor chain status.
+                </motion.p>
+              </div>
+
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 mb-4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-4"
               >
-                <div className="w-10 h-10 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-xl flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-trust-green" />
-                </div>
-                <span className="font-mono text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-600">Vault_Protocol_v4.2</span>
+                  <div className="p-3 lg:p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-white/5 flex items-center gap-6">
+                      <div className="text-center">
+                          <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 uppercase font-black mb-1">Items</p>
+                          <p className="font-display font-black text-xl text-zinc-950 dark:text-white leading-none">{totalRecords}</p>
+                      </div>
+                      <div className="w-[1px] h-8 bg-zinc-200 dark:bg-zinc-800" />
+                      <div className="text-center">
+                          <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 uppercase font-black mb-1">Status</p>
+                          <p className="font-display font-black text-xl text-trust-green leading-none">Synced</p>
+                      </div>
+                  </div>
               </motion.div>
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="font-display text-5xl font-black text-zinc-950 dark:text-white tracking-tighter uppercase"
-              >
-                Protocol Vault
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="font-sans text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl font-medium"
-              >
-                Manage your cryptographically signed document fingerprints. Control expiry, revoke entries, and monitor chain status.
-              </motion.p>
+            </div>
+          </header>
+
+          {/* Search & Actions Bar (Sticky) */}
+          <div className="z-[30] pb-4">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
+              <div className="flex-1 relative group w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search by filename or hash protocol..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 p-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-2xl">
+                <button 
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                  title="List View"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => setViewMode('table')}
+                  className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                  title="Table View"
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="relative group">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="appearance-none h-12 pl-10 pr-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all focus:outline-none focus:border-trust-green cursor-pointer"
+                >
+                  <option value="newest">Newest Genesis</option>
+                  <option value="oldest">Oldest Genesis</option>
+                  <option value="name">Alphabetical</option>
+                  <option value="size">Record Size</option>
+                </select>
+                <SortAsc className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
+              </div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-4"
-            >
-                <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-white/5 flex items-center gap-6">
-                    <div className="text-center">
-                        <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 uppercase font-black mb-1">Active Hashes</p>
-                        <p className="font-display font-black text-xl text-zinc-950 dark:text-white leading-none">{hashes.length}</p>
-                    </div>
-                    <div className="w-[1px] h-8 bg-zinc-200 dark:bg-zinc-800" />
-                    <div className="text-center">
-                        <p className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600 uppercase font-black mb-1">Status</p>
-                        <p className="font-display font-black text-xl text-trust-green leading-none">Synced</p>
-                    </div>
-                </div>
-            </motion.div>
+            {/* Tag Filters */}
+            {allTags.length > 0 && (
+              <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none font-bold' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
+                >
+                  <Filter className="w-3 h-3" />
+                  All Assets
+                </button>
+                {allTags.map(tag => {
+                  const color = getTagColor(tag);
+                  const isActive = selectedTag === tag;
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => setSelectedTag(isActive ? null : tag)}
+                      className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100 dark:shadow-none` : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* Sticky Utility Section */}
-        <div className="sticky top-16 lg:top-0 z-[30] bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl pt-4 pb-2 -mx-4 px-4 lg:-mx-6 lg:px-6 mb-8 border-b border-zinc-100/50 dark:border-white/5">
-          {/* Search & Actions Bar */}
-          <div className="flex flex-col md:flex-row items-center gap-4 mb-6">
-            <div className="flex-1 relative group w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 group-focus-within:text-trust-green transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search by filename or hash protocol..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-12 pl-11 pr-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl focus:outline-none focus:border-zinc-950 dark:focus:border-trust-green transition-all font-sans text-sm font-medium shadow-sm dark:shadow-none dark:text-white dark:placeholder:text-zinc-700"
-              />
-            </div>
-            
-            <div className="flex items-center gap-2 p-1 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-white/5 rounded-2xl">
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-                title="List View"
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode('table')}
-                className={`p-2 rounded-xl transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-800 text-trust-green shadow-sm' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
-                title="Table View"
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="relative group">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="appearance-none h-12 pl-10 pr-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/5 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition-all focus:outline-none focus:border-trust-green cursor-pointer"
-              >
-                <option value="newest">Newest Genesis</option>
-                <option value="oldest">Oldest Genesis</option>
-                <option value="name">Alphabetical</option>
-                <option value="size">Record Size</option>
-              </select>
-              <SortAsc className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Bulk Selection Header */}
+      {/* Main Data Section (Scrollable) */}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-10 z-10">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Bulk Selection Header (Floating style inside scroll area or sticky?) */}
           <AnimatePresence>
             {selectedIds.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mb-6 p-4 bg-zinc-950 dark:bg-trust-green rounded-2xl flex items-center justify-between shadow-2xl shadow-trust-green/20"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="mb-8 p-4 bg-zinc-950 dark:bg-trust-green rounded-2xl flex items-center justify-between shadow-2xl shadow-trust-green/20"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-8 h-8 bg-white/10 dark:bg-black/10 rounded-lg flex items-center justify-center">
@@ -367,34 +402,6 @@ export default function VaultPage() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Tag Filters */}
-          {allTags.length > 0 && (
-            <div className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-none">
-              <button
-                onClick={() => setSelectedTag(null)}
-                className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap ${!selectedTag ? 'bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 shadow-xl shadow-zinc-200 dark:shadow-none font-bold' : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
-              >
-                <Filter className="w-3 h-3" />
-                All Assets
-              </button>
-              {allTags.map(tag => {
-                const color = getTagColor(tag);
-                const isActive = selectedTag === tag;
-                return (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(isActive ? null : tag)}
-                    className={`h-10 px-6 rounded-2xl font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border whitespace-nowrap ${isActive ? `${color.bg} ${color.text} ${color.border} shadow-lg shadow-zinc-100 dark:shadow-none` : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-white/5'}`}
-                  >
-                    <div className={`w-1.5 h-1.5 rounded-full ${color.dot} ${isActive ? 'animate-pulse' : ''}`} />
-                    {tag}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
 
         {/* List Content */}
         {isLoading ? (
@@ -686,7 +693,7 @@ export default function VaultPage() {
             <button
               onClick={() => {
                 setCurrentPage(p => Math.max(1, p - 1));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               disabled={currentPage === 1}
               className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5 disabled:opacity-30 bg-white dark:bg-zinc-900 text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-white/5"
@@ -697,32 +704,61 @@ export default function VaultPage() {
             <div className="flex items-center gap-1.5">
               {(() => {
                 const pages = [];
-                for (let i = 1; i <= totalPages; i++) {
-                  pages.push(
+                const maxVisible = 5;
+                
+                if (totalPages <= maxVisible) {
+                  for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                  // Always show first page
+                  pages.push(1);
+                  
+                  if (currentPage > 3) {
+                    pages.push('...');
+                  }
+                  
+                  // Show pages around current
+                  const start = Math.max(2, currentPage - 1);
+                  const end = Math.min(totalPages - 1, currentPage + 1);
+                  
+                  for (let i = start; i <= end; i++) {
+                    if (!pages.includes(i)) pages.push(i);
+                  }
+                  
+                  if (currentPage < totalPages - 2) {
+                    pages.push('...');
+                  }
+                  
+                  // Always show last page
+                  if (!pages.includes(totalPages)) pages.push(totalPages);
+                }
+
+                return pages.map((p, idx) => (
+                  p === '...' ? (
+                    <span key={`dots-${idx}`} className="w-10 h-10 flex items-center justify-center text-zinc-400 font-bold">...</span>
+                  ) : (
                     <button
-                      key={i}
+                      key={p}
                       onClick={() => {
-                        setCurrentPage(i);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        setCurrentPage(p as number);
+                        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                       className={`h-10 w-10 rounded-xl font-display font-black text-[10px] uppercase tracking-widest transition-all border ${
-                        currentPage === i
+                        currentPage === p
                           ? "bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 border-transparent shadow-lg shadow-trust-green/20"
                           : "bg-white dark:bg-zinc-900 text-zinc-400 border-zinc-100 dark:border-white/5 hover:border-zinc-300 dark:hover:border-white/10"
                       }`}
                     >
-                      {i}
+                      {p}
                     </button>
-                  );
-                }
-                return pages;
+                  )
+                ));
               })()}
             </div>
 
             <button
               onClick={() => {
                 setCurrentPage(p => Math.min(totalPages, p + 1));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               disabled={currentPage === totalPages}
               className="h-10 w-10 flex items-center justify-center rounded-xl border border-zinc-100 dark:border-white/5 disabled:opacity-30 bg-white dark:bg-zinc-900 text-zinc-500 transition-all hover:bg-zinc-50 dark:hover:bg-white/5"
@@ -774,6 +810,7 @@ export default function VaultPage() {
             </div>
         </footer>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
 }
