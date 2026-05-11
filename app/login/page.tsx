@@ -100,7 +100,7 @@ export default function LoginPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-black leading-[0.9] tracking-tighter mb-6 lg:mb-8 text-zinc-900 dark:text-white">
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 lg:mb-8 text-zinc-900 dark:text-white">
               Welcome back to <span className="text-gradient">Identix.</span>
             </h1>
             <p className="font-sans text-lg lg:text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-md mx-auto lg:mx-0">
@@ -125,20 +125,20 @@ export default function LoginPage() {
                   className="absolute inset-0 z-50 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
                 >
                   <CheckCircle2 className="text-trust-green w-16 h-16 mb-4" />
-                  <h2 className="font-display text-3xl font-black mb-3 text-zinc-900 dark:text-white tracking-tighter leading-none">Access Granted</h2>
+                  <h2 className="font-display text-3xl font-bold mb-3 text-zinc-900 dark:text-white">Access Granted</h2>
                   <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-8 max-w-[280px]">Identity verified. Synchronizing node...</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <div className="mb-10 text-center lg:text-left relative z-10">
-              <h2 className="font-display text-3xl font-black mb-2 text-zinc-900 dark:text-white tracking-tighter leading-none">Login</h2>
+              <h2 className="font-display text-3xl font-bold mb-2 text-zinc-900 dark:text-white">Login</h2>
               <p className="font-sans text-zinc-500 dark:text-zinc-400 text-sm">Enter your credentials to access your secure vault.</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 relative z-10">
               <div className="space-y-2">
-                <label className="font-mono text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em] ml-1">Email Address</label>
+                <label className="font-mono text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600 group-focus-within:text-trust-green transition-colors" />
                   <input
@@ -152,7 +152,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="font-mono text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.3em] ml-1">Password</label>
+                <label className="font-mono text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-600 group-focus-within:text-trust-green transition-colors" />
                   <input
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 <button
                   disabled={isSubmitting}
                   type="submit"
-                  className="w-full h-14 bg-trust-green text-zinc-950 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl shadow-trust-green/20 dark:shadow-none transition-colors"
+                  className="w-full h-14 bg-trust-green text-zinc-950 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-trust-green/90 disabled:opacity-70 transition-all shadow-xl shadow-trust-green/20 dark:shadow-none transition-colors"
                 >
                   {isSubmitting ? "Authenticating..." : (
                     <>
