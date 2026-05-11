@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import * as z from 'zod';
 import { SecurityService } from '@/lib/security-service';
+import bcrypt from 'bcryptjs';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -30,8 +31,9 @@ export async function POST(req: Request) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Invalid credentials' }), { status: 401 });
     }
 
-    // Compare passwords (plain text comparison in DB as requested)
-    if (user.password !== password) {
+    // Compare passwords using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'Invalid credentials' }), { status: 401 });
     }
 

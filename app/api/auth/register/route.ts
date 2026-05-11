@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 import * as z from 'zod';
 import { SecurityService } from '@/lib/security-service';
+import bcrypt from 'bcryptjs';
 
 const registerSchema = z.object({
   firstName: z.string().min(2),
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
       return NextResponse.json(SecurityService.prepareForTransit({ error: 'User already exists' }), { status: 400 });
     }
 
+    // Hash Password
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
     // Generate 6-char alphanumeric OTP
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let otp = '';
@@ -42,7 +46,9 @@ export async function POST(req: Request) {
       : ['dashboard']);
 
     const newUser = {
-      ...validatedData,
+      firstName: validatedData.firstName,
+      lastName: validatedData.lastName,
+      password: hashedPassword,
       email, // Indexable
       isVerified: false,
       emailVerified: false,
