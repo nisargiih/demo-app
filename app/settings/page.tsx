@@ -48,6 +48,7 @@ export default function SettingsPage() {
 
   // State: Preferences
   const [notifications, setNotifications] = useState({ email: true, push: false, alerts: true });
+  const [isUpdatingTheme, setIsUpdatingTheme] = useState(false);
 
   const fetchSessions = async () => {
     const email = localStorage.getItem('authenticated_user_email');
@@ -366,8 +367,10 @@ export default function SettingsPage() {
                           </div>
                         </div>
                         <button 
+                          disabled={isUpdatingTheme}
                           onClick={async () => {
                             const newTheme = theme === 'light' ? 'dark' : 'light';
+                            setIsUpdatingTheme(true);
                             setTheme(newTheme);
                             const email = localStorage.getItem('authenticated_user_email');
                             try {
@@ -376,16 +379,22 @@ export default function SettingsPage() {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ email, theme: newTheme }),
                               });
+                              notify(`Interface synchronized to ${newTheme} mode.`, 'success');
                             } catch (err) {
                               console.error('Failed to sync theme', err);
+                              notify('Failed to synchronize theme.', 'error');
+                            } finally {
+                              setIsUpdatingTheme(false);
                             }
                           }}
-                          className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl"
+                          className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl disabled:opacity-50"
                         >
-                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${theme === 'light' ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${theme === 'light' ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                            {isUpdatingTheme && theme === 'light' && <Loader2 className="w-3 h-3 animate-spin" />}
                             Light
                           </div>
-                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all ${theme === 'dark' ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                          <div className={`px-4 py-2 rounded-lg font-display font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${theme === 'dark' ? 'bg-zinc-950 dark:bg-trust-green text-white dark:text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+                            {isUpdatingTheme && theme === 'dark' && <Loader2 className="w-3 h-3 animate-spin" />}
                             Dark
                           </div>
                         </button>
