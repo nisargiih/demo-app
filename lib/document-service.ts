@@ -34,39 +34,44 @@ export class DocumentService {
   }
 
   static async extractText(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
-    if (mimeType === 'application/pdf') {
-      try {
-        let pdfParseLocal: any;
-        if (typeof window === 'undefined') {
-          // Handle various export styles (CommonJS vs ESM interop)
-          const imported = require('pdf-parse');
-          pdfParseLocal = imported.default || imported;
-        }
-        
-        if (typeof pdfParseLocal !== 'function') {
-          throw new Error('PDF parsing engine is not a function');
-        }
-        
-        const data = await pdfParseLocal(buffer);
-        const text = data.text || '';
-        
-        return {
-          text: text,
-          pages: text.split('\f').map((t: string, i: number) => ({ pageNumber: i + 1, text: t.trim() }))
-        };
-      } catch (e) {
-        console.error('PDF Text Extraction failed:', e);
-        throw new Error('Could not parse PDF content locally. Ensure the file is a valid text-based PDF.');
-      }
+    if (mimeType !== 'application/pdf') {
+      return { text: '', pages: [] };
     }
 
-    // For images or other formats, we currently return empty text as AI/OCR is disabled per requirement
-    return { text: '', pages: [] };
+    try {
+      let pdfParse: any;
+      if (typeof window === 'undefined') {
+        const imported = require('pdf-parse');
+        // Handle various export styles (CJS, ESM interop, nested defaults)
+        if (typeof imported === 'function') {
+          pdfParse = imported;
+        } else if (imported && typeof imported.default === 'function') {
+          pdfParse = imported.default;
+        } else if (imported && imported.default && typeof imported.default.default === 'function') {
+          pdfParse = imported.default.default;
+        }
+      }
+
+      if (typeof pdfParse !== 'function') {
+        throw new Error('PDF parsing engine not initialized correctly');
+      }
+
+      const data = await pdfParse(buffer);
+      const text = data.text || '';
+      
+      return {
+        text: text,
+        pages: text.split('\f').map((t: string, i: number) => ({ pageNumber: i + 1, text: t.trim() }))
+      };
+    } catch (e) {
+      console.error('Local PDF Extraction failed:', e);
+      return { text: '', pages: [] };
+    }
   }
 
   static compareText(refText: string, uploadText: string): number {
     if (!refText || !uploadText) return 0;
-    // Normalize text: lowercase, remove extra whitespace, remove non-alphanumeric for cleaner comparison
+    
     const normalize = (t: string) => t.toLowerCase()
       .replace(/[^\w\s]/g, '')
       .replace(/\s+/g, ' ')
@@ -80,14 +85,12 @@ export class DocumentService {
     const client = await clientPromise;
     const db = client.db('tech-core');
     
-    // 1. Fetch Reference Document
     const refDoc = await db.collection('documents').findOne({ _id: new ObjectId(referenceDocId) });
     if (!refDoc) throw new Error('Reference document not found');
 
-    // 2. Hash Comparison
     const uploadedHash = this.generateHash(uploadedFile.buffer);
     if (uploadedHash === refDoc.hash) {
-      const result: VerificationResult = {
+      return {
         verified: true,
         matchType: MatchType.EXACT_HASH_MATCH,
         hashMatched: true,
@@ -95,11 +98,8 @@ export class DocumentService {
         confidence: 100,
         similarityScore: 100
       };
-      await this.saveVerificationResult(referenceDocId, null, result);
-      return result;
     }
 
-    // 3. Local Text Comparison Fallback
     let refTextRecord = await db.collection('document_text').findOne({ documentId: refDoc._id });
     if (!refTextRecord) {
       throw new Error('Reference document content not Indexed for deep matching.');
@@ -107,7 +107,7 @@ export class DocumentService {
 
     const { text: uploadedText } = await this.extractText(uploadedFile.buffer, uploadedFile.mimeType);
 
-    if (!uploadedText || uploadedText.length < 10) {
+    if (!uploadedText || uploadedText.length < 5) {
       return {
         verified: false,
         matchType: MatchType.PROCESSING_FAILED,
@@ -168,26 +168,37 @@ export class DocumentService {
     const db = client.db('tech-core');
     
     const hash = this.generateHash(file.buffer);
-    const { text, pages } = await this.extractText(file.buffer, file.mimeType);
+    
+    let text = '';
+    let pages: any[] = [];
+    try {
+      const extracted = await this.extractText(file.buffer, file.mimeType);
+      text = extracted.text;
+      pages = extracted.pages;
+    } catch (e) {
+      console.warn('Text extraction failed during storage, continuing with hash:', e);
+    }
 
     const docResult = await db.collection('documents').insertOne({
       fileName: file.name,
       fileType: file.mimeType,
       hash,
-      ocrStatus: text ? 'completed' : 'not_supported',
+      ocrStatus: text ? 'completed' : 'none',
       verificationStatus: 'verified',
       ...metadata,
       createdAt: new Date()
     });
 
-    await db.collection('document_text').insertOne({
-      documentId: docResult.insertedId,
-      rawText: text,
-      cleanText: text.toLowerCase().replace(/\s+/g, ' ').trim(),
-      pages: pages.map(p => ({ ...p, confidence: 100 })),
-      extractionMethod: 'local_parser',
-      createdAt: new Date()
-    });
+    if (text) {
+      await db.collection('document_text').insertOne({
+        documentId: docResult.insertedId,
+        rawText: text,
+        cleanText: text.toLowerCase().replace(/\s+/g, ' ').trim(),
+        pages: pages.map(p => ({ ...p, confidence: 100 })),
+        extractionMethod: 'local_parser',
+        createdAt: new Date()
+      });
+    }
 
     return docResult.insertedId;
   }
