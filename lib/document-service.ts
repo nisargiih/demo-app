@@ -3,17 +3,6 @@ import stringSimilarity from 'string-similarity';
 import clientPromise from './mongodb';
 import { ObjectId } from 'mongodb';
 
-// Import pdf-parse using a method that avoids bundling issues in Next.js/Webpack
-let pdfParse: any;
-if (typeof process !== 'undefined') {
-  try {
-    // Basic dynamic import for node environment
-    pdfParse = require('pdf-parse/lib/pdf-parse.js');
-  } catch (e) {
-    console.error('Failed to initialize pdf-parse:', e);
-  }
-}
-
 export enum MatchType {
   EXACT_HASH_MATCH = 'EXACT_HASH_MATCH',
   CONTENT_MATCH = 'CONTENT_MATCH',
@@ -47,9 +36,14 @@ export class DocumentService {
   static async extractText(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
     if (mimeType === 'application/pdf') {
       try {
-        if (!pdfParse) throw new Error('PDF Engine not initialized');
+        let pdfParseLocal: any;
+        if (typeof window === 'undefined') {
+          pdfParseLocal = require('pdf-parse');
+        }
         
-        const data = await pdfParse(buffer);
+        if (!pdfParseLocal) throw new Error('PDF Engine not available in this environment');
+        
+        const data = await pdfParseLocal(buffer);
         const text = data.text || '';
         
         return {
@@ -58,11 +52,11 @@ export class DocumentService {
         };
       } catch (e) {
         console.error('PDF Text Extraction failed:', e);
-        throw new Error('Could not parse PDF content');
+        throw new Error('Could not parse PDF content locally');
       }
     }
 
-    // For images, since AI is disabled, we return empty text as OCR requires AI/Engines
+    // For other formats, return empty text for now as local OCR requires complex native dependencies
     return { text: '', pages: [] };
   }
 
