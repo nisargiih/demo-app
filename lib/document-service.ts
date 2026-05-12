@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import pdf from 'pdf-parse';
 import stringSimilarity from 'string-similarity';
 import { GoogleGenAI, Type } from "@google/genai";
 import clientPromise from './mongodb';
@@ -38,30 +37,16 @@ export class DocumentService {
   }
 
   static async extractText(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
-    if (mimeType === 'application/pdf') {
-      try {
-        const data = await pdf(buffer);
-        // If extracted text is very short, it might be a scanned PDF
-        if (data.text.trim().length > 50) {
-          return {
-            text: data.text,
-            pages: data.text.split('\f').map((t, i) => ({ pageNumber: i + 1, text: t.trim() }))
-          };
-        }
-      } catch (e) {
-        console.error('PDF Parse failed, falling back to OCR', e);
-      }
-    }
-
-    // Fallback to Gemini for Image/Scanned PDF OCR
+    // Rely on Gemini for all text extraction (PDF & Images)
+    // Gemini 1.5 Flash is highly accurate and handles diverse layouts/PDF encodings
     return await this.extractTextWithGemini(buffer, mimeType);
   }
 
   private static async extractTextWithGemini(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
     try {
       const base64Data = buffer.toString('base64');
-      const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+      const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const response = await model.generateContent({
         contents: [
           {
             parts: [
@@ -77,7 +62,7 @@ export class DocumentService {
             ]
           }
         ],
-        config: {
+        generationConfig: {
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -100,7 +85,7 @@ export class DocumentService {
         }
       });
 
-      const result = JSON.parse(response.text);
+      const result = JSON.parse(response.response.text());
       return {
         text: result.rawText,
         pages: result.pages
@@ -120,20 +105,23 @@ export class DocumentService {
 
   static async extractFields(text: string): Promise<Record<string, any>> {
     try {
-      const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+      const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const response = await model.generateContent({
         contents: [
           {
-            text: `Extract key document fields from the following text: "${text}". 
-            Fields to look for: Document number, Name, Date, Amount, Invoice number, Certificate number, Customer ID, Address, Total value, Issue date, Expiry date.
-            Return as JSON object with field names as keys.`
+            role: "user",
+            parts: [{
+              text: `Extract key document fields from the following text: "${text}". 
+              Fields to look for: Document number, Name, Date, Amount, Invoice number, Certificate number, Customer ID, Address, Total value, Issue date, Expiry date.
+              Return as JSON object with field names as keys.`
+            }]
           }
         ],
-        config: {
+        generationConfig: {
           responseMimeType: "application/json"
         }
       });
-      return JSON.parse(response.text);
+      return JSON.parse(response.response.text());
     } catch (e) {
       return {};
     }
