@@ -459,20 +459,20 @@ export default function VerifyPage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-red-500/[0.04] dark:bg-red-500/[0.02] border-4 border-red-500/20 rounded-[4rem] p-16 lg:p-24 text-center relative overflow-hidden"
+                    className="bg-red-500/[0.04] dark:bg-red-500/[0.02] border-2 border-red-500/20 rounded-[2.5rem] p-10 lg:p-14 text-center relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-500/[0.08] via-transparent to-transparent pointer-events-none" />
-                    <div className="w-36 h-36 bg-white dark:bg-zinc-900 border-2 border-red-500/30 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-2xl relative z-10 rotate-12">
-                      <Archive className="w-16 h-16 text-red-500" />
+                    <div className="w-20 h-20 bg-white dark:bg-zinc-900 border-2 border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl relative z-10 rotate-3">
+                      <Archive className="w-10 h-10 text-red-500" />
                     </div>
-                    <h3 className="font-display font-black text-6xl text-red-600 dark:text-red-500 mb-8 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
-                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed text-2xl font-medium relative z-10">
-                      The cryptographic fingerprint requested is <span className="text-red-600 font-black">completely absent</span> from the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
+                    <h3 className="font-display font-black text-4xl lg:text-5xl text-red-600 dark:text-red-500 mb-4 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
+                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-8 max-w-xl mx-auto leading-relaxed text-base font-medium relative z-10">
+                      The cryptographic fingerprint requested is <span className="text-red-600 font-black whitespace-nowrap">completely absent</span> from the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-20 px-16 bg-red-600 text-white border border-red-500/20 rounded-3xl font-display font-black text-sm uppercase tracking-[0.3em] hover:bg-red-700 transition-all shadow-2xl shadow-red-500/20 active:scale-95"
+                        className="h-14 px-10 bg-red-600 text-white border border-red-500/20 rounded-2xl font-display font-black text-[10px] uppercase tracking-[0.3em] hover:bg-red-700 transition-all shadow-xl shadow-red-500/20 active:scale-95"
                       >
                         Reset Authority Gateway
                       </button>
@@ -506,13 +506,13 @@ export default function VerifyPage() {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     className={`border border-zinc-100 dark:border-white/5 rounded-[3rem] p-6 lg:p-10 relative overflow-hidden bg-white dark:bg-zinc-900 shadow-xl transition-all ${
                       (result?.expiryDate && new Date(result.expiryDate) < new Date()) 
-                        ? 'ring-2 ring-red-500/30' 
+                        ? 'ring-2 ring-amber-500/30' 
                         : 'ring-1 ring-zinc-100 dark:ring-white/5'
                     }`}
                   >
                     {/* Expired Status Banner */}
                     {(result?.expiryDate && new Date(result.expiryDate) < new Date()) && (
-                      <div className="absolute top-0 inset-x-0 bg-red-500 text-white py-2 flex items-center justify-center gap-2 font-display font-black text-[10px] uppercase tracking-[0.4em] z-50">
+                      <div className="absolute top-0 inset-x-0 bg-amber-500 text-zinc-950 py-2 flex items-center justify-center gap-2 font-display font-black text-[10px] uppercase tracking-[0.4em] z-50">
                         <AlertTriangle className="w-4 h-4" />
                         Protocol Expired / Unauthorized Artifact
                       </div>
@@ -522,9 +522,9 @@ export default function VerifyPage() {
                       {/* Top Info Bar */}
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-zinc-100 dark:border-white/5 mb-8">
                         <div className="flex items-center gap-6">
-                          <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 ${
+                           <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 ${
                             (result?.expiryDate && new Date(result.expiryDate) < new Date())
-                              ? 'bg-red-500/10 border-red-500/20 text-red-500'
+                              ? 'bg-amber-500/10 border-amber-500/20 text-amber-500'
                               : 'bg-trust-green/10 border-trust-green/20 text-trust-green'
                           }`}>
                             {result.type === 'registry' ? <Archive className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
@@ -532,7 +532,7 @@ export default function VerifyPage() {
                           <div>
                             <div className="flex items-center gap-3 mb-1">
                                <span className={`px-2 py-0.5 rounded-md font-mono text-[8px] font-black uppercase tracking-tighter ${
-                                 (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'bg-red-500 text-white' : 'bg-trust-green text-zinc-950'
+                                 (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'bg-amber-500 text-zinc-950' : 'bg-trust-green text-zinc-950'
                                }`}>Protocol_Alpha</span>
                                <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600">v2.4.0</span>
                             </div>
@@ -569,9 +569,22 @@ export default function VerifyPage() {
                               <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Authority Node</span>
                             </div>
                             <p className={`font-display text-sm font-bold truncate ${
-                              (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-trust-green'
+                              (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-amber-500' : 'text-trust-green'
                             }`}>
-                              {result.registrar?.companyName || `${result.registrar?.firstName} ${result.registrar?.lastName}` || result.userEmail}
+                              <div className="flex items-center gap-2">
+                                {result.registrar?.companyName || `${result.registrar?.firstName} ${result.registrar?.lastName}` || result.userEmail}
+                                {result.registrar?.verificationStatus === 'verified' ? (
+                                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-trust-green/10 text-trust-green rounded-md" title="Verified Authority">
+                                    <ShieldCheck className="w-3 h-3" />
+                                    <span className="font-mono text-[8px] font-black uppercase tracking-tighter">Verified</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 rounded-md" title="Verification Pending">
+                                    <User className="w-3 h-3" />
+                                    <span className="font-mono text-[8px] font-black uppercase tracking-tighter">Candidate</span>
+                                  </div>
+                                )}
+                              </div>
                             </p>
                          </div>
 
@@ -590,7 +603,7 @@ export default function VerifyPage() {
                               <Clock className="w-3.5 h-3.5" />
                               <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Persistence</span>
                             </div>
-                            <p className={`font-display text-sm font-bold truncate ${(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-red-500' : 'text-zinc-600 dark:text-zinc-300'}`}>
+                            <p className={`font-display text-sm font-bold truncate ${(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-amber-500' : 'text-zinc-600 dark:text-zinc-300'}`}>
                               {(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'Protocol Revoked' : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent')}
                             </p>
                          </div>
