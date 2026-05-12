@@ -38,10 +38,14 @@ export class DocumentService {
       try {
         let pdfParseLocal: any;
         if (typeof window === 'undefined') {
-          pdfParseLocal = require('pdf-parse');
+          // Handle various export styles (CommonJS vs ESM interop)
+          const imported = require('pdf-parse');
+          pdfParseLocal = imported.default || imported;
         }
         
-        if (!pdfParseLocal) throw new Error('PDF Engine not available in this environment');
+        if (typeof pdfParseLocal !== 'function') {
+          throw new Error('PDF parsing engine is not a function');
+        }
         
         const data = await pdfParseLocal(buffer);
         const text = data.text || '';
@@ -52,11 +56,11 @@ export class DocumentService {
         };
       } catch (e) {
         console.error('PDF Text Extraction failed:', e);
-        throw new Error('Could not parse PDF content locally');
+        throw new Error('Could not parse PDF content locally. Ensure the file is a valid text-based PDF.');
       }
     }
 
-    // For other formats, return empty text for now as local OCR requires complex native dependencies
+    // For images or other formats, we currently return empty text as AI/OCR is disabled per requirement
     return { text: '', pages: [] };
   }
 
