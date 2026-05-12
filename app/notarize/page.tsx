@@ -36,6 +36,7 @@ export default function NotarizePage() {
   const { notify, confirm } = useNotification();
   const [items, setItems] = useState<NotaryItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [enhancedIndexing, setEnhancedIndexing] = useState(true);
   const [batchTags, setBatchTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +113,25 @@ export default function NotarizePage() {
     for (const item of readyItems) {
       updateItemStatus(item.id, 'storing');
       try {
+        if (enhancedIndexing && (item.file.type === 'application/pdf' || item.file.type.startsWith('image/'))) {
+           const formData = new FormData();
+           formData.append('file', item.file);
+           formData.append('userEmail', email);
+           // Add tags if needed - though reference API doesn't take them in my current impl
+           
+           const res = await fetch('/api/documents/reference', {
+             method: 'POST',
+             body: formData,
+           });
+
+           if (res.ok) {
+             updateItemStatus(item.id, 'success');
+           } else {
+             updateItemStatus(item.id, 'error', 'Enhanced Index failed');
+           }
+           continue; // Move to next item
+        }
+
         const payload = SecurityService.prepareForTransit({
           userEmail: email,
           fileName: item.file.name,
@@ -286,7 +306,7 @@ export default function NotarizePage() {
                           item.status === 'error' ? 'text-red-500' :
                           'text-zinc-400 dark:text-zinc-700'
                         }`}>
-                          {item.status.replace('_', ' ')}
+                          {item.status === 'success' ? 'VERIFIED' : item.status.replace('_', ' ')}
                         </span>
                         {item.error && <p className={`text-[8px] font-bold uppercase ${
                           item.status === 'exists_other' ? 'text-amber-600' : 
@@ -317,6 +337,25 @@ export default function NotarizePage() {
               <h3 className="font-display font-bold text-xl text-zinc-900 dark:text-white mb-6 font-display">Batch Overview</h3>
               
               <div className="space-y-6 mb-8">
+                {/* Enhanced Indexing Toggle */}
+                <div className="p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-100 dark:border-white/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                       <ShieldCheck className={`w-4 h-4 ${enhancedIndexing ? 'text-trust-green' : 'text-zinc-400'}`} />
+                       <span className="font-display font-black text-[10px] uppercase tracking-wider text-zinc-900 dark:text-white">Enhanced Protocol</span>
+                    </div>
+                    <button 
+                      onClick={() => setEnhancedIndexing(!enhancedIndexing)}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${enhancedIndexing ? 'bg-trust-green' : 'bg-zinc-200 dark:bg-zinc-800'}`}
+                    >
+                      <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${enhancedIndexing ? 'left-6' : 'left-1'}`} />
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">
+                    Enables deep OCR and structural indexing. Required for content-based verification (matching modified files).
+                  </p>
+                </div>
+
                 {/* Batch Tags Section */}
                 <div className="space-y-3">
                    <label className="font-mono text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest block">Categorization Tags</label>

@@ -25,10 +25,15 @@ import { QRCodeSVG } from 'qrcode.react';
 export default function SharePage() {
   const { user } = useUser();
   const { notify } = useNotification();
+  const [hasMounted, setHasMounted] = useState(false);
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [showQR, setShowQR] = useState<{ url: string; title: string } | null>(null);
 
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  const baseUrl = hasMounted ? window.location.origin : '';
   const nodeUrl = `${baseUrl}/verify?node=${user?.email || ''}`;
 
   const copyToClipboard = (text: string, type: string) => {

@@ -32,18 +32,21 @@ export default function VerifyPage() {
   const nodeParam = searchParams.get('node');
   
   const { user, loading } = useUser();
+  const [hasMounted, setHasMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'file' | 'id'>('file');
   const [file, setFile] = useState<File | null>(null);
   const [registryId, setRegistryId] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isContentVerifying, setIsContentVerifying] = useState(false);
   const [result, setResult] = useState<any | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'unindexed' | 'mismatch' | null>(null);
+  const [contentResult, setContentResult] = useState<any | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<'authentic' | 'unindexed' | 'mismatch' | 'content_match' | 'no_match' | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState<string | null>(null);
   const [nodeInfo, setNodeInfo] = useState<any | null>(null);
 
-  useEffect(() => {
+  const fetchNodeInfo = useCallback(() => {
     if (nodeParam) {
       fetch(`/api/node?email=${nodeParam}`)
         .then(res => res.json())
@@ -53,6 +56,56 @@ export default function VerifyPage() {
         .catch(err => console.error('Failed to fetch node info:', err));
     }
   }, [nodeParam]);
+
+  useEffect(() => {
+    setHasMounted(true);
+    fetchNodeInfo();
+  }, [fetchNodeInfo]);
+
+  const handleContentVerify = async (referenceId: string, contentFile: File) => {
+    setIsContentVerifying(true);
+    setError(null);
+    setContentResult(null);
+
+    const emailValue = localStorage.getItem('authenticated_user_email');
+    
+    try {
+      if (emailValue) {
+        await fetch('/api/payment/deduct-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailValue })
+        });
+      }
+
+      const formData = new FormData();
+      formData.append('referenceDocumentId', referenceId);
+      formData.append('file', contentFile);
+
+      const res = await fetch('/api/documents/verify', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
+        setContentResult(data);
+        if (data.matchType === 'CONTENT_MATCH' || data.matchType === 'EXACT_HASH_MATCH' || data.matchType === 'PARTIAL_CONTENT_MATCH') {
+          setVerificationStatus('content_match');
+        } else {
+          setVerificationStatus('no_match');
+        }
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Content verification failed');
+      }
+    } catch (err: any) {
+      setError(err.message || 'System failure during content analysis.');
+    } finally {
+      setIsContentVerifying(false);
+    }
+  };
 
   const calculateHash = async (file: File) => {
     const buffer = await file.arrayBuffer();
@@ -387,7 +440,7 @@ export default function VerifyPage() {
                       onChange={onFileChange}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
-                    <div className="border-2 border-dashed border-zinc-200 dark:border-white/10 group-hover/upload:border-trust-green/40 group-hover/upload:bg-trust-green/[0.02] rounded-[2.5rem] py-20 px-8 transition-all duration-700 bg-zinc-50/50 dark:bg-zinc-950/30 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="border-2 border-dashed border-zinc-200 dark:border-white/10 group-hover/upload:border-trust-green/40 group-hover/upload:bg-trust-green/[0.02] rounded-[2.5rem] py-16 px-8 transition-all duration-700 bg-zinc-50/50 dark:bg-zinc-950/30 flex flex-col items-center justify-center relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-trust-green/[0.01] to-transparent opacity-0 group-hover/upload:opacity-100 transition-opacity duration-1000" />
                       <div className="w-20 h-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-2xl flex items-center justify-center mb-8 shadow-xl group-hover/upload:scale-110 transition-all duration-700 relative z-10">
                         <Upload className="w-10 h-10 text-zinc-400 dark:text-zinc-600 group-hover/upload:text-trust-green transition-colors" />
@@ -399,6 +452,16 @@ export default function VerifyPage() {
                         {file ? `Payload: ${(file.size / 1024).toFixed(1)} KB. Awaiting authorization.` : 'Drop cryptographic asset for substrate evaluation.'}
                       </p>
                     </div>
+
+                    {file && !result && (
+                      <div className="mt-6 p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-100 dark:border-white/5 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] uppercase font-black text-zinc-400 tracking-widest">Enhanced Mode</span>
+                          <span className="px-2 py-0.5 bg-trust-green/10 text-trust-green border border-trust-green/20 rounded font-mono text-[8px] font-black uppercase">OCR Fallback Enabled</span>
+                        </div>
+                        <p className="text-[11px] text-zinc-500 font-medium">Wait, have a specific Registry ID for content-based matching? You can also query by ID first for better results.</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -468,11 +531,11 @@ export default function VerifyPage() {
                     </div>
                     <h3 className="font-display font-black text-2xl lg:text-3xl text-red-600 dark:text-red-500 mb-2 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
                     <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-6 max-w-lg mx-auto leading-relaxed text-sm font-medium relative z-10">
-                      The cryptographic fingerprint requested is <span className="text-red-600 font-black whitespace-nowrap">completely absent</span> from the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
+                      The cryptographic fingerprint requested is <span className="text-red-600 font-black whitespace-nowrap uppercase">unverified</span> on the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
                       <button 
-                        onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
+                        onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); setContentResult(null); }}
                         className="h-14 px-10 bg-red-600 text-white border border-red-500/20 rounded-2xl font-display font-black text-[10px] uppercase tracking-[0.3em] hover:bg-red-700 transition-all shadow-xl shadow-red-500/20 active:scale-95"
                       >
                         Reset Authority Gateway
@@ -494,7 +557,7 @@ export default function VerifyPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
-                        onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
+                        onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); setContentResult(null); }}
                         className="h-14 px-10 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-xl dark:shadow-none active:scale-95"
                       >
                         Terminate Search
@@ -526,9 +589,9 @@ export default function VerifyPage() {
                            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 ${
                             (result?.expiryDate && new Date(result.expiryDate) < new Date())
                               ? 'bg-yellow-400/10 border-yellow-400/20 text-yellow-600'
-                              : result.registrar?.verificationStatus === 'verified'
+                              : result.registrar?.verificationStatus === 'verified' || verificationStatus === 'content_match'
                                 ? 'bg-trust-green/10 border-trust-green/20 text-trust-green shadow-[0_0_20px_rgba(34,197,94,0.1)]'
-                                : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-white/5 text-zinc-400'
+                                : 'bg-red-500/10 border-red-500/20 text-red-500'
                           }`}>
                             {result.type === 'registry' ? <Archive className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
                           </div>
@@ -556,13 +619,90 @@ export default function VerifyPage() {
                             </button>
                           )}
                           <button 
-                            onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); setError(null); }}
+                            onClick={() => { setFile(null); setRegistryId(''); setResult(null); setVerificationStatus(null); setError(null); setContentResult(null); }}
                             className="h-12 w-12 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-xl flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                           >
                              <X className="w-5 h-5" />
                           </button>
                         </div>
                       </div>
+
+                      {/* Content Verification Trigger (For Registry Record) */}
+                      {result.type === 'registry' && !contentResult && !isContentVerifying && (
+                        <div className="mb-8 p-8 bg-zinc-50 dark:bg-zinc-950 rounded-[2rem] border border-zinc-100 dark:border-white/5 border-dashed">
+                          <div className="flex items-center justify-between gap-6">
+                            <div>
+                              <h4 className="font-display font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight mb-2">Content-Based Analysis</h4>
+                              <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400 font-medium">Have the original document? Upload it now for deep structural and text-level verification using our OCR neural engine.</p>
+                            </div>
+                            <div className="relative group">
+                              <input 
+                                type="file" 
+                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                onChange={(e) => e.target.files?.[0] && handleContentVerify(result._id || result.id, e.target.files[0])}
+                              />
+                              <button className="h-12 px-6 bg-trust-green text-zinc-950 rounded-xl font-display font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-trust-green/20 group-hover:scale-105 transition-all">
+                                Verify Content
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Content Verification Loading */}
+                      {isContentVerifying && (
+                        <div className="mb-8 p-12 bg-zinc-50 dark:bg-zinc-950 rounded-[2rem] border border-zinc-100 dark:border-white/5 text-center">
+                          <Loader2 className="w-10 h-10 text-trust-green animate-spin mx-auto mb-4" />
+                          <p className="font-mono text-[9px] font-black uppercase tracking-[0.3em] text-zinc-400">Deep Artifact Scanning...</p>
+                        </div>
+                      )}
+
+                      {/* Content Verification Result */}
+                      {contentResult && (
+                        <div className={`mb-8 p-8 rounded-[2rem] border-2 ${
+                          contentResult.verified ? 'bg-trust-green/[0.03] border-trust-green/20' : 'bg-red-500/[0.03] border-red-500/20'
+                        }`}>
+                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
+                            <div className="space-y-4 flex-1">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                  contentResult.verified ? 'bg-trust-green/10 text-trust-green' : 'bg-red-500/10 text-red-500'
+                                }`}>
+                                  {contentResult.verified ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                                </div>
+                                <div>
+                                  <h5 className="font-display font-black text-sm text-zinc-900 dark:text-white uppercase tracking-wider">
+                                    {contentResult.matchType.replace(/_/g, ' ')}
+                                  </h5>
+                                  <p className="font-mono text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">Similarity Score: {contentResult.similarityScore}%</p>
+                                </div>
+                              </div>
+                              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                                {contentResult.verified 
+                                  ? 'Content integrity confirmed. The artifact text significantly matches the reference substrate records.' 
+                                  : 'Content mismatch detected. Structural anomalies or textual deviations exceed protocol tolerance.'}
+                              </p>
+                              {contentResult.missingFields && contentResult.missingFields.length > 0 && (
+                                <div className="pt-2">
+                                  <p className="font-mono text-[8px] font-black uppercase tracking-widest text-red-500 mb-2">Anomalies Detected / Missing Columns:</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {contentResult.missingFields.map((f: string) => (
+                                      <span key={f} className="px-2 py-0.5 bg-red-500/10 text-red-500 rounded font-mono text-[8px] font-black uppercase">{f}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="shrink-0 text-center md:text-right">
+                              <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 font-bold">Verification Rating</p>
+                              <div className={`text-4xl font-display font-black ${contentResult.verified ? 'text-trust-green' : 'text-red-500'}`}>
+                                {contentResult.similarityScore}<span className="text-xl opacity-40">%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Details Grid */}
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -573,15 +713,15 @@ export default function VerifyPage() {
                                 <Building2 className="w-3.5 h-3.5" />
                                 <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Authority Protocol</span>
                               </div>
-                              {result.registrar?.verificationStatus === 'verified' ? (
+                              {result.registrar?.verificationStatus === 'verified' || verificationStatus === 'content_match' ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green text-zinc-950 rounded-full shadow-lg shadow-trust-green/20">
                                   <ShieldCheck className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-zinc-950">Verified</span>
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-zinc-950">VERIFIED</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500 text-zinc-950 rounded-full shadow-lg shadow-amber-500/20">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500 text-white rounded-full shadow-lg shadow-red-500/20">
                                   <Clock className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-zinc-950">Unverified</span>
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">UNVERIFIED</span>
                                 </div>
                               )}
                             </div>
