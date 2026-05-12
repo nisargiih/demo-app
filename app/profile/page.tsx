@@ -481,7 +481,7 @@ export default function ProfilePage() {
                          </div>
                          <p className="font-display font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-tight">{isVerified ? 'Verified Account' : isPending ? 'Review Pending' : 'Unverified'}</p>
                       </div>
-                      <span className="font-mono text-[9px] font-bold text-zinc-400 dark:text-zinc-600">SCORE: {isVerified ? '98' : '40'}</span>
+                      <span className="font-mono text-[9px] font-bold text-zinc-400 dark:text-zinc-600">SCORE: {isVerified ? '98.4' : '42.0'}</span>
                    </div>
                 </section>
                 <section className="glass rounded-3xl p-6 border border-zinc-100 dark:border-white/5">
@@ -491,9 +491,9 @@ export default function ProfilePage() {
                          <div className="w-8 h-8 rounded-lg bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-zinc-400 dark:text-zinc-600 border border-zinc-100 dark:border-white/5">
                             <Fingerprint className="w-4 h-4" />
                          </div>
-                         <p className="font-display font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-tight">TC-HASH-NODE</p>
+                         <p className="font-display font-bold text-xs text-zinc-900 dark:text-white uppercase tracking-tight">NODE_ID</p>
                       </div>
-                      <span className="font-mono text-[9px] font-bold text-trust-green uppercase tracking-widest">ALPHA_REV_2</span>
+                      <span className="font-mono text-[9px] font-bold text-trust-green uppercase tracking-widest">{user?.email ? user.email.split('@')[0].toUpperCase().slice(0, 8) + '_v2' : 'TC_NODE'}</span>
                    </div>
                 </section>
               </div>

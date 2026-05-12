@@ -147,7 +147,7 @@ export default function RegisterPage() {
                 >
                   <CheckCircle2 className="text-trust-green w-16 h-16 mb-4" />
                   <h2 className="font-display text-3xl font-bold mb-3 text-zinc-900 dark:text-white">Hash Created</h2>
-                  <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-8 max-w-[280px]">Your identity is being propagation across the network...</p>
+                  <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-8 max-w-[280px]">Your identity is being propagated across the network...</p>
                 </motion.div>
               )}
             </AnimatePresence>
