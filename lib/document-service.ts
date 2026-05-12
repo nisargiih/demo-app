@@ -1,8 +1,18 @@
 import crypto from 'crypto';
 import stringSimilarity from 'string-similarity';
-import { GoogleGenAI, Type } from "@google/genai";
 import clientPromise from './mongodb';
 import { ObjectId } from 'mongodb';
+
+// Import pdf-parse using a method that avoids bundling issues in Next.js/Webpack
+let pdfParse: any;
+if (typeof process !== 'undefined') {
+  try {
+    // Basic dynamic import for node environment
+    pdfParse = require('pdf-parse/lib/pdf-parse.js');
+  } catch (e) {
+    console.error('Failed to initialize pdf-parse:', e);
+  }
+}
 
 export enum MatchType {
   EXACT_HASH_MATCH = 'EXACT_HASH_MATCH',
@@ -10,7 +20,7 @@ export enum MatchType {
   PARTIAL_CONTENT_MATCH = 'PARTIAL_CONTENT_MATCH',
   LOW_CONFIDENCE_MATCH = 'LOW_CONFIDENCE_MATCH',
   NO_MATCH = 'NO_MATCH',
-  OCR_FAILED = 'OCR_FAILED',
+  PROCESSING_FAILED = 'PROCESSING_FAILED',
   MANUAL_REVIEW_REQUIRED = 'MANUAL_REVIEW_REQUIRED'
 }
 
@@ -30,101 +40,42 @@ export interface VerificationResult {
 }
 
 export class DocumentService {
-  private static ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '' });
-
   static generateHash(buffer: Buffer): string {
     return crypto.createHash('sha256').update(buffer).digest('hex');
   }
 
   static async extractText(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
-    // Rely on Gemini for all text extraction (PDF & Images)
-    // Gemini 1.5 Flash is highly accurate and handles diverse layouts/PDF encodings
-    return await this.extractTextWithGemini(buffer, mimeType);
-  }
-
-  private static async extractTextWithGemini(buffer: Buffer, mimeType: string): Promise<{ text: string; pages: any[] }> {
-    try {
-      const base64Data = buffer.toString('base64');
-      const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const response = await model.generateContent({
-        contents: [
-          {
-            parts: [
-              {
-                inlineData: {
-                  data: base64Data,
-                  mimeType: mimeType
-                }
-              },
-              {
-                text: "Extract all text from this document accurately. For multi-page documents, represent each page's content clearly. Return as JSON with a 'rawText' field and a 'pages' array of objects with 'pageNumber' and 'text'."
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              rawText: { type: Type.STRING },
-              pages: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    pageNumber: { type: Type.INTEGER },
-                    text: { type: Type.STRING }
-                  },
-                  required: ["pageNumber", "text"]
-                }
-              }
-            },
-            required: ["rawText", "pages"]
-          }
-        }
-      });
-
-      const result = JSON.parse(response.response.text());
-      return {
-        text: result.rawText,
-        pages: result.pages
-      };
-    } catch (error) {
-      console.error('Gemini OCR failed:', error);
-      throw new Error('OCR extraction failed');
+    if (mimeType === 'application/pdf') {
+      try {
+        if (!pdfParse) throw new Error('PDF Engine not initialized');
+        
+        const data = await pdfParse(buffer);
+        const text = data.text || '';
+        
+        return {
+          text: text,
+          pages: text.split('\f').map((t: string, i: number) => ({ pageNumber: i + 1, text: t.trim() }))
+        };
+      } catch (e) {
+        console.error('PDF Text Extraction failed:', e);
+        throw new Error('Could not parse PDF content');
+      }
     }
+
+    // For images, since AI is disabled, we return empty text as OCR requires AI/Engines
+    return { text: '', pages: [] };
   }
 
   static compareText(refText: string, uploadText: string): number {
-    // Normalize text
-    const normalize = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim();
+    if (!refText || !uploadText) return 0;
+    // Normalize text: lowercase, remove extra whitespace, remove non-alphanumeric for cleaner comparison
+    const normalize = (t: string) => t.toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+      
     const score = stringSimilarity.compareTwoStrings(normalize(refText), normalize(uploadText));
     return Math.round(score * 100);
-  }
-
-  static async extractFields(text: string): Promise<Record<string, any>> {
-    try {
-      const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const response = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [{
-              text: `Extract key document fields from the following text: "${text}". 
-              Fields to look for: Document number, Name, Date, Amount, Invoice number, Certificate number, Customer ID, Address, Total value, Issue date, Expiry date.
-              Return as JSON object with field names as keys.`
-            }]
-          }
-        ],
-        generationConfig: {
-          responseMimeType: "application/json"
-        }
-      });
-      return JSON.parse(response.response.text());
-    } catch (e) {
-      return {};
-    }
   }
 
   static async verifyDocument(referenceDocId: string, uploadedFile: { buffer: Buffer; mimeType: string; name: string }): Promise<VerificationResult> {
@@ -150,23 +101,18 @@ export class DocumentService {
       return result;
     }
 
-    // 3. OCR Fallback
-    // Check if we already have reference text
+    // 3. Local Text Comparison Fallback
     let refTextRecord = await db.collection('document_text').findOne({ documentId: refDoc._id });
     if (!refTextRecord) {
-      // We might need the original file to extract text if it wasn't done at upload time
-      // For now, let's assume if it's missing, we fail or try to get it if we had storage (we don't stored the file content in DB usually)
-      // BUT the requirement says: "The system should continue using hash verification as the first step. If the hash does not match, the system should extract document content and compare the text."
-      // So we need to have the reference text stored.
-      throw new Error('Reference document content not Indexed. Please re-index reference document.');
+      throw new Error('Reference document content not Indexed for deep matching.');
     }
 
-    const { text: uploadedText, pages: uploadedPages } = await this.extractText(uploadedFile.buffer, uploadedFile.mimeType);
+    const { text: uploadedText } = await this.extractText(uploadedFile.buffer, uploadedFile.mimeType);
 
-    if (!uploadedText || uploadedText.length < 20) {
+    if (!uploadedText || uploadedText.length < 10) {
       return {
         verified: false,
-        matchType: MatchType.OCR_FAILED,
+        matchType: MatchType.PROCESSING_FAILED,
         hashMatched: false,
         contentChecked: true,
         confidence: 0,
@@ -174,16 +120,17 @@ export class DocumentService {
       };
     }
 
-    const similarityScore = this.compareText(refTextRecord.cleanText || refTextRecord.rawText, uploadedText);
+    const refText = refTextRecord.cleanText || refTextRecord.rawText || '';
+    const similarityScore = this.compareText(refText, uploadedText);
 
     let matchType = MatchType.NO_MATCH;
     let verified = false;
     let manualReviewRequired = false;
 
-    if (similarityScore >= 85) {
+    if (similarityScore >= 90) {
       matchType = MatchType.CONTENT_MATCH;
       verified = true;
-    } else if (similarityScore >= 65) {
+    } else if (similarityScore >= 70) {
       matchType = MatchType.PARTIAL_CONTENT_MATCH;
       verified = false;
       manualReviewRequired = true;
@@ -193,23 +140,6 @@ export class DocumentService {
       manualReviewRequired = true;
     }
 
-    // Field-level matching if score is decent
-    let fieldMatch: Record<string, boolean> = {};
-    let missingFields: string[] = [];
-    if (similarityScore >= 40) {
-      const refFields = refDoc.extractedFields || {};
-      const uploadedFields = await this.extractFields(uploadedText);
-      
-      for (const key of Object.keys(refFields)) {
-        if (uploadedFields[key]) {
-          // Basic comparison - in real world you'd want fuzzy or normalized comparison
-          fieldMatch[key] = String(refFields[key]).toLowerCase() === String(uploadedFields[key]).toLowerCase();
-        } else {
-          missingFields.push(key);
-        }
-      }
-    }
-
     const result: VerificationResult = {
       verified,
       matchType,
@@ -217,9 +147,7 @@ export class DocumentService {
       contentChecked: true,
       similarityScore,
       confidence: similarityScore,
-      manualReviewRequired,
-      fieldMatch,
-      missingFields
+      manualReviewRequired
     };
 
     await this.saveVerificationResult(referenceDocId, null, result);
@@ -243,15 +171,13 @@ export class DocumentService {
     
     const hash = this.generateHash(file.buffer);
     const { text, pages } = await this.extractText(file.buffer, file.mimeType);
-    const fields = await this.extractFields(text);
 
     const docResult = await db.collection('documents').insertOne({
       fileName: file.name,
       fileType: file.mimeType,
       hash,
-      ocrStatus: 'completed',
+      ocrStatus: text ? 'completed' : 'not_supported',
       verificationStatus: 'verified',
-      extractedFields: fields,
       ...metadata,
       createdAt: new Date()
     });
@@ -261,7 +187,7 @@ export class DocumentService {
       rawText: text,
       cleanText: text.toLowerCase().replace(/\s+/g, ' ').trim(),
       pages: pages.map(p => ({ ...p, confidence: 100 })),
-      extractionMethod: file.mimeType === 'application/pdf' ? 'pdf_text' : 'ocr',
+      extractionMethod: 'local_parser',
       createdAt: new Date()
     });
 

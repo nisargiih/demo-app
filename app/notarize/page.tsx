@@ -352,7 +352,7 @@ export default function NotarizePage() {
                     </button>
                   </div>
                   <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">
-                    Enables deep OCR and structural indexing. Required for content-based verification (matching modified files).
+                    Enables deep structural and text-based indexing. Required for content-level verification (matching modified files).
                   </p>
                 </div>
 

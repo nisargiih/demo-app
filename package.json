@@ -11,7 +11,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1043.0",
     "@aws-sdk/s3-request-presigner": "^3.1043.0",
-    "@google/genai": "^2.1.0",
     "@hookform/resolvers": "latest",
     "@types/bcryptjs": "^2.4.6",
     "@types/crypto-js": "^4.2.2",
@@ -25,6 +24,7 @@
     "natural": "^8.1.1",
     "next": "15.1.0",
     "next-themes": "^0.4.6",
+    "pdf-parse": "^2.4.5",
     "qrcode.react": "^4.2.0",
     "razorpay": "^2.9.6",
     "react": "19.0.0",
@@ -35,7 +35,6 @@
     "sharp": "^0.34.5",
     "string-similarity": "^4.0.4",
     "tailwind-merge": "latest",
-    "tesseract.js": "^7.0.0",
     "zod": "latest"
   },
   "devDependencies": {

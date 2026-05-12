@@ -456,10 +456,10 @@ export default function VerifyPage() {
                     {file && !result && (
                       <div className="mt-6 p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-100 dark:border-white/5 space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-[10px] uppercase font-black text-zinc-400 tracking-widest">Enhanced Mode</span>
-                          <span className="px-2 py-0.5 bg-trust-green/10 text-trust-green border border-trust-green/20 rounded font-mono text-[8px] font-black uppercase">OCR Fallback Enabled</span>
+                          <span className="font-mono text-[10px] uppercase font-black text-zinc-400 tracking-widest">Deep Analysis Mode</span>
+                          <span className="px-2 py-0.5 bg-trust-green/10 text-trust-green border border-trust-green/20 rounded font-mono text-[8px] font-black uppercase">Content Verification Active</span>
                         </div>
-                        <p className="text-[11px] text-zinc-500 font-medium">Wait, have a specific Registry ID for content-based matching? You can also query by ID first for better results.</p>
+                        <p className="text-[11px] text-zinc-500 font-medium">Wait, have a specific Registry ID? You can query by ID for deep structural matching of the document content.</p>
                       </div>
                     )}
                   </div>
@@ -633,7 +633,7 @@ export default function VerifyPage() {
                           <div className="flex items-center justify-between gap-6">
                             <div>
                               <h4 className="font-display font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight mb-2">Content-Based Analysis</h4>
-                              <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400 font-medium">Have the original document? Upload it now for deep structural and text-level verification using our OCR neural engine.</p>
+                              <p className="font-sans text-xs text-zinc-500 dark:text-zinc-400 font-medium">Have the original document? Upload it now for structural and text-level verification using our secondary verification algorithm.</p>
                             </div>
                             <div className="relative group">
                               <input 
