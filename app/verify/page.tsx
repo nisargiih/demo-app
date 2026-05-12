@@ -18,7 +18,8 @@ import {
   Fingerprint,
   Building2,
   Quote,
-  Globe
+  Globe,
+  Mail
 } from 'lucide-react';
 import { Sidebar } from '@/components/navbar';
 import { BackgroundAnimation } from '@/components/background-animation';
@@ -525,7 +526,9 @@ export default function VerifyPage() {
                            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 ${
                             (result?.expiryDate && new Date(result.expiryDate) < new Date())
                               ? 'bg-yellow-400/10 border-yellow-400/20 text-yellow-600'
-                              : 'bg-trust-green/10 border-trust-green/20 text-trust-green'
+                              : result.registrar?.verificationStatus === 'verified'
+                                ? 'bg-trust-green/10 border-trust-green/20 text-trust-green shadow-[0_0_20px_rgba(34,197,94,0.1)]'
+                                : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-white/5 text-zinc-400'
                           }`}>
                             {result.type === 'registry' ? <Archive className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
                           </div>
@@ -571,14 +574,16 @@ export default function VerifyPage() {
                                 <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Authority Protocol</span>
                               </div>
                               {result.registrar?.verificationStatus === 'verified' ? (
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 text-trust-green rounded-full border border-trust-green/20">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green text-zinc-950 rounded-full shadow-lg shadow-trust-green/20">
                                   <ShieldCheck className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">Verified Identity</span>
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">
+                                    {result.registrar?.entityType === 'Company' ? 'Verified Organization' : 'Verified Individual'}
+                                  </span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-400 rounded-full border border-zinc-200 dark:border-white/5">
-                                  <User className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-xs">Standard Candidate</span>
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">Pending Verification</span>
                                 </div>
                               )}
                             </div>
@@ -586,30 +591,46 @@ export default function VerifyPage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                               <div>
                                 <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5">Entity Representative</p>
-                                <p className={`font-display text-lg font-bold ${
-                                  (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-yellow-600' : 'text-zinc-900 dark:text-white'
-                                }`}>
-                                  <div className="flex items-center gap-2">
-                                    {result.registrar?.firstName ? `${result.registrar.firstName} ${result.registrar.lastName}` : result.userEmail}
-                                    {result.registrar?.verificationStatus === 'verified' && (
-                                      <div className="flex items-center justify-center w-5 h-5 bg-trust-green rounded-full shadow-lg shadow-trust-green/20">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-zinc-950" />
-                                      </div>
-                                    )}
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-white/5 flex items-center justify-center">
+                                    <User className="w-5 h-5 text-zinc-400" />
                                   </div>
-                                </p>
-                                <p className="font-mono text-[10px] text-zinc-500 mt-1">{result.userEmail}</p>
+                                  <div>
+                                    <p className={`font-display text-base font-bold ${
+                                      (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-yellow-600' : 'text-zinc-900 dark:text-white'
+                                    }`}>
+                                      <span className="flex items-center gap-2">
+                                        {result.registrar?.firstName ? `${result.registrar.firstName} ${result.registrar.lastName}` : result.userEmail}
+                                        {result.registrar?.verificationStatus === 'verified' && (
+                                          <CheckCircle2 className="w-4 h-4 text-trust-green" />
+                                        )}
+                                      </span>
+                                    </p>
+                                    <p className="font-mono text-[10px] text-zinc-500">{result.userEmail}</p>
+                                  </div>
+                                </div>
                               </div>
 
                               <div>
                                 <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5">Node Classification</p>
-                                <div className="flex items-center gap-2">
-                                  <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded font-mono text-[9px] font-black text-zinc-600 dark:text-zinc-400 uppercase">
-                                    {result.registrar?.entityType || 'Individual'}
-                                  </span>
-                                  {result.registrar?.location && (
-                                    <span className="font-sans text-[10px] text-zinc-500 font-medium">{result.registrar.location}</span>
-                                  )}
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-white dark:bg-zinc-900 rounded-xl border border-zinc-100 dark:border-white/5 flex items-center justify-center">
+                                    {result.registrar?.entityType === 'Company' ? (
+                                      <Building2 className="w-5 h-5 text-trust-green" />
+                                    ) : (
+                                      <User className="w-5 h-5 text-blue-500" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded font-mono text-[9px] font-black text-zinc-600 dark:text-zinc-400 uppercase">
+                                        {result.registrar?.entityType || 'Individual'}
+                                      </span>
+                                    </div>
+                                    {result.registrar?.location && (
+                                      <p className="font-sans text-[10px] text-zinc-500 font-medium mt-0.5">{result.registrar.location}</p>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -619,23 +640,42 @@ export default function VerifyPage() {
                               <motion.div 
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mt-8 pt-6 border-t border-zinc-100 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-6"
+                                className="mt-8 pt-6 border-t border-zinc-100 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6"
                               >
-                                <div>
-                                  <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green">Organization Name</p>
-                                  <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyName}</p>
-                                  {result.registrar.companyWebsite && (
-                                    <a href={result.registrar.companyWebsite} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] text-trust-green hover:underline mt-1 block">
-                                      {result.registrar.companyWebsite.replace(/^https?:\/\//, '')}
-                                    </a>
+                                <div className="space-y-4">
+                                  <div>
+                                    <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green flex items-center gap-1.5">
+                                      <Building2 className="w-3 h-3" />
+                                      Organization Name
+                                    </p>
+                                    <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyName}</p>
+                                    {result.registrar.companyWebsite && (
+                                      <a href={result.registrar.companyWebsite} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] text-trust-green hover:underline mt-1 flex items-center gap-1">
+                                        <Globe className="w-2.5 h-2.5" />
+                                        {result.registrar.companyWebsite.replace(/^https?:\/\//, '')}
+                                      </a>
+                                    )}
+                                  </div>
+                                  {result.registrar.companyIndustry && (
+                                    <div>
+                                      <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5">Industry Segment</p>
+                                      <p className="font-sans text-[11px] text-zinc-600 dark:text-zinc-400 font-bold uppercase tracking-tight">{result.registrar.companyIndustry}</p>
+                                    </div>
                                   )}
                                 </div>
-                                <div>
-                                  <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green">Corporate Contact</p>
-                                  <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyEmail || 'N/A'}</p>
-                                  {result.registrar.companyRegistration && (
-                                    <p className="font-mono text-[10px] text-zinc-500 mt-1 uppercase">ID: {result.registrar.companyRegistration}</p>
-                                  )}
+                                <div className="space-y-4">
+                                  <div>
+                                    <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green flex items-center gap-1.5">
+                                      <Mail className="w-3 h-3" />
+                                      Corporate Contact
+                                    </p>
+                                    <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyEmail || 'N/A'}</p>
+                                    {result.registrar.companyRegistration && (
+                                      <p className="font-mono text-[10px] text-zinc-500 mt-1 uppercase bg-zinc-100 dark:bg-zinc-900 px-2 py-0.5 rounded inline-block border border-zinc-200 dark:border-white/5">
+                                        ID: {result.registrar.companyRegistration}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
                               </motion.div>
                             )}

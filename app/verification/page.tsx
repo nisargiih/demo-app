@@ -293,23 +293,64 @@ export default function VerificationPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="glass rounded-[2.5rem] p-12 text-center border border-zinc-100 dark:border-white/5 shadow-xl dark:shadow-none"
                   >
-                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8 relative ${
+                    <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 relative ${
                       isVerified ? 'bg-trust-green/10' : 'bg-amber-50 dark:bg-amber-950/20'
                     }`}>
                       {isVerified ? (
-                        <CheckCircle2 className="w-10 h-10 text-trust-green" />
+                        <div className="relative">
+                          {user?.entityType === 'Company' ? (
+                            <Building2 className="w-12 h-12 text-trust-green" />
+                          ) : (
+                            <User className="w-12 h-12 text-trust-green" />
+                          )}
+                          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-trust-green rounded-full flex items-center justify-center shadow-lg">
+                            <CheckCircle2 className="w-5 h-5 text-zinc-950" />
+                          </div>
+                        </div>
                       ) : (
-                        <Clock className="w-10 h-10 text-amber-500 animate-pulse" />
+                        <Clock className="w-12 h-12 text-amber-500 animate-pulse" />
                       )}
                     </div>
-                    <h2 className="font-display text-2xl font-bold text-zinc-950 dark:text-white mb-4">
-                      {isVerified ? 'Verification Complete' : 'Verification Pending'}
-                    </h2>
-                    <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-10 max-w-sm mx-auto leading-relaxed text-sm">
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <h2 className="font-display text-3xl font-bold text-zinc-950 dark:text-white">
+                        {isVerified ? 'Identity Verified' : 'Review Active'}
+                      </h2>
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 rounded-full border border-zinc-200 dark:border-white/5 mb-6">
+                      {user?.entityType === 'Company' ? (
+                        <Building2 className="w-3 h-3 text-zinc-400" />
+                      ) : (
+                        <User className="w-3 h-3 text-zinc-400" />
+                      )}
+                      <span className="font-mono text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{user?.entityType || 'Individual'} Node</span>
+                    </div>
+                    <p className="font-sans text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm mx-auto leading-relaxed text-sm">
                       {isVerified 
                         ? 'Your identity and documents have been cryptographically notarized on our network.' 
                         : 'Your documents are currently under review. This protocol typically resolves in 2-5 business days.'}
                     </p>
+
+                    {isVerified && user?.entityType === 'Company' && (
+                      <div className="mb-8 p-6 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-white/5 rounded-3xl max-w-md mx-auto text-left">
+                        <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-3">Verified Organization Details</p>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="font-display font-bold text-sm text-zinc-900 dark:text-white uppercase tracking-tight">{user.companyName}</p>
+                            <p className="font-sans text-[10px] text-zinc-500">{user.companyEmail}</p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 pt-3 border-t border-zinc-100 dark:border-white/5">
+                            <div>
+                               <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1">Registration ID</p>
+                               <p className="font-sans text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">{user.companyRegistration || 'N/A'}</p>
+                            </div>
+                            <div>
+                               <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1">Location</p>
+                               <p className="font-sans text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase">{user.location || 'Global'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="space-y-3 max-w-md mx-auto">
                       {uploadedDocs.map((doc) => (
