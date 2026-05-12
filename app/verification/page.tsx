@@ -312,8 +312,12 @@ export default function VerificationPage() {
                       )}
                     </div>
                     <div className="flex items-center justify-center gap-2 mb-4">
-                      <h2 className="font-display text-3xl font-bold text-zinc-950 dark:text-white">
-                        {isVerified ? 'Identity Verified' : 'Review Active'}
+                      <h2 className="font-display text-4xl font-black text-zinc-950 dark:text-white uppercase tracking-tighter">
+                        {isVerified ? (
+                          <span className="text-trust-green">Verified</span>
+                        ) : (
+                          <span className="text-amber-500">Unverified</span>
+                        )}
                       </h2>
                     </div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 rounded-full border border-zinc-200 dark:border-white/5 mb-6">

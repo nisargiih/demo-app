@@ -576,14 +576,12 @@ export default function VerifyPage() {
                               {result.registrar?.verificationStatus === 'verified' ? (
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green text-zinc-950 rounded-full shadow-lg shadow-trust-green/20">
                                   <ShieldCheck className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">
-                                    {result.registrar?.entityType === 'Company' ? 'Verified Organization' : 'Verified Individual'}
-                                  </span>
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-zinc-950">Verified</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-400 rounded-full border border-zinc-200 dark:border-white/5">
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500 text-zinc-950 rounded-full shadow-lg shadow-amber-500/20">
                                   <Clock className="w-3.5 h-3.5" />
-                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">Pending Verification</span>
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-zinc-950">Unverified</span>
                                 </div>
                               )}
                             </div>

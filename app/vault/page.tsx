@@ -17,6 +17,8 @@ import {
   AlertCircle,
   MoreVertical,
   CheckCircle2,
+  ShieldCheck,
+  ShieldAlert,
   X,
   RefreshCw,
   Tag,
@@ -466,6 +468,17 @@ export default function VaultPage() {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-3 mb-1">
                                 <h3 className="font-display font-black text-xl text-zinc-950 dark:text-white truncate uppercase tracking-tight">{h.fileName}</h3>
+                                {h.registrar?.verificationStatus === 'verified' ? (
+                                  <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green text-zinc-950 rounded-lg shadow-lg shadow-trust-green/20">
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    <span className="font-mono text-[9px] font-black uppercase tracking-widest">Verified</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-500 rounded-lg border border-amber-500/20 shadow-lg shadow-amber-500/5">
+                                    <ShieldAlert className="w-3.5 h-3.5" />
+                                    <span className="font-mono text-[9px] font-black uppercase tracking-widest">Unverified</span>
+                                  </div>
+                                )}
                                 <span className="px-2 py-0.5 bg-zinc-50 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 font-mono text-[8px] font-black uppercase rounded-lg tracking-widest border border-zinc-100 dark:border-white/5">{(h.fileSize / 1024).toFixed(1)} KB</span>
                               </div>
                               <div className="flex flex-wrap items-center gap-4">
@@ -610,6 +623,7 @@ export default function VaultPage() {
                       </button>
                     </th>
                     <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Protocol Artifact</th>
+                    <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Status</th>
                     <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Verification Hash</th>
                     <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Size</th>
                     <th className="px-6 py-4 font-mono text-[9px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">Genesis</th>
@@ -647,6 +661,19 @@ export default function VaultPage() {
                                 </div>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {h.registrar?.verificationStatus === 'verified' ? (
+                            <div className="flex items-center gap-1 text-trust-green bg-trust-green/10 px-2 py-1 rounded-md border border-trust-green/20 w-fit">
+                              <ShieldCheck className="w-3 h-3" />
+                              <span className="font-mono text-[8px] font-black uppercase tracking-widest">Verified</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-amber-600 dark:text-amber-500 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20 w-fit">
+                              <ShieldAlert className="w-3 h-3" />
+                              <span className="font-mono text-[8px] font-black uppercase tracking-widest">Unverified</span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
