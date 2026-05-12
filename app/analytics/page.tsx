@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { 
   BarChart, 
@@ -38,6 +38,11 @@ export default function AnalyticsPage() {
   const { user, loading: userLoading } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const fetchStats = async () => {
     if (!user?.email) return;
@@ -83,17 +88,17 @@ export default function AnalyticsPage() {
 
   const totalVerifications = stats?.sourceStats?.reduce((acc: number, curr: any) => acc + curr.count, 0) || 0;
   const trustScore = useMemo(() => {
-    if (!user?._id) return 99.98;
+    if (!hasMounted || !user?._id) return 99.98;
     const seed = user._id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
     return (99.9 + (seed % 10) / 100).toFixed(2);
-  }, [user?._id]);
+  }, [user?._id, hasMounted]);
 
   const latency = useMemo(() => {
-    if (totalVerifications === 0) return '—';
+    if (!hasMounted || totalVerifications === 0) return '—';
     const base = 8;
     const extra = (totalVerifications % 10) + 2;
     return `${base + extra}ms`;
-  }, [totalVerifications]);
+  }, [totalVerifications, hasMounted]);
 
   return (
     <main className="relative min-h-screen w-full bg-white dark:bg-zinc-950 selection:bg-trust-green/20 lg:pl-72 pt-16 lg:pt-0 pb-20 px-4 sm:px-6 transition-colors duration-300">
@@ -189,7 +194,7 @@ export default function AnalyticsPage() {
             </div>
             
             <div className="h-[300px] w-full">
-              {verificationVolumeData.length > 0 ? (
+              {hasMounted && verificationVolumeData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={verificationVolumeData}>
                     <defs>
@@ -250,7 +255,7 @@ export default function AnalyticsPage() {
             </div>
             
             <div className="h-[300px] w-full">
-               {indexingHistoryData.length > 0 ? (
+               {hasMounted && indexingHistoryData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={indexingHistoryData}>
                     <defs>
@@ -323,7 +328,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="h-[340px] flex-1 min-w-[300px]">
-                   {sourceData.length > 0 ? (
+                   {hasMounted && sourceData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                         <Pie
