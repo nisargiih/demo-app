@@ -462,11 +462,11 @@ export default function VerifyPage() {
                     className="bg-red-500/[0.04] dark:bg-red-500/[0.02] border-2 border-red-500/20 rounded-[2.5rem] p-10 lg:p-14 text-center relative overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-500/[0.08] via-transparent to-transparent pointer-events-none" />
-                    <div className="w-20 h-20 bg-white dark:bg-zinc-900 border-2 border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl relative z-10 rotate-3">
-                      <Archive className="w-10 h-10 text-red-500" />
+                    <div className="w-16 h-16 bg-white dark:bg-zinc-900 border-2 border-red-500/30 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl relative z-10 rotate-3">
+                      <Archive className="w-8 h-8 text-red-500" />
                     </div>
-                    <h3 className="font-display font-black text-4xl lg:text-5xl text-red-600 dark:text-red-500 mb-4 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
-                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-8 max-w-xl mx-auto leading-relaxed text-base font-medium relative z-10">
+                    <h3 className="font-display font-black text-2xl lg:text-3xl text-red-600 dark:text-red-500 mb-2 uppercase tracking-tighter relative z-10">Unrecognized Hash</h3>
+                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-6 max-w-lg mx-auto leading-relaxed text-sm font-medium relative z-10">
                       The cryptographic fingerprint requested is <span className="text-red-600 font-black whitespace-nowrap">completely absent</span> from the IdenVault sovereign substrate. This asset has no recorded origin or has been structurally compromised.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6 relative z-10">
@@ -482,19 +482,19 @@ export default function VerifyPage() {
                    <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-red-50 dark:bg-red-950/10 border border-red-100 dark:border-red-500/10 rounded-[4rem] p-16 lg:p-24 text-center"
+                    className="bg-red-50 dark:bg-red-950/10 border border-red-100 dark:border-red-500/10 rounded-[2.5rem] p-10 lg:p-14 text-center"
                   >
-                    <div className="w-32 h-32 bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-500/20 rounded-[3rem] flex items-center justify-center mx-auto mb-10 shadow-xl">
-                      <AlertTriangle className="w-14 h-14 text-red-500" />
+                    <div className="w-16 h-16 bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
                     </div>
-                    <h3 className="font-display font-black text-5xl text-red-600 dark:text-red-500 mb-6 uppercase tracking-tighter">Security Conflict</h3>
-                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-12 max-w-xl mx-auto leading-relaxed text-xl font-medium">
+                    <h3 className="font-display font-black text-2xl lg:text-3xl text-red-600 dark:text-red-500 mb-4 uppercase tracking-tighter">Security Conflict</h3>
+                    <p className="font-sans text-zinc-600 dark:text-zinc-400 mb-8 max-w-lg mx-auto leading-relaxed text-sm font-medium">
                       Authentication Denied. This record is registered to a different authority node. Gateway isolation active.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                       <button 
                         onClick={() => { setResult(null); setVerificationStatus(null); setFile(null); setRegistryId(''); setError(null); }}
-                        className="h-16 px-12 bg-zinc-100 dark:bg-trust-green text-zinc-900 dark:text-zinc-950 rounded-2xl font-display font-black text-xs uppercase tracking-[0.3em] hover:bg-zinc-200 dark:hover:bg-trust-green/90 transition-all shadow-xl dark:shadow-none"
+                        className="h-14 px-10 bg-zinc-900 dark:bg-trust-green text-white dark:text-zinc-950 rounded-2xl font-display font-black text-[10px] uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-xl dark:shadow-none active:scale-95"
                       >
                         Terminate Search
                       </button>
@@ -512,7 +512,7 @@ export default function VerifyPage() {
                   >
                     {/* Expired Status Banner */}
                     {(result?.expiryDate && new Date(result.expiryDate) < new Date()) && (
-                      <div className="absolute top-0 inset-x-0 bg-amber-500 text-zinc-950 py-2 flex items-center justify-center gap-2 font-display font-black text-[10px] uppercase tracking-[0.4em] z-50">
+                      <div className="absolute top-0 inset-x-0 bg-yellow-400 text-zinc-950 py-2 flex items-center justify-center gap-2 font-display font-black text-[10px] uppercase tracking-[0.4em] z-50">
                         <AlertTriangle className="w-4 h-4" />
                         Protocol Expired / Unauthorized Artifact
                       </div>
@@ -524,7 +524,7 @@ export default function VerifyPage() {
                         <div className="flex items-center gap-6">
                            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 ${
                             (result?.expiryDate && new Date(result.expiryDate) < new Date())
-                              ? 'bg-amber-500/10 border-amber-500/20 text-amber-500'
+                              ? 'bg-yellow-400/10 border-yellow-400/20 text-yellow-600'
                               : 'bg-trust-green/10 border-trust-green/20 text-trust-green'
                           }`}>
                             {result.type === 'registry' ? <Archive className="w-10 h-10" /> : <ShieldCheck className="w-10 h-10" />}
@@ -532,7 +532,7 @@ export default function VerifyPage() {
                           <div>
                             <div className="flex items-center gap-3 mb-1">
                                <span className={`px-2 py-0.5 rounded-md font-mono text-[8px] font-black uppercase tracking-tighter ${
-                                 (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'bg-amber-500 text-zinc-950' : 'bg-trust-green text-zinc-950'
+                                 (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'bg-yellow-400 text-zinc-950' : 'bg-trust-green text-zinc-950'
                                }`}>Protocol_Alpha</span>
                                <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600">v2.4.0</span>
                             </div>
@@ -562,50 +562,105 @@ export default function VerifyPage() {
                       </div>
 
                       {/* Details Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                         <div className="p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-white/5">
-                            <div className="flex items-center gap-2 mb-3 text-zinc-400">
-                              <Building2 className="w-3.5 h-3.5" />
-                              <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Authority Node</span>
-                            </div>
-                            <p className={`font-display text-sm font-bold truncate ${
-                              (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-amber-500' : 'text-trust-green'
-                            }`}>
-                              <div className="flex items-center gap-2">
-                                {result.registrar?.companyName || `${result.registrar?.firstName} ${result.registrar?.lastName}` || result.userEmail}
-                                {result.registrar?.verificationStatus === 'verified' ? (
-                                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-trust-green/10 text-trust-green rounded-md" title="Verified Authority">
-                                    <ShieldCheck className="w-3 h-3" />
-                                    <span className="font-mono text-[8px] font-black uppercase tracking-tighter">Verified</span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 rounded-md" title="Verification Pending">
-                                    <User className="w-3 h-3" />
-                                    <span className="font-mono text-[8px] font-black uppercase tracking-tighter">Candidate</span>
-                                  </div>
-                                )}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                         {/* Authority Node / Registrar Details */}
+                         <div className="lg:col-span-2 p-6 bg-zinc-50 dark:bg-zinc-950/50 rounded-3xl border border-zinc-100 dark:border-white/5">
+                            <div className="flex items-center justify-between mb-6">
+                              <div className="flex items-center gap-2 text-zinc-400">
+                                <Building2 className="w-3.5 h-3.5" />
+                                <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Authority Protocol</span>
                               </div>
-                            </p>
+                              {result.registrar?.verificationStatus === 'verified' ? (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green/10 text-trust-green rounded-full border border-trust-green/20">
+                                  <ShieldCheck className="w-3.5 h-3.5" />
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest">Verified Identity</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5 px-3 py-1 bg-zinc-100 dark:bg-zinc-900 text-zinc-400 rounded-full border border-zinc-200 dark:border-white/5">
+                                  <User className="w-3.5 h-3.5" />
+                                  <span className="font-mono text-[9px] font-black uppercase tracking-widest text-xs">Standard Candidate</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                              <div>
+                                <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5">Entity Representative</p>
+                                <p className={`font-display text-lg font-bold ${
+                                  (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-yellow-600' : 'text-zinc-900 dark:text-white'
+                                }`}>
+                                  <div className="flex items-center gap-2">
+                                    {result.registrar?.firstName ? `${result.registrar.firstName} ${result.registrar.lastName}` : result.userEmail}
+                                    {result.registrar?.verificationStatus === 'verified' && (
+                                      <div className="flex items-center justify-center w-5 h-5 bg-trust-green rounded-full shadow-lg shadow-trust-green/20">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-zinc-950" />
+                                      </div>
+                                    )}
+                                  </div>
+                                </p>
+                                <p className="font-mono text-[10px] text-zinc-500 mt-1">{result.userEmail}</p>
+                              </div>
+
+                              <div>
+                                <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5">Node Classification</p>
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded font-mono text-[9px] font-black text-zinc-600 dark:text-zinc-400 uppercase">
+                                    {result.registrar?.entityType || 'Individual'}
+                                  </span>
+                                  {result.registrar?.location && (
+                                    <span className="font-sans text-[10px] text-zinc-500 font-medium">{result.registrar.location}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Company Details (Conditional) */}
+                            {result.registrar?.entityType === 'Company' && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-8 pt-6 border-t border-zinc-100 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-6"
+                              >
+                                <div>
+                                  <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green">Organization Name</p>
+                                  <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyName}</p>
+                                  {result.registrar.companyWebsite && (
+                                    <a href={result.registrar.companyWebsite} target="_blank" rel="noopener noreferrer" className="font-mono text-[10px] text-trust-green hover:underline mt-1 block">
+                                      {result.registrar.companyWebsite.replace(/^https?:\/\//, '')}
+                                    </a>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-mono text-[8px] text-zinc-400 uppercase tracking-widest mb-1.5 text-trust-green">Corporate Contact</p>
+                                  <p className="font-display text-sm font-bold text-zinc-900 dark:text-white">{result.registrar.companyEmail || 'N/A'}</p>
+                                  {result.registrar.companyRegistration && (
+                                    <p className="font-mono text-[10px] text-zinc-500 mt-1 uppercase">ID: {result.registrar.companyRegistration}</p>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
                          </div>
 
-                         <div className="p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-white/5">
-                            <div className="flex items-center gap-2 mb-3 text-zinc-400">
-                              <Fingerprint className="w-3.5 h-3.5" />
-                              <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Index Hash</span>
-                            </div>
-                            <p className="font-mono text-[10px] text-zinc-500 truncate uppercase tracking-tighter">
-                              {result.registryId || 'NOTARIZED_LOG'}
-                            </p>
-                         </div>
+                         <div className="space-y-6">
+                           <div className="p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-3xl border border-zinc-100 dark:border-white/5">
+                              <div className="flex items-center gap-2 mb-3 text-zinc-400">
+                                <Fingerprint className="w-3.5 h-3.5" />
+                                <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Index Hash</span>
+                              </div>
+                              <p className="font-mono text-[10px] text-zinc-500 break-all uppercase tracking-tighter line-clamp-2">
+                                {result.registryId || result.hash || 'NOTARIZED_LOG'}
+                              </p>
+                           </div>
 
-                         <div className="p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-2xl border border-zinc-100 dark:border-white/5">
-                            <div className="flex items-center gap-2 mb-3 text-zinc-400">
-                              <Clock className="w-3.5 h-3.5" />
-                              <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Persistence</span>
-                            </div>
-                            <p className={`font-display text-sm font-bold truncate ${(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-amber-500' : 'text-zinc-600 dark:text-zinc-300'}`}>
-                              {(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'Protocol Revoked' : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent')}
-                            </p>
+                           <div className="p-5 bg-zinc-50 dark:bg-zinc-950/50 rounded-3xl border border-zinc-100 dark:border-white/5">
+                              <div className="flex items-center gap-2 mb-3 text-zinc-400">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span className="font-mono text-[8px] font-black uppercase tracking-widest text-[8px]">Persistence</span>
+                              </div>
+                              <p className={`font-display text-sm font-bold truncate ${(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'text-yellow-600' : 'text-zinc-600 dark:text-zinc-300'}`}>
+                                {(result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'Protocol Revoked' : (result.expiryDate ? new Date(result.expiryDate).toLocaleDateString() : 'Permanent')}
+                              </p>
+                           </div>
                          </div>
                       </div>
 
