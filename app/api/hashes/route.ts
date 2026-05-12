@@ -14,7 +14,6 @@ export async function GET(req: Request) {
     const db = client.db('tech-core');
     const hashes = db.collection('hashes');
     const registry = db.collection('registry');
-    const documents = db.collection('documents');
 
     if (hashValue) {
       // 1. Check in Notarized Hashes
@@ -37,17 +36,6 @@ export async function GET(req: Request) {
           { projection: { firstName: 1, lastName: 1, companyName: 1, companyEmail: 1, companyWebsite: 1, companyRegistration: 1, companyIndustry: 1, entityType: 1, verificationStatus: 1, location: 1 } }
         );
         return NextResponse.json({ ...regRecord, type: 'registry', registrar });
-      }
-
-      // 3. Check in Enhanced Documents
-      const docRecord = await documents.findOne({ hash: hashValue });
-      if (docRecord) {
-        // Fetch registrar info
-        const registrar = await db.collection('users').findOne(
-          { email: { $regex: new RegExp(`^${docRecord.userEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
-          { projection: { firstName: 1, lastName: 1, companyName: 1, companyEmail: 1, companyWebsite: 1, companyRegistration: 1, companyIndustry: 1, entityType: 1, verificationStatus: 1, location: 1 } }
-        );
-        return NextResponse.json({ ...docRecord, type: 'registry', isEnhanced: true, registrar });
       }
 
       // REMOVED: Tamper detection fuzzy logic. Exact matches only.
