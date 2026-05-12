@@ -16,10 +16,9 @@ export async function GET(req: Request) {
     const registry = db.collection('registry');
 
     if (hashValue) {
-      // 1. Check in Notarized Hashes
+      // Layer 1: exact hash — Notarized Hashes
       const record = await hashes.findOne({ hash: hashValue });
       if (record) {
-        // Fetch registrar info
         const registrar = await db.collection('users').findOne(
           { email: { $regex: new RegExp(`^${record.userEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
           { projection: { firstName: 1, lastName: 1, companyName: 1, companyEmail: 1, companyWebsite: 1, companyRegistration: 1, companyIndustry: 1, entityType: 1, verificationStatus: 1, location: 1 } }
@@ -27,10 +26,9 @@ export async function GET(req: Request) {
         return NextResponse.json({ ...record, registrar });
       }
 
-      // 2. Check in Official Registry
+      // Layer 1: exact hash — Official Registry
       const regRecord = await registry.findOne({ fileHash: hashValue });
       if (regRecord) {
-        // Fetch registrar info
         const registrar = await db.collection('users').findOne(
           { email: { $regex: new RegExp(`^${regRecord.userEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
           { projection: { firstName: 1, lastName: 1, companyName: 1, companyEmail: 1, companyWebsite: 1, companyRegistration: 1, companyIndustry: 1, entityType: 1, verificationStatus: 1, location: 1 } }
@@ -38,7 +36,6 @@ export async function GET(req: Request) {
         return NextResponse.json({ ...regRecord, type: 'registry', registrar });
       }
 
-      // REMOVED: Tamper detection fuzzy logic. Exact matches only.
       return NextResponse.json(null);
     }
 
@@ -118,7 +115,7 @@ export async function POST(req: Request) {
     
     // 1. Process from Transit (Decrypt if it was encrypted by frontend)
     const data = body.payload ? SecurityService.processFromTransit(body) : body;
-    const { userEmail, fileName, fileSize, hash, expiryDate, tags } = data;
+    const { userEmail, fileName, fileSize, hash, expiryDate, tags, contentFingerprint, pHash } = data;
 
     if (!userEmail || !hash) {
       return NextResponse.json({ error: 'Missing data' }, { status: 400 });
@@ -180,6 +177,8 @@ export async function POST(req: Request) {
       fileName,
       fileSize,
       hash,
+      contentFingerprint: contentFingerprint || null,
+      pHash: pHash || null,
       expiryDate,
       tags: tags || [],
       createdAt: new Date(),

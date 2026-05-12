@@ -41,6 +41,7 @@ export default function VerifyPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentHash, setCurrentHash] = useState<string | null>(null);
+  const [matchType, setMatchType] = useState<'exact' | 'content' | 'visual' | null>(null);
   const [nodeInfo, setNodeInfo] = useState<any | null>(null);
 
   useEffect(() => {
@@ -53,6 +54,22 @@ export default function VerifyPage() {
         .catch(err => console.error('Failed to fetch node info:', err));
     }
   }, [nodeParam]);
+
+  const extractFingerprints = async (file: File): Promise<{ contentFingerprint: string | null; pHash: string | null }> => {
+    try {
+      const fpFormData = new FormData();
+      fpFormData.append('file', file);
+      const res = await fetch('/api/fingerprint', { method: 'POST', body: fpFormData });
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Extracted fingerprints for', file.name, ':', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('Fingerprint extraction failed:', error);
+    }
+    return { contentFingerprint: null, pHash: null };
+  };
 
   const calculateHash = async (file: File) => {
     const buffer = await file.arrayBuffer();
@@ -109,32 +126,49 @@ export default function VerifyPage() {
 
       const hash = await calculateHash(file);
       setCurrentHash(hash);
-      
-      const res = await fetch(`/api/hashes?hash=${hash}&fileName=${encodeURIComponent(file.name)}`);
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (data) {
-          // If we are on a specific company/node page, only allow verified if it matches that node
-          if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
-            setError(`Security Conflict: This document belongs to a different node (${data.registrar?.companyName || data.userEmail}) and cannot be authenticated here.`);
-            setVerificationStatus('mismatch');
-            logVerificationResult('mismatch', 'file', data.userEmail, hash);
-            setIsVerifying(false);
-            return;
-          }
 
-          const resultType = data.type || (data.registryId ? 'registry' : 'hash');
-          setResult({...data, type: resultType});
-          setVerificationStatus('authentic');
-          logVerificationResult('authentic', 'file', data.userEmail, hash);
-        } else {
-          setResult('NOT_FOUND');
-          setVerificationStatus('unindexed');
-          logVerificationResult('unindexed', 'file', nodeParam, hash);
+      // Layer 1: exact hash match
+      let data: any = null;
+      let resolvedMatchType: 'exact' | 'content' | 'visual' = 'exact';
+
+      const exactRes = await fetch(`/api/hashes?hash=${hash}&fileName=${encodeURIComponent(file.name)}`);
+      if (exactRes.ok) data = await exactRes.json();
+
+      // Layer 2 & 3: content fingerprint / perceptual hash fallback
+      if (!data) {
+        const { contentFingerprint, pHash } = await extractFingerprints(file);
+        if (contentFingerprint || pHash) {
+          const fpRes = await fetch('/api/hashes/lookup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentFingerprint, pHash }),
+          });
+          if (fpRes.ok) {
+            data = await fpRes.json();
+            if (data) resolvedMatchType = data.matchType || 'content';
+          }
         }
+      }
+
+      if (data) {
+        setMatchType(resolvedMatchType);
+        // If we are on a specific company/node page, only allow verified if it matches that node
+        if (nodeParam && data.userEmail?.toLowerCase() !== nodeParam.toLowerCase()) {
+          setError(`Security Conflict: This document belongs to a different node (${data.registrar?.companyName || data.userEmail}) and cannot be authenticated here.`);
+          setVerificationStatus('mismatch');
+          logVerificationResult('mismatch', 'file', data.userEmail, hash);
+          setIsVerifying(false);
+          return;
+        }
+
+        const resultType = data.type || (data.registryId ? 'registry' : 'hash');
+        setResult({...data, type: resultType});
+        setVerificationStatus('authentic');
+        logVerificationResult('authentic', 'file', data.userEmail, hash);
       } else {
-        throw new Error('Network error during verification');
+        setResult('NOT_FOUND');
+        setVerificationStatus('unindexed');
+        logVerificationResult('unindexed', 'file', nodeParam, hash);
       }
     } catch (err) {
       console.error(err);
@@ -538,6 +572,13 @@ export default function VerifyPage() {
                                  (result?.expiryDate && new Date(result.expiryDate) < new Date()) ? 'bg-yellow-400 text-zinc-950' : 'bg-trust-green text-zinc-950'
                                }`}>Protocol_Alpha</span>
                                <span className="font-mono text-[9px] text-zinc-400 dark:text-zinc-600">v2.4.0</span>
+                               {matchType && matchType !== 'exact' && (
+                                 <span className={`px-2 py-0.5 rounded-md font-mono text-[8px] font-black uppercase tracking-tighter ${
+                                   matchType === 'content' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 'bg-purple-500/10 text-purple-500 border border-purple-500/20'
+                                 }`}>
+                                   {matchType === 'content' ? 'Content Match' : 'Visual Match'}
+                                 </span>
+                               )}
                             </div>
                             <h3 className="font-display font-black text-3xl lg:text-4xl text-zinc-900 dark:text-white uppercase tracking-tighter leading-none">
                               {result.docName || result.name || result.fileName || 'Archive Data'}
@@ -740,7 +781,7 @@ export default function VerifyPage() {
                 <p className="font-mono text-[8px] font-black text-red-500 uppercase tracking-[0.3em] mb-2">Security Protocol</p>
                 <h4 className="font-display font-black text-2xl text-zinc-900 dark:text-white mb-2 uppercase tracking-tight">Active Integrity Shield</h4>
                 <p className="font-sans text-sm text-zinc-500 dark:text-zinc-500 leading-relaxed font-medium">
-                  Artifact analysis is governed by <span className="text-zinc-950 dark:text-white font-bold">SHA-256</span>. Any deviation from recorded substrate records triggers immediate revocation.
+                  Artifact analysis uses a 3-layer protocol: <span className="text-zinc-950 dark:text-white font-bold">SHA-256</span> exact match, <span className="text-zinc-950 dark:text-white font-bold">AI content fingerprinting</span> for cross-format verification (PDF↔image), and <span className="text-zinc-950 dark:text-white font-bold">perceptual hashing</span> for visual similarity.
                 </p>
               </div>
             </div>

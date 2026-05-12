@@ -27,6 +27,8 @@ interface NotaryItem {
   id: string;
   file: File;
   hash: string | null;
+  contentFingerprint: string | null;
+  pHash: string | null;
   status: 'pending' | 'computing' | 'ready' | 'storing' | 'success' | 'error' | 'exists_user' | 'exists_other';
   error?: string;
 }
@@ -59,18 +61,39 @@ export default function NotarizePage() {
         id,
         file,
         hash: null,
+        contentFingerprint: null,
+        pHash: null,
         status: 'pending'
       });
     }
 
     setItems(prev => [...prev, ...newItems]);
 
-    // Start computing hashes for pending items
+    // Compute hash + content fingerprint for each file
     for (const item of newItems) {
       updateItemStatus(item.id, 'computing');
       try {
         const hash = await calculateHash(item.file);
-        setItems(prev => prev.map(i => i.id === item.id ? { ...i, hash, status: 'ready' } : i));
+
+        // Extract content fingerprint server-side (Gemini + pHash)
+        let contentFingerprint: string | null = null;
+        let pHash: string | null = null;
+        try {
+          const fpFormData = new FormData();
+          fpFormData.append('file', item.file);
+          const fpRes = await fetch('/api/fingerprint', { method: 'POST', body: fpFormData });
+          if (fpRes.ok) {
+            const fpData = await fpRes.json();
+            contentFingerprint = fpData.contentFingerprint || null;
+            pHash = fpData.pHash || null;
+          }
+        } catch {
+          // Fingerprint extraction is best-effort; don't block notarization
+        }
+
+        setItems(prev => prev.map(i =>
+          i.id === item.id ? { ...i, hash, contentFingerprint, pHash, status: 'ready' } : i
+        ));
       } catch (err) {
         updateItemStatus(item.id, 'error', 'Hash failed');
       }
@@ -117,7 +140,9 @@ export default function NotarizePage() {
           fileName: item.file.name,
           fileSize: item.file.size,
           hash: item.hash,
-          expiryDate: null, // Default to infinite
+          contentFingerprint: item.contentFingerprint,
+          pHash: item.pHash,
+          expiryDate: null,
           tags: batchTags
         });
 
