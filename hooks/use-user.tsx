@@ -40,9 +40,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const body = await res.json();
         const data = SecurityService.processFromTransit(body);
         setUser(data);
+      } else {
+        localStorage.removeItem('authenticated_user_email');
+        localStorage.removeItem('authenticated_user_id');
+        localStorage.removeItem('current_session_id');
+        localStorage.removeItem('user_first_name');
+        setUser(null);
       }
     } catch (err) {
       console.error('Context Fetch Error:', err);
+      setUser(null);
     } finally {
       if (isInitial) setLoading(false);
     }

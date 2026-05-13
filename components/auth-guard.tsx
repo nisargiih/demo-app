@@ -29,48 +29,67 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     const sessionId = localStorage.getItem('current_session_id');
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
+    const clearAuthState = () => {
+      localStorage.removeItem('authenticated_user_email');
+      localStorage.removeItem('authenticated_user_id');
+      localStorage.removeItem('current_session_id');
+      localStorage.removeItem('user_first_name');
+    };
+
     const verifySession = async () => {
-      // Don't verify if we don't have enough data or if it's already clearing
-      if (!email || !sessionId || isPublicRoute) return;
+      if (!email || !sessionId || isPublicRoute) {
+        return { checked: false, isValid: false };
+      }
 
       try {
         const res = await fetch(`/api/auth/sessions?email=${encodeURIComponent(email)}&checkSessionId=${sessionId}`);
-        if (res.ok) {
-          const body = await res.json();
-          const data = SecurityService.processFromTransit(body);
-          if (data && data.isValid === false) {
-            // Session revoked!
-            localStorage.clear();
-            router.replace('/login?message=session_revoked');
-          }
+        if (!res.ok) {
+          return { checked: true, isValid: false };
         }
+
+        const body = await res.json();
+        const data = SecurityService.processFromTransit(body);
+
+        if (!data || data.isValid === false) {
+          clearAuthState();
+          router.replace('/login?message=session_revoked');
+          return { checked: true, isValid: false };
+        }
+
+        return { checked: true, isValid: true };
       } catch (err) {
         console.error('Session verification failed', err);
+        return { checked: true, isValid: false };
       }
     };
 
-    if (!email && !isPublicRoute) {
-      router.replace('/login');
-      return;
-    } 
+    const initialize = async () => {
+      if (!email || !sessionId) {
+        if (!isPublicRoute) {
+          clearAuthState();
+          router.replace('/login');
+        }
+        return;
+      }
 
-    // Only redirect from login/home if NOT sub-paths or special routes
-    if (email && (pathname === '/login' || pathname === '/')) {
-      router.replace('/dashboard');
-      return;
-    }
+      if (email && (pathname === '/login' || pathname === '/')) {
+        const session = await verifySession();
+        if (session.isValid) {
+          router.replace('/dashboard');
+        }
+        return;
+      }
 
-    // Verify session on route change if not a public route
-    if (!isPublicRoute) {
-      verifySession();
-    }
+      if (!isPublicRoute) {
+        await verifySession();
+      }
+    };
 
-    // Check periodically (every 60 seconds instead of 30 to be less aggressive)
+    initialize();
+
     const interval = setInterval(verifySession, 60000);
-    
-    // Check on focus
     window.addEventListener('focus', verifySession);
-    
+
     setIsAuthorized(true);
     return () => {
       clearInterval(interval);
